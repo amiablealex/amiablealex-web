@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_macros.html" import squiggle, project_card %}
+
+{% block title %}Projects · {{ site.name }}{% endblock %}
+{% block description %}Selected projects by {{ site.name }} — web apps, data tools, and hardware.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="section-head">
+    <h1>Projects</h1>
+    <span class="section-note">{{ squiggle(120) }}</span>
+  </div>
+  <p class="section-lead">[ A line introducing your work — what kinds of things you make
+    and why. Optional; delete if you'd rather let the projects speak. ]</p>
+
+  {% if categories %}
+  <div class="filters" role="group" aria-label="Filter projects by category">
+    <button class="filter is-active" data-filter="all" type="button">All</button>
+    {% for c in categories %}
+    <button class="filter" data-filter="{{ c }}" type="button">{{ c }}</button>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="card-grid" id="project-grid">
+    {% for p in projects %}
+    <div class="card-wrap" data-category="{{ p.category }}">{{ project_card(p) }}</div>
+    {% endfor %}
+  </div>
+
+  {% if not projects %}
+  <p class="empty-note">[ No projects yet. Add a markdown file to <code>content/projects/</code>. ]</p>
+  {% endif %}
+</section>
+
+<script>
+  // Progressive enhancement: without JS every card is visible. With JS, the
+  // buttons filter the grid. Nothing is ever permanently hidden.
+  (function () {
+    var buttons = document.querySelectorAll('.filter');
+    var cards = document.querySelectorAll('#project-grid .card-wrap');
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var f = btn.getAttribute('data-filter');
+        buttons.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        cards.forEach(function (card) {
+          var show = (f === 'all') || (card.getAttribute('data-category') === f);
+          card.style.display = show ? '' : 'none';
+        });
+      });
+    });
+  })();
+</script>
+{% endblock %}

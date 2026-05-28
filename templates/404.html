@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+
+{% block title %}Not found · {{ site.name }}{% endblock %}
+
+{% block content %}
+<section class="section notfound">
+  <p class="notfound-code">404</p>
+  <h1 class="notfound-title">This page is still a blank sketch.</h1>
+  <p class="notfound-text">The page you're after doesn't exist — or hasn't been drawn up yet.</p>
+  <a class="btn btn-primary" href="{{ url_for('home') }}">{{ icon('arrow-left', 16) }} Back home</a>
+</section>
+{% endblock %}

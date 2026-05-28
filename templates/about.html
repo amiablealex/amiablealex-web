@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import squiggle %}
+
+{% block title %}About · {{ site.name }}{% endblock %}
+{% block description %}About {{ site.name }}.{% endblock %}
+
+{% block content %}
+<section class="section about">
+  <div class="section-head">
+    <h1>About</h1>
+    <span class="section-note">{{ squiggle(110) }}</span>
+  </div>
+
+  <div class="prose">
+    {# ---------------------------------------------------------------
+       Everything below is placeholder. Write it in your own voice and
+       keep it surname-free — this is your professional-public layer.
+       A loose structure to fill in:
+    --------------------------------------------------------------- #}
+    <p>[ Opening: who you are and what you do, in a sentence or two. ]</p>
+
+    <p>[ A short paragraph on the kind of work you enjoy — engineering, data
+      and BI, self-hosting, hardware — and the thread that connects it. This is
+      where <em>“simple isn't easy”</em> can earn its place: a line on why you
+      care about making things that are simple to use but well-considered
+      underneath. ]</p>
+
+    <p>[ Optional: what you're currently focused on, or what you're learning. ]</p>
+
+    <h2>Elsewhere</h2>
+    <p>You can find me on
+      <a href="{{ site.github }}" target="_blank" rel="noopener">GitHub</a> and
+      <a href="{{ site.linkedin }}" target="_blank" rel="noopener">LinkedIn</a>,
+      or <a href="{{ url_for('contact') }}">get in touch</a> directly.</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import squiggle, icon %}
+
+{% block title %}Contact · {{ site.name }}{% endblock %}
+{% block description %}Get in touch with {{ site.name }}.{% endblock %}
+
+{% block content %}
+<section class="section contact">
+  <div class="section-head">
+    <h1>Get in touch</h1>
+    <span class="section-note">{{ squiggle(110) }}</span>
+  </div>
+
+  <div class="prose">
+    <p>[ A friendly line or two: what you're happy to be contacted about — roles,
+      collaborations, questions about a project. Write this yourself. ]</p>
+  </div>
+
+  <div class="contact-actions">
+    {# The email below is a placeholder — update it in SITE config in app.py. #}
+    <a class="btn btn-primary" href="mailto:{{ site.email }}">{{ icon('mail', 16) }} {{ site.email }}</a>
+  </div>
+
+  <div class="contact-social">
+    <a class="text-link" href="{{ site.github }}" target="_blank" rel="noopener">{{ icon('brand-github', 16) }} GitHub</a>
+    <a class="text-link" href="{{ site.linkedin }}" target="_blank" rel="noopener">{{ icon('brand-linkedin', 16) }} LinkedIn</a>
+  </div>
+</section>
+{% endblock %}

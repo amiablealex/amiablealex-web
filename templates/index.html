@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import squiggle, project_card, icon %}
+
+{% block content %}
+<section class="hero reveal">
+  <h1 class="hero-wordmark">amiable<span class="wordmark-accent">alex</span></h1>
+  <p class="hero-tagline">{{ site.tagline }}</p>
+  <span class="hero-squiggle">{{ squiggle(190) }}</span>
+
+  {# [ Write one or two sentences in your own voice: who you are and what you
+     build. Keep it surname-free — this is your professional-public layer. ] #}
+  <p class="hero-intro">[ One or two sentences on who you are and what you build —
+    e.g. a manufacturing engineer who builds small useful things: web apps, data
+    tools, and the odd bit of hardware. Replace this with your own words. ]</p>
+
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="{{ url_for('projects') }}">See the work {{ icon('arrow-right', 16) }}</a>
+    <a class="btn btn-secondary" href="{{ url_for('contact') }}">{{ icon('mail', 16) }} Get in touch</a>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="section-head">
+    <h2>Selected work</h2>
+    <span class="section-note">— a few things I've shipped</span>
+  </div>
+
+  {% if projects %}
+  <div class="card-grid">
+    {% for p in projects %}{{ project_card(p) }}{% endfor %}
+  </div>
+  {% else %}
+  <p class="empty-note">[ No featured projects yet. Set <code>featured: true</code> in a
+    project's markdown file to surface it here. ]</p>
+  {% endif %}
+
+  <p class="section-more">
+    <a class="text-link" href="{{ url_for('projects') }}">All projects {{ icon('arrow-right', 15) }}</a>
+  </p>
+</section>
+{% endblock %}

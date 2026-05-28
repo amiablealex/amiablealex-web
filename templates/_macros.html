@@ -1,0 +1,49 @@
+{# ---------------------------------------------------------------------------
+   Reusable macros. Inline SVG icons (Tabler outline) so there's no icon-font
+   dependency. The squiggle is the single hand-drawn accent used across the site.
+--------------------------------------------------------------------------- #}
+
+{% set _ICONS = {
+  "external-link": '<path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/>',
+  "brand-github": '<path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"/>',
+  "brand-linkedin": '<path d="M8 11v5"/><path d="M8 8v.01"/><path d="M12 16v-5"/><path d="M16 16v-3a2 2 0 1 0 -4 0"/><path d="M3 7a4 4 0 0 1 4 -4h10a4 4 0 0 1 4 4v10a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4l0 -10"/>',
+  "printer": '<path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"/><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"/><path d="M7 15a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2l0 -4"/>',
+  "file-text": '<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2"/><path d="M9 9l1 0"/><path d="M9 13l6 0"/><path d="M9 17l6 0"/>',
+  "mail": '<path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10"/><path d="M3 7l9 6l9 -6"/>',
+  "arrow-right": '<path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/>',
+  "arrow-left": '<path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/>'
+} %}
+
+{% macro icon(name, size=18) -%}
+<svg class="icon" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true">{{ _ICONS[name] | safe }}</svg>
+{%- endmacro %}
+
+{% macro squiggle(width=170) -%}
+<svg class="squiggle" width="{{ width }}" height="11" viewBox="0 0 170 11" fill="none" aria-hidden="true">
+  <path d="M2 7 Q40 2 75 6 T140 5 Q155 5 168 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+</svg>
+{%- endmacro %}
+
+{% macro project_card(p) -%}
+<a class="card" href="{{ url_for('project_detail', slug=p.slug) }}">
+  <div class="card-cover">
+    {% if p.cover %}
+      <img src="{{ url_for('static', filename='img/projects/' ~ p.cover) }}" alt="{{ p.title }} cover" loading="lazy">
+    {% else %}
+      <span class="cover-placeholder">[ cover image ]</span>
+    {% endif %}
+  </div>
+  {% if p.category %}<span class="pill pill-{{ p.accent }}">{{ p.category }}</span>{% endif %}
+  <h3 class="card-title">{{ p.title }}</h3>
+  {% if p.summary %}<p class="card-summary">{{ p.summary }}</p>{% endif %}
+  {% if p.links %}
+  <div class="card-links" aria-label="Project links">
+    {% for link in p.links %}
+      <span class="card-link" aria-label="{{ link.label }}" title="{{ link.label }}">{{ icon(link.icon or 'external-link') }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+</a>
+{%- endmacro %}

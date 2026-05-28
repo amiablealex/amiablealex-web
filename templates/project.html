@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+
+{% block title %}{{ project.title }} · {{ site.name }}{% endblock %}
+{% block description %}{{ project.summary }}{% endblock %}
+
+{% block content %}
+<article class="project">
+  <a class="back-link" href="{{ url_for('projects') }}">{{ icon('arrow-left', 16) }} Projects</a>
+
+  <header class="project-head">
+    <div class="project-meta">
+      {% if project.category %}<span class="pill pill-{{ project.accent }}">{{ project.category }}</span>{% endif %}
+      {% if project.date %}<span class="project-date">{{ project.date }}</span>{% endif %}
+    </div>
+    <h1 class="project-title">{{ project.title }}</h1>
+    {% if project.summary %}<p class="project-summary">{{ project.summary }}</p>{% endif %}
+
+    {% if project.links %}
+    <div class="project-links">
+      {% for link in project.links %}
+      <a class="btn btn-secondary" href="{{ link.url }}" target="_blank" rel="noopener">
+        {{ icon(link.icon or 'external-link', 16) }} {{ link.label }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if project.tech %}
+    <div class="tech-row">
+      {% for t in project.tech %}<span class="chip">{{ t }}</span>{% endfor %}
+    </div>
+    {% endif %}
+  </header>
+
+  {% if project.cover %}
+  <div class="project-cover">
+    <img src="{{ url_for('static', filename='img/projects/' ~ project.cover) }}" alt="{{ project.title }}">
+  </div>
+  {% endif %}
+
+  <div class="prose">
+    {{ body_html | safe }}
+  </div>
+</article>
+{% endblock %}
