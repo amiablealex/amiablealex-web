@@ -2,27 +2,26 @@
 title: F1 Predictions
 category: Web app
 accent: teal
-summary: "[ One-line summary of the F1 Predictions app. ]"
-date: 2025-03          # [ set this to when you shipped it ]
+summary: "A social predictions game with leagues and leaderboards."
+date: 2026-05
 featured: true
-# cover: f1-predictions.png  # [ optional cover image ]
+cover: f1-predictions/cover.png
 links:
   - label: Live
-    url: "[ https://your-live-url ]"
+    url: "https://f1.kitsniff.com"
     icon: external-link
   - label: GitHub
-    url: "[ https://github.com/your-username/f1-predictions ]"
+    url: "https://github.com/amiablealex/f1-predictions"
     icon: brand-github
-tech: [Flask]          # [ add the real stack ]
+tech: [Python, Flask, API, PostgreSQL]          # [ add the real stack ]
 ---
 
-[ Write-up for F1 Predictions — placeholder, replace with your own words. ]
 
-## What it is
+## What this is
 
 [ What the app does and who it's for. ]
 
-## Why I built it
+## Why I made it
 
 [ What prompted it. ]
 
