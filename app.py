@@ -27,11 +27,10 @@ SITE = {
     # The professional email shown on the Contact page (placeholder for now).
     "email": "alex@profdomain.com",
     # Social links shown in the header and footer.
-    "github": "https://github.com/[your-username]",
-    "linkedin": "https://www.linkedin.com/in/[your-handle]",
+    "github": "https://github.com/amiablealex",
+    "linkedin": "https://www.linkedin.com/in/alexbritten",
     # Used for <meta> description and link previews. One or two sentences.
-    "description": "[ A one-line description of you and your work, used for "
-                   "search engines and link previews. Write this yourself. ]",
+    "description": "Engineer in the UK.",
     # Canonical base URL, used for absolute Open Graph URLs (no trailing slash).
     "url": "https://amiablealex.com",
 }
