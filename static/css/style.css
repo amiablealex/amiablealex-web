@@ -379,3 +379,33 @@ html { scroll-behavior: smooth; }
   .project-toc .toc > ul { display: flex; flex-wrap: wrap; gap: 4px 14px; }
   .project-toc .toc ul ul { display: none; }
 }
+
+/* ---- Title row with share button ---------------------------------------- */
+.project-title-row {
+  display: flex; align-items: center; gap: 14px;
+  margin: 6px 0 10px;
+}
+.project-title-row .project-title { margin: 0; flex: 1; min-width: 0; }
+
+.share-btn {
+  flex: none;
+  width: 38px; height: 38px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 0;
+  transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+}
+.share-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+.share-btn .icon:last-child { display: none; }
+
+.share-btn.is-copied {
+  color: var(--teal-ink);
+  border-color: var(--teal);
+  background: var(--teal-soft);
+}
+.share-btn.is-copied .icon:first-child { display: none; }
+.share-btn.is-copied .icon:last-child { display: block; }
