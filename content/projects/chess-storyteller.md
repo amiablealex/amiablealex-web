@@ -4,7 +4,7 @@ category: Web app
 accent: teal
 summary: "A web app that transforms chess games into calm, descriptive narratives by 
 feeding a chess PGN file through an LLM API."
-date: 2026-01
+date: 2026-04
 featured: false
 cover: chess-storyteller/cover.png
 links:
