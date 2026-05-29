@@ -2,19 +2,18 @@
 title: Sunrise Clock
 category: "Hardware · 3D"
 accent: clay
-summary: "[ One-line summary — e.g. a 24-hour wall clock that marks sunrise and sunset. ]"
-date: 2025-01          # [ set this to when you finished it ]
+summary: "Mechanical Sunrise Sunset Clock - 24-hour sweeping hand plus sunrise and sunset indicators that change throughout the year"
+date: 2025-12
 featured: true
-# cover: sunrise-clock.png  # [ add one of your real photos here — this will be
-#                              the visual anchor of the page, so pick a good one ]
+cover: sunriseclock/cover.png
 links:
   - label: MakerWorld
-    url: "[ https://makerworld.com/... your model URL ]"
+    url: "https://makerworld.com/en/models/2465134-mechanical-sunrise-clock#profileId-2705952"
     icon: printer
   - label: Write-up
     url: "[ optional: link to a longer write-up, or remove this link ]"
     icon: file-text
-tech: [Fusion 360, "Raspberry Pi Pico W", MicroPython, "3D printing"]   # [ adjust as needed ]
+tech: [Fusion 360, A1 Mini, "3D printing"]
 ---
 
 [ Write-up for the Sunrise Clock — placeholder, replace with your own words.
