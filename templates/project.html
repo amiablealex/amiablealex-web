@@ -13,7 +13,17 @@
       {% if project.category %}<span class="pill pill-{{ project.accent }}">{{ project.category }}</span>{% endif %}
       {% if project.date %}<span class="project-date">{{ project.date }}</span>{% endif %}
     </div>
-    <h1 class="project-title">{{ project.title }}</h1>
+    <div class="project-title-row">
+      <h1 class="project-title">{{ project.title }}</h1>
+      <button class="share-btn" type="button"
+              aria-label="Share this project"
+              data-share-title="{{ project.title }} · {{ site.name }}"
+              data-share-text="{{ project.summary }}"
+              data-share-url="{{ site.url }}{{ request.path }}">
+        {{ icon('share', 18) }}
+        {{ icon('check', 18) }}
+      </button>
+    </div>
     {% if project.summary %}<p class="project-summary">{{ project.summary }}</p>{% endif %}
 
     {% if project.links %}
@@ -51,4 +61,46 @@
     </div>
   </div>
 </article>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var btn = document.querySelector('.share-btn');
+  if (!btn) return;
+
+  btn.addEventListener('click', async function () {
+    var data = {
+      title: btn.dataset.shareTitle,
+      text: btn.dataset.shareText,
+      url: btn.dataset.shareUrl
+    };
+
+    // Native share where available (mobile, Chrome/Edge/Safari desktop)
+    if (navigator.share) {
+      try {
+        await navigator.share(data);
+        return;
+      } catch (err) {
+        // User cancelled — don't fall through to clipboard
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: copy URL to clipboard with brief confirmation
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(data.url);
+        btn.classList.add('is-copied');
+        var prevLabel = btn.getAttribute('aria-label');
+        btn.setAttribute('aria-label', 'Link copied');
+        setTimeout(function () {
+          btn.classList.remove('is-copied');
+          btn.setAttribute('aria-label', prevLabel);
+        }, 1500);
+      } catch (err) { /* clipboard unavailable; nothing more to do */ }
+    }
+  });
+})();
+</script>
 {% endblock %}
