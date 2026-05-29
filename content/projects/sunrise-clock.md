@@ -24,11 +24,15 @@ Because this is your one hardware piece, it's worth a proper story. ]
 [ A 24-hour wall clock with a single hand, plus two markers that track sunrise
 and sunset. Describe how it looks and what it does. ]
 
+![Square-on](/static/img/projects/sunriseclock/square-on.png)
+
 ## How it works
 
 [ The interesting build detail: a standard 12-hour quartz movement geared down
 2:1 to drive the 24-hour hand, with a separate Pico W and servos positioning the
 sunrise/sunset markers from daily times pulled over WiFi. Explain it your way. ]
+
+![Face](/static/img/projects/sunriseclock/4-3.png)
 
 ## Things I learned
 
