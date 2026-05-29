@@ -9,20 +9,19 @@
 
   {# [ Write one or two sentences in your own voice: who you are and what you
      build. Keep it surname-free — this is your professional-public layer. ] #}
-  <p class="hero-intro">[ One or two sentences on who you are and what you build —
-    e.g. a manufacturing engineer who builds small useful things: web apps, data
-    tools, and the odd bit of hardware. Replace this with your own words. ]</p>
+  <p class="hero-intro">Engineer in the UK who enjoys creating things: web apps, data
+    visualisation, 3d printing, electronics, home automation.</p>
 
   <div class="hero-cta">
-    <a class="btn btn-primary" href="{{ url_for('projects') }}">See the work {{ icon('arrow-right', 16) }}</a>
+    <a class="btn btn-primary" href="{{ url_for('projects') }}">See my work {{ icon('arrow-right', 16) }}</a>
     <a class="btn btn-secondary" href="{{ url_for('contact') }}">{{ icon('mail', 16) }} Get in touch</a>
   </div>
 </section>
 
 <section class="section reveal">
   <div class="section-head">
-    <h2>Selected work</h2>
-    <span class="section-note">— a few things I've shipped</span>
+    <h2>Featured work</h2>
+    <span class="section-note">— a few things I've made</span>
   </div>
 
   {% if projects %}
