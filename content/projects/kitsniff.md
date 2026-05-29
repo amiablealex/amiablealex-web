@@ -11,7 +11,7 @@ links:
     url: "https://kitsniff.com"
     icon: external-link
   - label: GitHub
-    url: "https://github.com/yamiablealex/kitsniff"
+    url: "https://github.com/amiablealex/kitsniff"
     icon: brand-github
 tech: [Flask, PostgreSQL]   # [ adjust to the real stack ]
 ---
