@@ -76,8 +76,12 @@ def load_projects():
             }
         )
 
-    # Sort newest first. Use sortable date strings in frontmatter, e.g. 2024-08.
-    projects.sort(key=lambda p: p["date"], reverse=True)
+    # Optional `order:` (lower number wins) overrides date. Projects without
+    # an explicit order fall to the end, sorted newest-date first.
+    projects.sort(key=lambda p: (
+        p.get("order") if p.get("order") is not None else float("inf"),
+        [-int(x) for x in p["date"].replace("-", " ").split() if x.isdigit()],
+    ))
     return projects
 
 
