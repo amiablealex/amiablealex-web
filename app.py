@@ -69,6 +69,7 @@ def load_projects():
                 "summary": meta.get("summary", ""),
                 "date": str(meta.get("date", "")),
                 "featured": bool(meta.get("featured", False)),
+                "order": meta.get("order"),
                 "cover": meta.get("cover"),
                 "links": meta.get("links") or [],
                 "tech": meta.get("tech") or [],
