@@ -397,15 +397,19 @@ html { scroll-behavior: smooth; }
   color: var(--ink-soft);
   cursor: pointer;
   padding: 0;
+  font: inherit;
+  -webkit-appearance: none;
+  appearance: none;
   transition: color .15s ease, border-color .15s ease, background-color .15s ease;
 }
 .share-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
-.share-btn .icon:last-child { display: none; }
+.share-btn .share-icon { display: inline-flex; align-items: center; justify-content: center; }
+.share-btn .share-icon-copied { display: none; }
 
 .share-btn.is-copied {
   color: var(--teal-ink);
   border-color: var(--teal);
   background: var(--teal-soft);
 }
-.share-btn.is-copied .icon:first-child { display: none; }
-.share-btn.is-copied .icon:last-child { display: block; }
+.share-btn.is-copied .share-icon-default { display: none; }
+.share-btn.is-copied .share-icon-copied { display: inline-flex; }
