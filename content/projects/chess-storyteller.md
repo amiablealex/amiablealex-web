@@ -5,7 +5,7 @@ accent: teal
 summary: "A web app that transforms chess games into calm, descriptive narratives by 
 feeding a chess PGN file through an LLM API."
 date: 2026-01
-featured: true
+featured: false
 cover: 
 links:
   - label: "GitHub"
