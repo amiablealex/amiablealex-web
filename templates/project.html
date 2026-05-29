@@ -20,8 +20,8 @@
               data-share-title="{{ project.title }} · {{ site.name }}"
               data-share-text="{{ project.summary }}"
               data-share-url="{{ site.url }}{{ request.path }}">
-        {{ icon('share', 18) }}
-        {{ icon('check', 18) }}
+        <span class="share-icon share-icon-default">{{ icon('share', 18) }}</span>
+        <span class="share-icon share-icon-copied">{{ icon('check', 18) }}</span>
       </button>
     </div>
     {% if project.summary %}<p class="project-summary">{{ project.summary }}</p>{% endif %}
