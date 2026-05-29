@@ -11,7 +11,7 @@ links:
   - label: "GitHub"
     url: "https://github.com/amiablealex/chess-storyteller"
     icon: brand-github
-tech: [Python, Flask, LLM, API]
+tech: [Python, Flask, API, Prompt Engineering, LLM]
 ---
 
 
