@@ -13,6 +13,9 @@ links:
   - label: GitHub
     url: "https://github.com/amiablealex/kitsniff"
     icon: brand-github
+  - label: X
+    url: "https://x.com/KitchenSniffle"
+    icon: brand-x
 tech: [Python, Flask, PostgreSQL, Prompt Engineering, LLM]
 ---
 
