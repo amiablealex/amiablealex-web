@@ -13,7 +13,7 @@ links:
   - label: GitHub
     url: "https://github.com/amiablealex/kitsniff"
     icon: brand-github
-tech: [Python, Flask, PostgreSQL, Prompt Engineering]
+tech: [Python, Flask, PostgreSQL, Prompt Engineering, LLM]
 ---
 
 ## What this is
