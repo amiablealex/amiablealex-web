@@ -39,7 +39,8 @@ BASE_DIR = Path(__file__).resolve().parent
 PROJECTS_DIR = BASE_DIR / "content" / "projects"
 
 # Markdown features: fenced code, tables, footnotes, attribute lists, etc.
-MD_EXTENSIONS = ["extra", "sane_lists"]
+MD_EXTENSIONS = ["extra", "sane_lists", "toc"]
+MD_EXTENSION_CONFIGS = {"toc": {"toc_depth": "2-3"}}
 
 app = Flask(__name__)
 
@@ -119,8 +120,11 @@ def project_detail(slug):
     project = get_project(slug)
     if project is None:
         abort(404)
-    body_html = markdown.markdown(project["_body"], extensions=MD_EXTENSIONS)
-    return render_template("project.html", project=project, body_html=body_html)
+    md = markdown.Markdown(extensions=MD_EXTENSIONS, extension_configs=MD_EXTENSION_CONFIGS)
+    body_html = md.convert(project["_body"])
+    # Only render the sidebar if there are 2+ top-level sections worth navigating.
+    toc_html = md.toc if len(getattr(md, "toc_tokens", [])) >= 2 else None
+    return render_template("project.html", project=project, body_html=body_html, toc_html=toc_html)
 
 
 @app.route("/about")
