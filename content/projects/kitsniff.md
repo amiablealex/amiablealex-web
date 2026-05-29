@@ -1,11 +1,11 @@
 ---
-title: KitSniff
+title: KitSniff Ingredient Guesser
 category: Web app
 accent: teal
 summary: "A daily ingredient guessing game"
-date: 2025-05          # [ set this to when you shipped it — used for ordering ]
+date: 2025-05
 featured: true
-# cover: kitsniff.png  # [ optional: add an image to static/img/projects/ and uncomment ]
+cover: kitsniff/cover.png
 links:
   - label: Live
     url: "https://kitsniff.com"
@@ -13,19 +13,17 @@ links:
   - label: GitHub
     url: "https://github.com/amiablealex/kitsniff"
     icon: brand-github
-tech: [Flask, PostgreSQL]   # [ adjust to the real stack ]
+tech: [Python, Flask, PostgreSQL]   # [ adjust to the real stack ]
 ---
 
-[ This is the write-up for KitSniff. Everything below is placeholder — write it
-in your own voice. A loose structure to fill in: ]
+## What this is
 
-## What it is
+Wordle-style daily puzzle for the kitchen - each day a new mystery ingredient is selected. Players guess ingredients and receive feedback on properties - Colour, Flavour, and Food Group.
+Puzzle solves unlock recipes, provenance stories, and culinary trivia. Achievements, leaderboards, and a culinary exploration atlas track progress.
 
-[ A short paragraph: what KitSniff is and what someone does when they play it. ]
+## Why I made it
 
-## Why I built it
-
-[ The itch behind it — what made you want to make this. ]
+Had the idea one day and quickly realised nothing like it existed. It particularly appealed to me because the kitchen / food angle is so relatable. Everyone has some grasp of culinary knowledge from their daily lives - making this game accessible and relevant to a wide community of friends and family.  
 
 ## Things I learned
 
