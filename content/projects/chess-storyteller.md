@@ -6,9 +6,9 @@ summary: "A web app that transforms chess games into calm, descriptive narrative
 feeding a chess PGN file through an LLM API."
 date: 2026-01
 featured: true
-cover: {#chess-storyteller/cover.png#}
+cover: 
 links:
-  - label: GitHub
+  - label: "GitHub"
     url: "https://github.com/amiablealex/chess-storyteller"
     icon: brand-github
 tech: [Python, Flask, LLM, API]
