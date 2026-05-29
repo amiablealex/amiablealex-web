@@ -2,18 +2,18 @@
 title: KitSniff
 category: Web app
 accent: teal
-summary: "[ One-line summary — e.g. a daily ingredient-guessing game. ]"
-date: 2024-08          # [ set this to when you shipped it — used for ordering ]
+summary: "A daily ingredient guessing game"
+date: 2025-05          # [ set this to when you shipped it — used for ordering ]
 featured: true
 # cover: kitsniff.png  # [ optional: add an image to static/img/projects/ and uncomment ]
 links:
   - label: Live
-    url: "[ https://your-live-url ]"
+    url: "https://kitsniff.com"
     icon: external-link
   - label: GitHub
-    url: "[ https://github.com/your-username/kitsniff ]"
+    url: "https://github.com/yamiablealex/kitsniff"
     icon: brand-github
-tech: [Flask, PostgreSQL, JavaScript]   # [ adjust to the real stack ]
+tech: [Flask, PostgreSQL]   # [ adjust to the real stack ]
 ---
 
 [ This is the write-up for KitSniff. Everything below is placeholder — write it
