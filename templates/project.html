@@ -39,8 +39,16 @@
   </div>
   {% endif %}
 
-  <div class="prose">
-    {{ body_html | safe }}
+  <div class="project-body{% if toc_html %} has-toc{% endif %}">
+    {% if toc_html %}
+    <aside class="project-toc" aria-label="On this page">
+      <p class="toc-label">On this page</p>
+      {{ toc_html | safe }}
+    </aside>
+    {% endif %}
+    <div class="prose">
+      {{ body_html | safe }}
+    </div>
   </div>
 </article>
 {% endblock %}
