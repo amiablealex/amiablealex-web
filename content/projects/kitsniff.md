@@ -5,6 +5,7 @@ accent: teal
 summary: "A daily social puzzle - guess the mystery ingredient by its colour, flavour, and food group. Unlock recipes, provenance stories, achievements, and culinary trivia."
 date: 2025-05
 featured: true
+order: 1
 cover: kitsniff/cover.png
 links:
   - label: Live
