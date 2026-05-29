@@ -5,6 +5,7 @@ accent: clay
 summary: "Mechanical Sunrise Sunset Clock - 24-hour sweeping hand plus sunrise and sunset indicators that change throughout the year"
 date: 2025-12
 featured: true
+order: 2
 cover: sunriseclock/cover.png
 links:
   - label: MakerWorld
