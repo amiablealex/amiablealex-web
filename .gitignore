@@ -18,6 +18,3 @@ Thumbs.db
 # Editors
 .vscode/
 .idea/
-
-deploy.sh
-deploy.log
