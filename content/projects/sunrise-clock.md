@@ -25,18 +25,70 @@ and sunset times throughout the year. Midnight at the 6 o'clock position, noon a
 
 The hour hand reads as a 'how far through the daylight' indicator - the arc between the two markers is today's daylight.
 
+![Face](/static/img/projects/sunriseclock/Face.png)
 
 ## How it works
 
-- Std 12-hour quartz movement geared down 2:1 to drive the 24-hour hand
-- Separate chain 729:1 (3^6 - six stages of 3:1 reduction) to gear down the 12-hour rotation to an 8748-hour rotation
-  (very close to the 8760 hours in a year).
+- Standard 12-hour quartz movement with two independant chains
+- 24h chain: 2:1 reduction (15T → 30T), turns 12h into 24h.
+- Annual chain: Six 3:1 stages ( 15T → 45T, \3^6 = 729:1\ ), 12h becomes 8748h (close enough to the true 8760 hours in a year).
+- Progressive height-stacking of the reduction gears so the big gears don't collide 
 - The year-rotation drives the CAMs which are shaped to the profile of annual sunrise / sunset variation at a given location
-- Each CAM gives a throw to the corresponding followr-arm-sector piece, which produces a rotation at the sector mesh
-- Small gear at the clock centre (meshed with the sector) amplifies the sector rotation
-- Sunrise / Sunset indicators fixed to the center gear which achieves the desired sweep of the sunrise / sunset  
+- Each CAM gives a throw to the corresponding follower-arm-sector piece, producing a rotation at the sector mesh
+- Small gear at the clock centre (meshed with the sector) amplifies the sector rotation to achieve desired Sunrise / Sunset indicator sweep.  
 
 ![Square-on](/static/img/projects/sunriseclock/square-on.png)
+
+## Cam to Indicator - The Maths
+
+### Follower swing
+### Hand sweep
+### Worked Sunrise
+### Worked Sunset
+### The One Assumption 
+Arm rides roughly horizontal on top of the cam, so arm contact point rise ≈ cam's radial change; valid because arm (80 mm) ≫ throw (~20 mm), ≈2% error.
+
+### Rotational-vs-linear-follower subtlety
+Because the arm pivots and the roller sits on top, the cam's push is nearly perpendicular to the arm → near-zero pressure angle → efficient. 
+(A nice "why horizontal is actually optimal" footnote — went back and forth on this and it's genuinely counterintuitive.)
+
+### Why a 10-tooth centre gear is fine despite being near the undercut limit
+- Total swing (~140°) is set by how much day length changes; a symmetric world splits it evenly.
+- The actual lopsided split (~55° sunrise vs ~85° sunset) is the equation-of-time-plus-longitude fingerprint: solar noon wanders, so morning and evening don't shift equally.
+- Real sunrise range is ~55°, but the build rounds to 52° for clean 4:1 gearing.
+
+## Why the two hands sweep different angles
+
+## What the cam shape encodes
+- Two effects: axial tilt 23.4° (the smooth swing — alone it'd give a plain ellipse) + orbital eccentricity (the bump).
+- Kepler's 2nd law: Earth moves faster near the Sun → the Day-1/Day-2 over-rotation diagram.
+- The November bump — sunrise creeping earlier while days still shorten — "weird thing"
+- The January turnaround: latest sunrise is late December, not the solstice.
+- Longitude offset: 4 min per degree west; Belfast worked example (solar midpoint ~12:37).
+- The analemma figure-8
+**The cam shape programs every contributing effect into a single physical curve.**
+"How we worked this out" history aside: Hipparchus → Ptolemy → Ibn Yunus (equation-of-time tables, ~1000 CE) → Kepler (ellipses, 1609) → Huygens
+(the pendulum clock, 1656, finally accurate enough to measure the effect). Perfect for <details>.
+
+## Designing the profile
+- Year = 360° of cam rotation, sampled at 24 equal points (~15 days).
+- Why 24: started at 12, doubled it to catch the November plateau and January turnaround without overloading the spline.
+- The interval correction: 365.25/12, not a round 30 days, so the points land true.
+- The inverted sunset cam — max radius at the winter solstice — so the hand turns the right way. A funny mistake! That had to be fixed.
+- One throw value drives the whole 24-row table, so the profile re-targets to any latitude.
+- Differing CAMs between locations - (53.2°N) and (51.27°N). Summer sunrise ~15 min later, winter near-identical. Strong proof of the parameterisation.
+- Roller compensation (cam surface vs roller-centre radius, 4 mm) and the 40.3 mm radius cap to clear the drive-gear support pin — build-accuracy.
+
+## Make Your Own
+- Makerworld Link
+- Calculator spreadsheet / app
+- Hardware List
+- Assembly Guide
+
+## Design Journey
+-  Centre concentric hands chosen over a perimeter ring. The ring's mass/friction would have stalled the quartz movement and needed multi-stage amplification.
+-  Gravity-loaded follower instead of a spring — the **low friction** is the reason a feeble quartz movement can drive the whole train. "how does a quartz movement turn all that?"
+-  Nested brass tubes for the concentric hand shafts rather than 3D-printed thin shafts (too weak to print).
 
 ## Interesting things about sunrise / sunset
 
