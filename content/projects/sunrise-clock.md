@@ -23,13 +23,10 @@ tech: [Fusion 360, A1 Mini, "3D printing"]
 A 24-hour wall clock with a single hand, plus two markers that track sunrise
 and sunset times throughout the year. 
 
-Provides an interesting representation of how the seasons affect the daylight hours - it's easy to see at a glance 
-how long the daylight hours are compared to the 360-degree day. 
-The effect is that the hour hand becomes a 'time-of-day' indicator, communicating the current time by "how far through the 
-daylight hours".
+The hour hand becomes a 'how far through the daylight' indicator - midnight at the 6 o'clock position, noon at top, 
+the arc between the two markers is today's daylight.
 
-
-![Face](/static/img/projects/sunriseclock/4-3.png)
+![Face](/static/img/projects/sunriseclock/Face.png)
 
 
 ## How it works
@@ -49,17 +46,21 @@ daylight hours".
 ### Why sunrise and sunset are not centered exactly around mid-day
 - The geographic offset - for every degree of longitude you move west from the meridian, solar noon is delayed by about
   4 minutes, pushing the true 'middle-of-the-day' later.
-- The astronomical offset (<em>The Equation of Time</em>) - Even if you are standing exactly on the Prime Meridian in
+- The astronomical offset (*The Equation of Time*) - Even if you are standing exactly on the Prime Meridian in
   Greenwich, the sun still won't be at its peak at exactly 12:00 PM today. This is due to the Equation of Time, which is
   the difference between "Clock Time" and "Sun Time." Two things cause the sun to be "fast" or "slow" relative to our 24-hour clocks:
   - **The Earth’s Elliptical Orbit**: The Earth doesn't move at a constant speed around the sun. It moves faster when it's closer
     to the sun (January) and slower when it's farther away (July).  
-  - **The Earth’s Axial Tilt**: Because the Earth is tilted at $23.5°$, the sun's apparent path across the sky changes speed
+  - **The Earth’s Axial Tilt**: Because the Earth is tilted at \(23.5^\circ\), the sun's apparent path across the sky changes speed
     throughout the year.
+
+\[
+P(\text{ingredient}_i) = \frac{w_i \cdot d_i^{-\alpha}}{\sum_j w_j \cdot d_j^{-\alpha}}
+\]
     
-<em>An example>: On February 27th - Equation of Time pushes the solar midpoint about 13 minutes later (12:13 PM). Longitude
+*An example>: On February 27th - Equation of Time pushes the solar midpoint about 13 minutes later (12:13 PM). Longitude
 (e.g Belfast) pushes the midpoint another 24 minutes later. The cumulative effect is that Belfast sees sunrise and sunset centered
-around approx. 12:37 PM. Sunrise and sunset times appear asymmetrical - the afternoon feels "longer" than the morning.</em>
+around approx. 12:37 PM. Sunrise and sunset times appear asymmetrical - the afternoon feels "longer" than the morning.*
   
 ### The bump in the shape of the CAMs and The Analemma Effect
 Sunrise and sunset times are controlled by two independent astronomical phenomena that combine in complex ways:
