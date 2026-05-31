@@ -25,7 +25,6 @@ and sunset times throughout the year. Midnight at the 6 o'clock position, noon a
 
 The hour hand reads as a 'how far through the daylight' indicator - the arc between the two markers is today's daylight.
 
-![Face](/static/img/projects/sunriseclock/Face.png)
 
 ## How it works
 
@@ -63,7 +62,7 @@ Sunrise and sunset times are controlled by two independent astronomical phenomen
 2. Orbital Eccentricity - The "Bump" Effect. Earth's orbit is not a perfect circle - it's an ellipse. Key insight: Earth moves FASTER
    when closer to the sun (Kepler's Second Law). Earth must rotate slightly MORE than 360° to bring the sun back to the same position,
    because Earth has moved along its orbit.
-   
+
 ```
    Day 1:  Earth at position A
            🌍 → rotates 360°
@@ -73,7 +72,7 @@ Sunrise and sunset times are controlled by two independent astronomical phenomen
            🌍 → must rotate 360° + 1° to get sun back to noon
            (The extra 1° depends on orbital speed)
 ```
-
+   
 When Earth moves FAST (January - perihelion):
 - Earth travels further along orbit each day.
 - Must rotate MORE to bring sun back to noon.
