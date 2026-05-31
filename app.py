@@ -39,8 +39,11 @@ BASE_DIR = Path(__file__).resolve().parent
 PROJECTS_DIR = BASE_DIR / "content" / "projects"
 
 # Markdown features: fenced code, tables, footnotes, attribute lists, etc.
-MD_EXTENSIONS = ["extra", "sane_lists", "toc"]
-MD_EXTENSION_CONFIGS = {"toc": {"toc_depth": "2-3"}}
+MD_EXTENSIONS = ["extra", "sane_lists", "toc", "pymdownx.arithmatex"]
+MD_EXTENSION_CONFIGS = {
+    "toc": {"toc_depth": "2-3"},
+    "pymdownx.arithmatex": {"generic": True},
+}
 
 app = Flask(__name__)
 
