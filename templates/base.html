@@ -15,9 +15,9 @@
   <meta property="og:image" content="{{ site.url }}{{ url_for('static', filename='img/og-image.png') }}">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/katex/katex.min.css') }}">
+  <link rel="icon" href="{{ static_url('favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ static_url('css/style.css') }}">
+  <link rel="stylesheet" href="{{ static_url('vendor/katex/katex.min.css') }}">
 </head>
 <body>
   {% from "_macros.html" import icon %}
@@ -46,8 +46,8 @@
     <span class="footer-year">© {{ current_year }}</span>
   </footer>
 
-  <script defer src="{{ url_for('static', filename='vendor/katex/katex.min.js') }}"></script>
-  <script defer src="{{ url_for('static', filename='vendor/katex/contrib/auto-render.min.js') }}"
+  <script defer src="{{ static_url('vendor/katex/katex.min.js') }}"></script>
+  <script defer src="{{ static_url('vendor/katex/contrib/auto-render.min.js') }}"
     onload="renderMathInElement(document.body, {
       delimiters: [
         {left: '\\[', right: '\\]', display: true},

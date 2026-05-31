@@ -15,7 +15,8 @@ from pathlib import Path
 
 import frontmatter
 import markdown
-from flask import Flask, abort, render_template
+import os
+from flask import Flask, abort, render_template, url_for
 
 # ---------------------------------------------------------------------------
 # SITE CONFIG  —  edit these values. Anything in [square brackets] is a
@@ -100,6 +101,16 @@ def get_project(slug):
 def inject_globals():
     return {"site": SITE, "current_year": datetime.now().year}
 
+@app.context_processor
+def inject_static_url():
+    def static_url(filename):
+        path = os.path.join(app.static_folder, filename)
+        try:
+            v = int(os.path.getmtime(path))
+        except OSError:
+            v = 0
+        return url_for("static", filename=filename) + f"?v={v}"
+    return {"static_url": static_url}
 
 # ---------------------------------------------------------------------------
 # Routes
