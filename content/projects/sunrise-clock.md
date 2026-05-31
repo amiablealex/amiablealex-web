@@ -20,7 +20,7 @@ tech: [Fusion 360, A1 Mini, "3D printing"]
 
 ## What it is
 
-A 24-hour wall clock with a single hand, two markers that track sunrise
+A 24-hour wall clock with a single hand, plus two markers that track sunrise
 and sunset times throughout the year. Midnight at the 6 o'clock position, noon at top. 
 
 The hour hand reads as a 'how far through the daylight' indicator - the arc between the two markers is today's daylight.
@@ -29,13 +29,28 @@ The hour hand reads as a 'how far through the daylight' indicator - the arc betw
 
 ## How it works
 
-- Standard 12-hour quartz movement with two independant chains
-- 24h chain: 2:1 reduction (15T → 30T), turns 12h into 24h.
-- Annual chain: Six 3:1 stages ( 15T → 45T, \3^6 = 729:1\ ), 12h becomes 8748h (close enough to the true 8760 hours in a year).
-- Progressive height-stacking of the reduction gears so the big gears don't collide 
-- The year-rotation drives the CAMs which are shaped to the profile of annual sunrise / sunset variation at a given location
-- Each CAM gives a throw to the corresponding follower-arm-sector piece, producing a rotation at the sector mesh
-- Small gear at the clock centre (meshed with the sector) amplifies the sector rotation to achieve desired Sunrise / Sunset indicator sweep.  
+The clock is driven by a standard 12-hour quartz movement. From it, two independent gear chains do separate jobs.
+The first drives the time hand (one revolution in 24h). A single 2:1 reduction (15T → 30T) turns the 12h drive into 24h, 
+with an interstitial gear to make sure the hour hand rotates clockwise.
+
+![24h-chain-annotated](/static/img/projects/sunriseclock/24h-chain.png)
+
+The second chain drives the year rotation. Six 3:1 stages ( 15T → 45T, \(3^6 = 729{:}1\) ), the 12h input drive becomes 
+8748h - within half a day of the true 8760 hours in a year.
+
+![Face](/static/img/projects/sunriseclock/annual-chain.png)
+
+Two CAMs are mounted on a shaft fixed to the annual rotation, each shaped to the exact sunrise or sunset curve for the 
+clock's location. As the CAM rotates, its variable radius raises and lowers a follower arm. A sector gear at the arm's 
+pivot meshes with a small gear at the centre of the dial, amplifying that small angular rotation into the full desired 
+sweep of the sunrise and sunset indicators. drives the CAMs which are shaped to the profile of annual sunrise / sunset 
+variation at a given location
+
+<details><summary>Why the gears are stacked at stepped heights</summary>
+The six reduction stages climb in height so the large gears clear one
+another instead of colliding on a single plane.
+</details>
+
 
 ![Square-on](/static/img/projects/sunriseclock/square-on.png)
 
