@@ -20,14 +20,12 @@ tech: [Fusion 360, A1 Mini, "3D printing"]
 
 ## What it is
 
-A 24-hour wall clock with a single hand, plus two markers that track sunrise
-and sunset times throughout the year. 
+A 24-hour wall clock with a single hand, two markers that track sunrise
+and sunset times throughout the year. Midnight at the 6 o'clock position, noon at top. 
 
-The hour hand becomes a 'how far through the daylight' indicator - midnight at the 6 o'clock position, noon at top, 
-the arc between the two markers is today's daylight.
+The hour hand reads as a 'how far through the daylight' indicator - the arc between the two markers is today's daylight.
 
 ![Face](/static/img/projects/sunriseclock/Face.png)
-
 
 ## How it works
 
@@ -53,10 +51,6 @@ the arc between the two markers is today's daylight.
     to the sun (January) and slower when it's farther away (July).  
   - **The Earth’s Axial Tilt**: Because the Earth is tilted at \(23.5^\circ\), the sun's apparent path across the sky changes speed
     throughout the year.
-
-\[
-P(\text{ingredient}_i) = \frac{w_i \cdot d_i^{-\alpha}}{\sum_j w_j \cdot d_j^{-\alpha}}
-\]
     
 *An example>: On February 27th - Equation of Time pushes the solar midpoint about 13 minutes later (12:13 PM). Longitude
 (e.g Belfast) pushes the midpoint another 24 minutes later. The cumulative effect is that Belfast sees sunrise and sunset centered
