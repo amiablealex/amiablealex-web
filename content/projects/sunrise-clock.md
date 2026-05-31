@@ -44,15 +44,9 @@ daylight hours".
 
 ![Square-on](/static/img/projects/sunriseclock/square-on.png)
 
-## Things I learned
-
-[ The hands-on lessons — designing the gear reduction in Fusion 360, getting the
-print tolerances right, separating reliable mechanical timekeeping from the
-"smart" electronic part. A few sentences each. ]
-
 ## Interesting things about sunrise / sunset
 
-**Why sunrise and sunset are not centered exactly around mid-day**.
+### Why sunrise and sunset are not centered exactly around mid-day
 - The geographic offset - for every degree of longitude you move west from the meridian, solar noon is delayed by about
   4 minutes, pushing the true 'middle-of-the-day' later.
 - The astronomical offset (<em>The Equation of Time</em>) - Even if you are standing exactly on the Prime Meridian in
@@ -67,7 +61,7 @@ print tolerances right, separating reliable mechanical timekeeping from the
 (e.g Belfast) pushes the midpoint another 24 minutes later. The cumulative effect is that Belfast sees sunrise and sunset centered
 around approx. 12:37 PM. Sunrise and sunset times appear asymmetrical - the afternoon feels "longer" than the morning.</em>
   
-**The bump in the shape of the CAMs and The Analemma Effect**. 
+### The bump in the shape of the CAMs and The Analemma Effect
 Sunrise and sunset times are controlled by two independent astronomical phenomena that combine in complex ways:
 1. Earth's axis is tilted 23.4° relative to its orbital plane. This creates the PRIMARY pattern: Smooth variation from early to late
    throughout the year. Would create a perfect elliptical cam if this were the ONLY effect.
