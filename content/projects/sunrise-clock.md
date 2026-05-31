@@ -25,7 +25,8 @@ and sunset times throughout the year.
 
 Provides an interesting representation of how the seasons affect the daylight hours - it's easy to see at a glance 
 how long the daylight hours are compared to the 360-degree day. 
-The effect is that the hour hand becomes a 'time-of-day' indicator, communicating the current time by "how far through the daylight hours".
+The effect is that the hour hand becomes a 'time-of-day' indicator, communicating the current time by "how far through the 
+daylight hours".
 
 
 ![Face](/static/img/projects/sunriseclock/4-3.png)
@@ -51,64 +52,66 @@ print tolerances right, separating reliable mechanical timekeeping from the
 
 ## Interesting things about sunrise / sunset
 
-- <em>Why sunrise and sunset are not centered exactly around mid-day</em>.
-  - The geographic offset - for every degree of longitude you move west from the meridian, solar noon is delayed by about
+**Why sunrise and sunset are not centered exactly around mid-day**.
+- The geographic offset - for every degree of longitude you move west from the meridian, solar noon is delayed by about
   4 minutes, pushing the true 'middle-of-the-day' later.
-  - The astronomical offset (<em>The Equation of Time</em>) - Even if you are standing exactly on the Prime Meridian in
+- The astronomical offset (<em>The Equation of Time</em>) - Even if you are standing exactly on the Prime Meridian in
   Greenwich, the sun still won't be at its peak at exactly 12:00 PM today. This is due to the Equation of Time, which is
   the difference between "Clock Time" and "Sun Time." Two things cause the sun to be "fast" or "slow" relative to our 24-hour clocks:
-  - <em>The Earth’s Elliptical Orbit</em>: The Earth doesn't move at a constant speed around the sun. It moves faster when it's closer
+  - **The Earth’s Elliptical Orbit**: The Earth doesn't move at a constant speed around the sun. It moves faster when it's closer
     to the sun (January) and slower when it's farther away (July).  
-  - <em>The Earth’s Axial Tilt</em>: Because the Earth is tilted at $23.5°$, the sun's apparent path across the sky changes speed
+  - **The Earth’s Axial Tilt**: Because the Earth is tilted at $23.5°$, the sun's apparent path across the sky changes speed
     throughout the year.
-  <em>An example></em>: On February 27th - Equation of Time pushes the solar midpoint about 13 minutes later (12:13 PM). Longitude
-  (e.g Belfast) pushes the midpoint another 24 minutes later. The cumulative effect is that Belfast sees sunrise and sunset centered
-  around approx. 12:37 PM. Sunrise and sunset times appear asymmetrical - the afternoon feels "longer" than the morning.
+    
+<em>An example>: On February 27th - Equation of Time pushes the solar midpoint about 13 minutes later (12:13 PM). Longitude
+(e.g Belfast) pushes the midpoint another 24 minutes later. The cumulative effect is that Belfast sees sunrise and sunset centered
+around approx. 12:37 PM. Sunrise and sunset times appear asymmetrical - the afternoon feels "longer" than the morning.</em>
   
-- <em>The bump in the shape of the CAMs and The Analemma Effect</em>. 
-  Sunrise and sunset times are controlled by two independent astronomical phenomena that combine in complex ways:
-  1. Earth's axis is tilted 23.4° relative to its orbital plane. This creates the PRIMARY pattern: Smooth variation from early to late
-     throughout the year. Would create a perfect elliptical cam if this were the ONLY effect.
-  2. Orbital Eccentricity - The "Bump" Effect. Earth's orbit is not a perfect circle - it's an ellipse. Key insight: Earth moves FASTER
-     when closer to the sun (Kepler's Second Law). Earth must rotate slightly MORE than 360° to bring the sun back to the same position,
-     because Earth has moved along its orbit.
-      `Day 1:  Earth at position A
-              🌍 → rotates 360°
-              Sun appears at noon
+**The bump in the shape of the CAMs and The Analemma Effect**. 
+Sunrise and sunset times are controlled by two independent astronomical phenomena that combine in complex ways:
+1. Earth's axis is tilted 23.4° relative to its orbital plane. This creates the PRIMARY pattern: Smooth variation from early to late
+   throughout the year. Would create a perfect elliptical cam if this were the ONLY effect.
+2. Orbital Eccentricity - The "Bump" Effect. Earth's orbit is not a perfect circle - it's an ellipse. Key insight: Earth moves FASTER
+   when closer to the sun (Kepler's Second Law). Earth must rotate slightly MORE than 360° to bring the sun back to the same position,
+   because Earth has moved along its orbit.
+   ```
+   Day 1:  Earth at position A
+           🌍 → rotates 360°
+           Sun appears at noon
         
-      Day 2:  Earth has moved in orbit
-              🌍 → must rotate 360° + 1° to get sun back to noon
-              (The extra 1° depends on orbital speed)`
+   Day 2:  Earth has moved in orbit
+           🌍 → must rotate 360° + 1° to get sun back to noon
+           (The extra 1° depends on orbital speed)
+   ```
 
-     When Earth moves FAST (January - perihelion):
-     - Earth travels further along orbit each day.
-     - Must rotate MORE to bring sun back to noon.
-     - Solar day is LONGER than average.
-     - Sunrise/sunset times drift LATER
+When Earth moves FAST (January - perihelion):
+- Earth travels further along orbit each day.
+- Must rotate MORE to bring sun back to noon.
+- Solar day is LONGER than average.
+- Sunrise/sunset times drift LATER
 
-    When Earth moves SLOW (July - aphelion):
-    - Earth travels less far along orbit each day
-    - Needs less extra rotation for noon
-    - Solar day is SHORTER than average
-    - Sunrise/sunset times drift EARLIER
+When Earth moves SLOW (July - aphelion):
+- Earth travels less far along orbit each day
+- Needs less extra rotation for noon
+- Solar day is SHORTER than average
+- Sunrise/sunset times drift EARLIER
       
-  Why the "Bump" Appears in Your Sunrise Cam.
+Why the "Bump" Appears in the Sunrise Cam:
+November is EARLIER than October. Why this seems weird: Days are getting shorter (winter solstice approaching). You'd expect sunrise to get 
+progressively LATER every day. But it doesn't.
+The Detailed Explanation - From October to November:
+- Axial tilt effect (dominant):
+  - Northern hemisphere tilting away from sun
+  - Pushes sunrise LATER by ~40 minutes
 
-  November is EARLIER than October. Why this seems weird: Days are getting shorter (winter solstice approaching). You'd expect sunrise to get progressively LATER every day. But it doesn't.
-  The Detailed Explanation - From October to November:
-  - Axial tilt effect (dominant):
-    - Northern hemisphere tilting away from sun
-    - Pushes sunrise LATER by ~40 minutes
+- Equation of Time effect (secondary):
+  - Earth approaching perihelion (January)
+  - Orbital speed increasing
+  - Equation of Time goes from ~16 minutes fast (early Nov) to ~10 minutes fast (late Nov)
+  - This makes sunrise EARLIER by ~6 minutes
 
-  - Equation of Time effect (secondary):
-    - Earth approaching perihelion (January)
-    - Orbital speed increasing
-    - Equation of Time goes from ~16 minutes fast (early Nov) to ~10 minutes fast (late Nov)
-    - This makes sunrise EARLIER by ~6 minutes
+But these effects apply ASYMMETRICALLY to sunrise vs sunset. For sunrise: The Equation of Time causes the "mean sunrise" to drift. But axial 
+tilt is also changing the "earliest possible sunrise". These combine in complex ways. The result: Late October → Early November: Sunrise gets 
+slightly EARLIER. This creates the "bump" on your cam (radius increases from Oct to Nov).
 
-  But these effects apply ASYMMETRICALLY to sunrise vs sunset. For sunrise: The Equation of Time causes the "mean sunrise" to drift.
-  But axial tilt is also changing the "earliest possible sunrise". These combine in complex ways
-
-  The result: Late October → Early November: Sunrise gets slightly EARLIER. This creates the "bump" on your cam (radius increases from Oct to Nov).
-
-  <em>The shape of the cam effectively programs all the effects that contribute to the sunrise / sunset variation into a single physical shape</em>.
+**The shape of the cam effectively programs all the effects that contribute to the sunrise / sunset variation into a single physical shape**.
