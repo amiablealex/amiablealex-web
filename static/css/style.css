@@ -379,3 +379,12 @@ html { scroll-behavior: smooth; }
   .project-toc .toc > ul { display: flex; flex-wrap: wrap; gap: 4px 14px; }
   .project-toc .toc ul ul { display: none; }
 }
+
+/* ---- KaTeX integration -------------------------------------------------- */
+.prose .katex { font-size: 1.02em; }
+.prose .katex-display {
+  margin: 1.6em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.prose .katex-display > .katex { font-size: 1.1em; }
