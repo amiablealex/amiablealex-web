@@ -35,7 +35,7 @@ with an interstitial gear to make sure the hour hand rotates clockwise.
 
 ![24h-chain-annotated](/static/img/projects/sunriseclock/24h-chain.png)
 
-The second chain drives the year rotation. Six 3:1 stages ( 15T → 45T, \(3^6 = 729{:}1\) ), the 12h input drive becomes 
+The second chain drives the year rotation. Six 3:1 stages (15T → 45T, \(3^6 = 729{:}1\)), the 12h input drive becomes 
 8748h - within half a day of the true 8760 hours in a year.
 
 ![Face](/static/img/projects/sunriseclock/annual-chain.png)
