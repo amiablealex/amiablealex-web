@@ -31,31 +31,29 @@ The hour hand reads as a 'how far through the daylight' indicator - the arc betw
 
 The clock is driven by a standard 12-hour quartz movement. From it, two independent gear chains do separate jobs.
 The first drives the time hand (one revolution in 24h). A single 2:1 reduction (15T → 30T) turns the 12h drive into 24h, 
-with an interstitial gear to make sure the hour hand rotates clockwise.
+with an idler gear to make sure the hour hand rotates clockwise.
 
 ![24h-chain-annotated](/static/img/projects/sunriseclock/24h-chain.png)
 
-The second chain drives the year rotation. Six 3:1 stages (15T → 45T, \(3^6 = 729{:}1\)), the 12h input drive becomes 
-8748h - within half a day of the true 8760 hours in a year.
+The second chain drives the year rotation. Six 3:1 stages (15T → 45T) multiply to \(3^6 = 729{:}1\), turning the 12h input 
+to 8748h - within half a day of the true 8760 hours in a year.
 
-![Face](/static/img/projects/sunriseclock/annual-chain.png)
+![annual-chain](/static/img/projects/sunriseclock/annual-chain.png)
 
 Two CAMs are mounted on a shaft fixed to the annual rotation, each shaped to the exact sunrise or sunset curve for the 
 clock's location. As the CAM rotates, its variable radius raises and lowers a follower arm. A sector gear at the arm's 
-pivot meshes with a small gear at the centre of the dial, amplifying that small angular rotation into the full desired 
-sweep of the sunrise and sunset indicators. 
+pivot meshes with a small gear in the centre, amplifying that small angular rotation into the full desired 
+sweep of the indicators. 
 
-![Face](/static/img/projects/sunriseclock/annual-chain.png)
+![annual-chain](/static/img/projects/sunriseclock/annual-chain.png)
 
 ## The Astronomy
 
-### Asymettric Sunrise and Sunset Profiles
-The shortest day is the winter solstice, around 21 December. You'd expect that to be the day the sun also sets earliest and rises latest. However, it's not that simple. In the UK the earliest sunset falls around 12 December, and the latest sunrise doesn't happen until around 30 December. There's a period before Christmas where the evenings are past their shortest and have shifted to getting longer, even as the mornings are still getting darker.
+The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already drawing out while the mornings keep darkening.
 
-Two things cause this, layered on top of each other. The first is the tilt of the Earth's axis (23.4°), which gives the seasons and drives the large, smooth swing in day length between summer and winter. On its own, that would cause a perfectly even, symmetric sunrise / sunset variation.
-The second is subtler. A clock ticks out a perfectly even day, but the sun doesn't keep even time. It runs slightly fast or slow against the clock depending on the season. This gap between sun-time and clock-time is called *the equation of time*, and it has two sources: the same 23.4° axial tilt, plus the fact that Earth's orbit is an ellipse.
-
-Due to the change in orbital position, the earth has to rotate slightly more than 360 degrees to bring the sun back to the same place in the sky. How much extra depends on orbital speed. And because the Earth's orbit is an ellipse, it's orbital speed isn't constant. When nearer the sun (around January) the earth is progressing faster, and slower when farther away (July).
+Two things cause this, layered on top of each other. 
+- The tilt of the Earth's axis (23.4°), which gives the seasons and drives the large, smooth swing in day length between summer and winter. On its own, that would cause a perfectly even, symmetric sunrise / sunset variation.
+- **The Equation of Time** - the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season. The Equation of Time has two sources: the same 23.4° tilt, plus the fact that Earth's orbit is an ellipse. Earth speeds up near the Sun (January) and slows when farther away (July) (Kepler's Second Law), and each day it must turn slightly more than 360° to face the sun again. That amount of extra rotation depends on the orbital speed.
 
 ```
    Day 1:  Earth at position A
@@ -69,7 +67,9 @@ Due to the change in orbital position, the earth has to rotate slightly more tha
      
 Add the even seasonal swing and this uneven wobble together, and the earliest sunset and latest sunrise get nudged off the solstice in opposite directions. Photograph the sun at the same clock-time every day for a year and it never returns to the same spot; it traces a slender figure-of-eight across the sky. That shape is the *analemma*: the equation of time made visible.
 
-The sunrise clock's cam profiles are that combined curve, frozen in plastic. Every influence on the daylight is programmed into that shape.
+![analemma](/static/img/projects/sunriseclock/analemma.png)
+
+This is where the cam shapes come in. Both cam profiles are generated from a year of real sunrise and sunset data, so the combined effects of axial tilt and the equation of time are programmed into the shape - frozen in plastic. And because those times depend on where you are, every cam is tailored to one location.
 
 <details><summary>Effect of Location</summary>
 Solar noon slips about four minutes later for every degree you sit west of the meridian. It shifts everything by a fixed offset for your location. It doesn't change the shape of the curve, just the min / max sunrise and sunset times. Hence each cam profile has to be tailored to a specific location.
