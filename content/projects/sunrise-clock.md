@@ -43,16 +43,60 @@ The second chain drives the year rotation. Six 3:1 stages (15T → 45T, \(3^6 = 
 Two CAMs are mounted on a shaft fixed to the annual rotation, each shaped to the exact sunrise or sunset curve for the 
 clock's location. As the CAM rotates, its variable radius raises and lowers a follower arm. A sector gear at the arm's 
 pivot meshes with a small gear at the centre of the dial, amplifying that small angular rotation into the full desired 
-sweep of the sunrise and sunset indicators. drives the CAMs which are shaped to the profile of annual sunrise / sunset 
-variation at a given location
+sweep of the sunrise and sunset indicators. 
 
-<details><summary>Why the gears are stacked at stepped heights</summary>
-The six reduction stages climb in height so the large gears clear one
-another instead of colliding on a single plane.
+![Face](/static/img/projects/sunriseclock/annual-chain.png)
+
+## The Astronomy
+
+### Asymettric Sunrise and Sunset Profiles
+The shortest day is the winter solstice, around 21 December. You'd expect that to be the day the sun also sets earliest and rises latest. However, it's not that simple. In the UK the earliest sunset falls around 12 December, and the latest sunrise doesn't happen until around 30 December. There's a period before Christmas where the evenings are past their shortest and have shifted to getting longer, even as the mornings are still getting darker.
+
+Two things cause this, layered on top of each other. The first is the tilt of the Earth's axis (23.4°), which gives the seasons and drives the large, smooth swing in day length between summer and winter. On its own, that would cause a perfectly even, symmetric sunrise / sunset variation.
+The second is subtler. A clock ticks out a perfectly even day, but the sun doesn't keep even time. It runs slightly fast or slow against the clock depending on the season. This gap between sun-time and clock-time is called *the equation of time*, and it has two sources: the same 23.4° axial tilt, plus the fact that Earth's orbit is an ellipse.
+
+Due to the change in orbital position, the earth has to rotate slightly more than 360 degrees to bring the sun back to the same place in the sky. How much extra depends on orbital speed. And because the Earth's orbit is an ellipse, it's orbital speed isn't constant. When nearer the sun (around January) the earth is progressing faster, and slower when farther away (July).
+
+```
+   Day 1:  Earth at position A
+           🌍 → rotates 360°
+           Sun appears at noon
+        
+   Day 2:  Earth has moved in orbit
+           🌍 → must rotate 360° + 1° to get sun back to noon
+           (The extra 1° depends on orbital speed)
+```   
+     
+Add the even seasonal swing and this uneven wobble together, and the earliest sunset and latest sunrise get nudged off the solstice in opposite directions. Photograph the sun at the same clock-time every day for a year and it never returns to the same spot; it traces a slender figure-of-eight across the sky. That shape is the *analemma*: the equation of time made visible.
+
+The sunrise clock's cam profiles are that combined curve, frozen in plastic. Every influence on the daylight is programmed into that shape.
+
+<details><summary>Effect of Location</summary>
+Solar noon slips about four minutes later for every degree you sit west of the meridian. It shifts everything by a fixed offset for your location. It doesn't change the shape of the curve, just the min / max sunrise and sunset times. Hence each cam profile has to be tailored to a specific location.
+</details>
+
+<details><summary>Historical Background & Kepler's Second Law</summary>
+
+The wobble this cam reproduces took roughly two thousand years to pin down.
+Ancient astronomers noticed that sundials and water-clocks drifted apart
+across the year — the sun simply didn't keep even time — and Ptolemy could
+already convert between sun-time and clock-time in the second century, long
+before anyone understood why the two differed. Medieval Islamic astronomers
+such as Ibn Yunus refined the tables to within a minute or two by around
+1000 CE, still as a pattern rather than an explanation.
+
+The "why" waited for Kepler. In 1609 he showed the orbit is an ellipse and
+the Earth speeds up as it nears the sun, accounting for one half of the
+wobble — the axial tilt explains the other. The last piece was simply being
+able to <em>see</em> it: Huygens's pendulum clock of 1656 was the first
+timekeeper steady enough to measure a few minutes' drift from one day to the
+next, confirming that sundial and clock genuinely disagree.
+
 </details>
 
 
-![Square-on](/static/img/projects/sunriseclock/square-on.png)
+## Design Story
+
 
 ## Cam to Indicator - The Maths
 
@@ -67,12 +111,10 @@ Arm rides roughly horizontal on top of the cam, so arm contact point rise ≈ ca
 Because the arm pivots and the roller sits on top, the cam's push is nearly perpendicular to the arm → near-zero pressure angle → efficient. 
 (A nice "why horizontal is actually optimal" footnote — went back and forth on this and it's genuinely counterintuitive.)
 
-### Why a 10-tooth centre gear is fine despite being near the undercut limit
+## Why the two hands sweep different angles
 - Total swing (~140°) is set by how much day length changes; a symmetric world splits it evenly.
 - The actual lopsided split (~55° sunrise vs ~85° sunset) is the equation-of-time-plus-longitude fingerprint: solar noon wanders, so morning and evening don't shift equally.
 - Real sunrise range is ~55°, but the build rounds to 52° for clean 4:1 gearing.
-
-## Why the two hands sweep different angles
 
 ## What the cam shape encodes
 - Two effects: axial tilt 23.4° (the smooth swing — alone it'd give a plain ellipse) + orbital eccentricity (the bump).
@@ -104,6 +146,7 @@ Because the arm pivots and the roller sits on top, the cam's push is nearly perp
 -  Centre concentric hands chosen over a perimeter ring. The ring's mass/friction would have stalled the quartz movement and needed multi-stage amplification.
 -  Gravity-loaded follower instead of a spring — the **low friction** is the reason a feeble quartz movement can drive the whole train. "how does a quartz movement turn all that?"
 -  Nested brass tubes for the concentric hand shafts rather than 3D-printed thin shafts (too weak to print).
+-  Why a 10-tooth centre gear is fine despite being near the undercut limit
 
 ## Interesting things about sunrise / sunset
 
