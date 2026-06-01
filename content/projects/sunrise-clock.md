@@ -47,28 +47,29 @@ sweep of the indicators.
 
 ![annual-chain](/static/img/projects/sunriseclock/annual-chain.png)
 
-## The Astronomy
+## Astronomy behind the cam shapes
 
-The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already drawing out while the mornings keep darkening. Two things cause this, layered on top of each other:
+Daylight hours changes throughout the seasons - long days in summer, short in winter. That part is down to the Earth being tilted on its spinning axis (23.4°), and on its own is straightforward and predictable: day lengths would vary smoothly and symmetrically through the year, and a regular oval cam would reproduce it perfectly.
 
-- The tilt of the Earth's axis (23.4°), which gives the seasons and drives the large, smooth swing in day length between summer and winter. On its own, that would cause a perfectly even, symmetric sunrise / sunset variation.
-- **The Equation of Time** - the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season. The equation of time has two sources: the same 23.4° tilt, plus the fact that Earth's orbit is an ellipse. Earth speeds up near the Sun (January) and slows when farther away (July) (Kepler's Second Law), and each day it must turn slightly more than 360° to face the sun again. That amount of extra rotation depends on the orbital speed.
+However, the shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already drawing out while the mornings keep darkening. The sunrise and sunset curves aren't symmetric, and reproducing the annular cycle is more complicated than it first appears. 
+
+It's due to an astronomical phenomenon called **The Equation of Time**: the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season. It comes from Earth's tilt and elliptical orbit acting together. Because the orbit is an ellipse, the Earth speeds up as it orbits closer to the Sun in January and slows as it orbits further from the Sun in July. This is **Kepler's second law**. The equation of time arises because each day the Earth must turn slightly more than a full 360° to bring the sun back to the same point in the sky. And the amount of extra rotation depends on the varying orbital speed.
 
 ```
-   Day 1:  Earth at position A
-           🌍 → rotates 360°
-           Sun appears at noon
+Day 1:  Earth at position A
+        🌍 → rotates 360°
+        Sun appears at noon
         
-   Day 2:  Earth has moved in orbit
-           🌍 → must rotate 360° + 1° to get sun back to noon
-           (The extra 1° depends on orbital speed)
+Day 2:  Earth has moved in orbit
+        🌍 → must rotate 360° + 1° to get sun back to noon
+        (The extra 1° depends on orbital speed)
 ```   
      
-Add the even seasonal swing and this uneven wobble together, and the earliest sunset and latest sunrise get nudged off the solstice in opposite directions. Photograph the sun at the same clock-time every day for a year and it never returns to the same spot; it traces a slender figure-of-eight across the sky. That shape is the *analemma*: the equation of time made visible.
+Add the smooth seasonal variation and the complex contribution from the equation of time, and the earliest sunset and latest sunrise get nudged off the solstice in opposite directions. The sun at the same clock-time is always at a different point in the sky - it never returns to the same spot over a full year. It traces a figure-of-eight across the sky. That shape is the **analemma**: the equation of time made visible.
 
 ![analemma](/static/img/projects/sunriseclock/analemma.png)
 
-This is where the cam shapes come in. Both cam profiles are generated from a year of real sunrise and sunset data, so the combined effects of axial tilt and the equation of time are programmed into the shape - frozen in plastic. And because those times depend on where you are, every cam is tailored to one location.
+This is where the cam shapes come in. Both cam profiles are generated from a year of real sunrise and sunset data, so the axial tilt and the equation of time are programmed into the shape - frozen in plastic. And because those times depend on where you are, every cam is tailored to one location.
 
 <details><summary>Effect of Location</summary>
 Solar noon slips about four minutes later for every degree you sit west of the meridian. It shifts everything by a fixed offset for your location. It doesn't change the shape of the curve, just the min / max sunrise and sunset times. Hence each cam profile has to be tailored to a specific location.
