@@ -67,17 +67,17 @@ Day 2:  Earth has moved in orbit
      
 Add the smooth seasonal variation and the complex contribution from the equation of time, and the earliest sunset and latest sunrise get nudged off the solstice in opposite directions. The sun at the same clock-time is always at a different point in the sky throughout the year - the annual cycle tracing a distorted figure-of-eight across the sky. That shape is the **analemma**: the equation of time made visible.
 
-The distorted figure-of-eight comes from two simple shapes added together. The shapes below show the Sun's position at Noon across an annual cycle. Up–down is how high the Sun climbs i the sky, rising and falling once a year. The central vertical line is due south - a Sun perfectly in sync with clock-time would appear on it. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock noon.
+The distorted figure-of-eight comes from two simple shapes added together. The shapes below show the Sun's position at noon across an annual cycle. Up–down is how high the Sun climbs in the sky, rising and falling once a year. The central vertical line is due south - a Sun perfectly in sync with clock-time would appear on it. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock noon.
 
 ![analemma-decomposition](/static/img/projects/sunriseclock/analemma-decomposition.svg)
 
-- Tilt alone makes the Sun run fast at the solstices and slow at the equinoxes: fast, slow, fast, slow — twice a year. That twice-yearly wobble draws a clean, symmetric figure-8.
-- The elliptical orbit alone speeds the Sun up and slows it down just once a year (Kepler again), tracing a single slim, tilted loop.
-- Added together, the two shapes reinforce on one side of the year and cancel on the other. One loop swells and the other shrinks. That lopsided figure-of-8 is what we actually see in the sky:
+- Axial tilt makes the Sun run fast at the solstices and slow at the equinoxes: *fast, slow, fast, slow*, twice a year. That twice-yearly period draws a clean, symmetric figure-8.
+- The elliptical orbit speeds the Sun up and slows it down just once a year: *fast, slow* (Kepler's Second Law), tracing a single slim, tilted loop.
+- Added together, Kepler's loop reinforces the symmetric figure-8 on one side of the year and cancels out on the other. One figure-8 loop swells and the other shrinks. That lopsided figure-of-8 is the analemma we actually see in the sky:
 
 ![analemma-real](/static/img/projects/sunriseclock/analemma-real.png)
 
-This is where the cam shapes come in. Both cam profiles are generated from a year of real sunrise and sunset data, so the axial tilt and the equation of time are programmed into the shape - frozen in plastic. And because those times depend on where you are, every cam is tailored to one location.
+This is where the cam shapes come in. Both cam profiles are generated from a year of real sunrise and sunset data. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed into the shape - frozen in plastic. And because the individual contributions of those effects depend on where you are on the planet, every cam is tailored to a location.
 
 <details><summary>Effect of Location</summary>
 Solar noon slips about four minutes later for every degree you sit west of the meridian. It shifts everything by a fixed offset for your location. It doesn't change the shape of the curve, just the min / max sunrise and sunset times. Hence each cam profile has to be tailored to a specific location.
