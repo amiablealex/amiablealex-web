@@ -49,9 +49,9 @@ sweep of the indicators.
 
 ## Astronomy behind the cam shapes
 
-Daylight hours change throughout the seasons - long days in summer, short in winter. That part is down to the Earth being tilted on its spinning axis (23.4°), and on its own is straightforward and predictable: day lengths would vary smoothly and symmetrically through the year, and a regular oval cam would reproduce it perfectly.
+**Daylight hours change throughout the seasons** - long days in summer, short in winter. That part is down to the Earth being tilted on its spinning axis (23.4°), and on its own is straightforward and predictable: day lengths would vary smoothly and symmetrically through the year, and a regular oval cam would reproduce it perfectly.
 
-The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already drawing out while the mornings keep darkening. The sunrise and sunset curves aren't symmetric, and reproducing the annual cycle becomes more complicated. 
+The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already drawing out while the mornings keep darkening. **The sunrise and sunset curves aren't symmetric**, and reproducing the annual cycle becomes more complicated. 
 
 This is due to an astronomical phenomenon called **The Equation of Time**: the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season. It comes from Earth's tilt and elliptical orbit acting together. Because the orbit is an ellipse, the Earth speeds up as it orbits closer to the Sun in January and slows as it orbits further from the Sun in July. This is **Kepler's second law**. The equation of time emerges because each day the Earth must turn slightly more than a full 360° to bring the sun back to the same point in the sky. And the amount of extra rotation depends on the varying orbital speed.
 
@@ -77,7 +77,7 @@ The distorted figure-of-eight comes from two simple shapes added together. The s
 
 ![analemma-real](/static/img/projects/sunriseclock/analemma-real.png)
 
-This is where the cam shapes come in. Both cam profiles are generated from a year of real sunrise and sunset data. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed into the shape - frozen in plastic. And because the individual contributions of those effects depend on where you are on the planet, every cam is tailored to a location.
+**This is where the cam shapes come in**. Both cam profiles are generated from a year of real sunrise and sunset data. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed into the shape - frozen in plastic. And because the individual contributions of those effects depend on where you are on the planet, every cam is tailored to a location.
 
 <details><summary>Effect of Location</summary>
 Solar noon slips about four minutes later for every degree you sit west of the meridian. It shifts everything by a fixed offset for your location. It doesn't change the shape of the curve, just the min / max sunrise and sunset times. Hence each cam profile has to be tailored to a specific location.
