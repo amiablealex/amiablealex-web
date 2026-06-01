@@ -62,12 +62,10 @@ Day 1:  Earth at position A
         
 Day 2:  Earth has moved in orbit
         🌍 → must rotate 360° + 1° to get sun back to noon
-        (The extra 1° depends on orbital speed)
+        (The extra 1° depends on how far Earth has moved around its orbit since Day 1)
 ```   
      
-Add the smooth seasonal variation and the complex contribution from the equation of time, and the earliest sunset and latest sunrise are pushed off the solstice in *opposite* directions. They split because sunrise and sunset sit on opposite sides of *solar* midday, and solar midday is itself is still drifting later through December. After the winter solstice the days are already lengthening, so sunrise should start getting earlier; but the equation of time is still dragging solar noon later, and that wins for another week, holding sunrise back until its latest point around 30 December. The same drift works the other way at dusk, turning sunset around before the solstice, near 12 December.
-
-The sun at the same clock-time is never in quite the same place in the sky throughout the year - the annual cycle traces a distorted figure-of-eight across the sky. That shape is the **analemma**: the equation of time made visible, etched into the sky.
+Add the smooth seasonal variation and the complex contribution from the equation of time, and the sun at the same clock-time is never in quite the same place in the sky throughout the year - it traces a distorted figure-of-eight across the sky. That shape is the **analemma**: the equation of time made visible, etched into the sky.
 
 The distorted figure-of-eight comes from two simple shapes added together. The shapes below show the Sun's position at noon across an annual cycle. Up–down is how high the Sun climbs in the sky, rising and falling once a year. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock noon. The central vertical line on each diagram is due south - **solar noon** - the Sun perfectly in sync with clock-time would appear on it at exactly 12:00. 
 
@@ -79,67 +77,36 @@ The distorted figure-of-eight comes from two simple shapes added together. The s
 
 ![analemma-real](/static/img/projects/sunriseclock/analemma-real.png)
 
-This 
+Those two contributing factors are also what pushes the earliest sunset and latest sunrise to *opposite* sides of the solstice - because sunrise and sunset sit on opposite sides of *solar* midday, and solar midday is itself still drifting later through December.
+<details>After the winter solstice the days are lengthening, so sunrise <em>should</em> start getting earlier; but the second factor - the equation of time - is still dragging solar noon later even after the solstice. That wins for another week, holding sunrise back until its latest point around 30 December. The same interaction works the other way at dusk, the equation of time turning sunset around before the solstice, near 12 December.</details> 
 
 **This is where the cam shapes come in**. Both cam profiles are generated from a year of real sunrise and sunset data. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed into the shape - frozen in plastic. And because the individual contributions of those effects depend on where you are on the planet, every cam is tailored to a location.
 
-<details><summary>Effect of Location</summary>
-Solar noon slips about four minutes later for every degree you sit west of the meridian. It shifts everything by a fixed offset for your location. It doesn't change the shape of the curve, just the min / max sunrise and sunset times. Hence each cam profile has to be tailored to a specific location.
-</details>
-
-<details><summary>Historical Background & Kepler's Second Law</summary>
-
-The wobble this cam reproduces took roughly two thousand years to pin down.
-Ancient astronomers noticed that sundials and water-clocks drifted apart
-across the year — the sun simply didn't keep even time — and Ptolemy could
-already convert between sun-time and clock-time in the second century, long
-before anyone understood why the two differed. Medieval Islamic astronomers
-such as Ibn Yunus refined the tables to within a minute or two by around
-1000 CE, still as a pattern rather than an explanation.
-
-The "why" waited for Kepler. In 1609 he showed the orbit is an ellipse and
-the Earth speeds up as it nears the sun, accounting for one half of the
-wobble — the axial tilt explains the other. The last piece was simply being
-able to <em>see</em> it: Huygens's pendulum clock of 1656 was the first
-timekeeper steady enough to measure a few minutes' drift from one day to the
-next, confirming that sundial and clock genuinely disagree.
-
+<details><summary>A short history</summary>
+<p>The equation of time took roughly two thousand years to understand.
+First to spot, then to explain, then to measure.</p>
+<ul>
+<li><strong>c. 150 CE — Ptolemy.</strong> Noticed the Sun didn't keep even time and,
+in the <em>Almagest</em>, gave the first method to convert sundial time into steady
+clock time. He could correct for the wobble without knowing its cause.</li>
+<li><strong>c. 1000 CE — Islamic astronomers.</strong> Ibn Yunus, in Cairo, sharpened
+Ptolemy's solar tables and corrected his figures — better numbers, still no
+explanation.</li>
+<li><strong>1609 — Kepler.</strong> Supplied the "why." His <em>Astronomia Nova</em>
+showed the orbit is an ellipse and that Earth speeds up as it nears the Sun — his
+first and second laws — explaining the once-a-year part of the wobble. The
+twice-a-year part, from the tilt, had been geometry since antiquity.</li>
+<li><strong>1656 — Huygens.</strong> Built the pendulum clock: the first timekeeper
+steady enough to make the Sun's drift against it — up to about a quarter-hour over
+the year — plainly visible. He published the first essentially correct tables of the
+correction in 1665.</li>
+</ul>
 </details>
 
 
 ## Design Story
 
-
-## Cam to Indicator - The Maths
-
-### Follower swing
-### Hand sweep
-### Worked Sunrise
-### Worked Sunset
-### The One Assumption 
-Arm rides roughly horizontal on top of the cam, so arm contact point rise ≈ cam's radial change; valid because arm (80 mm) ≫ throw (~20 mm), ≈2% error.
-
-### Rotational-vs-linear-follower subtlety
-Because the arm pivots and the roller sits on top, the cam's push is nearly perpendicular to the arm → near-zero pressure angle → efficient. 
-(A nice "why horizontal is actually optimal" footnote — went back and forth on this and it's genuinely counterintuitive.)
-
-## Why the two hands sweep different angles
-- Total swing (~140°) is set by how much day length changes; a symmetric world splits it evenly.
-- The actual lopsided split (~55° sunrise vs ~85° sunset) is the equation-of-time-plus-longitude fingerprint: solar noon wanders, so morning and evening don't shift equally.
-- Real sunrise range is ~55°, but the build rounds to 52° for clean 4:1 gearing.
-
-## What the cam shape encodes
-- Two effects: axial tilt 23.4° (the smooth swing — alone it'd give a plain ellipse) + orbital eccentricity (the bump).
-- Kepler's 2nd law: Earth moves faster near the Sun → the Day-1/Day-2 over-rotation diagram.
-- The November bump — sunrise creeping earlier while days still shorten — "weird thing"
-- The January turnaround: latest sunrise is late December, not the solstice.
-- Longitude offset: 4 min per degree west; Belfast worked example (solar midpoint ~12:37).
-- The analemma figure-8
-**The cam shape programs every contributing effect into a single physical curve.**
-"How we worked this out" history aside: Hipparchus → Ptolemy → Ibn Yunus (equation-of-time tables, ~1000 CE) → Kepler (ellipses, 1609) → Huygens
-(the pendulum clock, 1656, finally accurate enough to measure the effect). Perfect for <details>.
-
-## Designing the profile
+### Designing the profile
 - Year = 360° of cam rotation, sampled at 24 equal points (~15 days).
 - Why 24: started at 12, doubled it to catch the November plateau and January turnaround without overloading the spline.
 - The interval correction: 365.25/12, not a round 30 days, so the points land true.
@@ -148,6 +115,21 @@ Because the arm pivots and the roller sits on top, the cam's push is nearly perp
 - Differing CAMs between locations - (53.2°N) and (51.27°N). Summer sunrise ~15 min later, winter near-identical. Strong proof of the parameterisation.
 - Roller compensation (cam surface vs roller-centre radius, 4 mm) and the 40.3 mm radius cap to clear the drive-gear support pin — build-accuracy.
 
+### Cam to Indicator - The Maths
+
+- Follower swing
+- Hand sweep
+- Worked Sunrise
+- Worked Sunset
+- The One Assumption
+- Arm rides roughly horizontal on top of the cam, so arm contact point rise ≈ cam's radial change; valid because arm (80mm) ≫ throw (~20 mm), ≈2% error.
+
+### Rotational-vs-linear-follower subtlety
+Because the arm pivots and the roller sits on top, the cam's push is nearly perpendicular to the arm → near-zero pressure angle → efficient. 
+(A nice "why horizontal is actually optimal" footnote — went back and forth on this and it's genuinely counterintuitive.)
+
+- Longitude offset: 4 min per degree west; Belfast worked example (solar midpoint ~12:37).
+
 ## Make Your Own
 - Makerworld Link
 - Calculator spreadsheet / app
@@ -155,12 +137,6 @@ Because the arm pivots and the roller sits on top, the cam's push is nearly perp
 - Assembly Guide
 
 ## Design Journey
--  Centre concentric hands chosen over a perimeter ring. The ring's mass/friction would have stalled the quartz movement and needed multi-stage amplification.
--  Gravity-loaded follower instead of a spring — the **low friction** is the reason a feeble quartz movement can drive the whole train. "how does a quartz movement turn all that?"
--  Nested brass tubes for the concentric hand shafts rather than 3D-printed thin shafts (too weak to print).
--  Why a 10-tooth centre gear is fine despite being near the undercut limit
-
-## Interesting things about sunrise / sunset
 
 ### Why sunrise and sunset are not centered exactly around mid-day
 - The geographic offset - for every degree of longitude you move west from the meridian, solar noon is delayed by about
