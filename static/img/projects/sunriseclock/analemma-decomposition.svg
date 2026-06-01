@@ -1,0 +1,51 @@
+<svg viewBox="0 0 1600 700" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ttl desc">
+<title id="ttl">How the analemma is built</title>
+<desc id="desc">Three panels. Left: the Sun's axial tilt alone traces a symmetric figure-eight over a year. Middle: Earth's elliptical orbit alone traces a single slim, tilted loop. Right: added together they make the real, lopsided analemma, with a small summer loop on top and a larger winter loop below.</desc>
+<style>
+text{font-family:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-serif}
+.ink{stroke:#2B2B2B;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.teal{stroke:#4C6E73;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.clay{stroke:#9E5C4F;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.axis{stroke:#3c372d;stroke-opacity:.14;fill:none}
+.ink-t{fill:#2B2B2B}
+.soft-t{fill:#6B6862}
+.dot{fill:#2B2B2B}
+@media (prefers-color-scheme:dark){
+.ink{stroke:#E9E5DC}.teal{stroke:#8FB6BB}.clay{stroke:#C98E80}
+.axis{stroke:#dcd7cd;stroke-opacity:.18}
+.ink-t{fill:#E9E5DC}.soft-t{fill:#A8A49B}.dot{fill:#E9E5DC}
+}
+</style>
+
+<text class="soft-t" x="40" y="48" font-size="24">↕  how high the Sun climbs  ·  the season</text>
+<text class="soft-t" x="40" y="82" font-size="24">↔  Sun ahead of / behind the clock</text>
+
+<line class="axis" x1="300" y1="160" x2="300" y2="480"/>
+<line class="axis" x1="205" y1="320" x2="395" y2="320"/>
+<line class="axis" x1="800" y1="160" x2="800" y2="480"/>
+<line class="axis" x1="705" y1="320" x2="895" y2="320"/>
+<line class="axis" x1="1300" y1="160" x2="1300" y2="480"/>
+<line class="axis" x1="1205" y1="320" x2="1395" y2="320"/>
+
+<path class="teal" stroke-width="6" d="M300,170 L330,175 L352,190 L360,214 L352,245 L330,281 L300,320 L270,359 L248,395 L240,426 L248,450 L270,465 L300,470 L330,465 L352,450 L360,426 L352,395 L330,359 L300,320 L270,281 L248,245 L240,214 L248,190 L270,175 Z"/>
+
+<path class="clay" stroke-width="6" d="M854,170 L846,175 L834,190 L820,214 L805,245 L790,281 L775,320 L762,359 L751,395 L744,426 L741,450 L741,465 L746,470 L754,465 L766,450 L780,426 L795,395 L810,359 L825,320 L838,281 L849,245 L856,214 L859,190 L859,175 Z"/>
+
+<path class="teal" stroke-width="3" stroke-opacity=".3" stroke-dasharray="6 7" d="M1300,170 L1330,175 L1352,190 L1360,214 L1352,245 L1330,281 L1300,320 L1270,359 L1248,395 L1240,426 L1248,450 L1270,465 L1300,470 L1330,465 L1352,450 L1360,426 L1352,395 L1330,359 L1300,320 L1270,281 L1248,245 L1240,214 L1248,190 L1270,175 Z"/>
+<path class="clay" stroke-width="3" stroke-opacity=".3" stroke-dasharray="6 7" d="M1354,170 L1346,175 L1334,190 L1320,214 L1305,245 L1290,281 L1275,320 L1262,359 L1251,395 L1244,426 L1241,450 L1241,465 L1246,470 L1254,465 L1266,450 L1280,426 L1295,395 L1310,359 L1325,320 L1338,281 L1349,245 L1356,214 L1359,190 L1359,175 Z"/>
+<path class="ink" stroke-width="7" d="M1354,170 L1375,175 L1386,190 L1380,214 L1357,245 L1319,281 L1275,320 L1232,359 L1200,395 L1185,426 L1189,450 L1212,465 L1246,470 L1284,465 L1317,450 L1339,426 L1346,395 L1340,359 L1325,320 L1309,281 L1297,245 L1296,214 L1308,190 L1329,175 Z"/>
+<circle class="dot" cx="1354" cy="170" r="6"/>
+<text class="soft-t" x="1368" y="176" font-size="24">Jun</text>
+<circle class="dot" cx="1246" cy="470" r="6"/>
+<text class="soft-t" x="1232" y="495" font-size="24" text-anchor="end">Dec</text>
+
+<text class="soft-t" x="550" y="335" font-size="72" text-anchor="middle" dominant-baseline="middle">+</text>
+<text class="soft-t" x="1022" y="335" font-size="72" text-anchor="middle" dominant-baseline="middle">=</text>
+
+<text class="ink-t" x="300" y="580" font-size="34" font-weight="500" text-anchor="middle">Axial tilt</text>
+<text class="soft-t" x="300" y="618" font-size="26" text-anchor="middle">a figure-8, twice a year</text>
+<text class="ink-t" x="800" y="580" font-size="34" font-weight="500" text-anchor="middle">Elliptical orbit</text>
+<text class="soft-t" x="800" y="618" font-size="26" text-anchor="middle">one slim loop, once a year</text>
+<text class="ink-t" x="1300" y="580" font-size="34" font-weight="500" text-anchor="middle">What you actually see</text>
+<text class="soft-t" x="1300" y="618" font-size="26" text-anchor="middle">the real, lopsided analemma</text>
+</svg>
