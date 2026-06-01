@@ -73,7 +73,7 @@ The distorted figure-of-eight comes from two simple shapes added together. The s
 
 - Axial tilt makes the Sun run fast at the solstices and slow at the equinoxes: *fast, slow, fast, slow*, twice a year. That twice-yearly period draws a clean, symmetric figure-8.
 - The elliptical orbit speeds the Sun up and slows it down just once a year: *fast, slow* (Kepler's Second Law), tracing a single slim, tilted loop.
-- Added together, Kepler's loop reinforces the symmetric figure-8 on one side of the year and cancels out on the other. One figure-8 loop swells and the other shrinks. That lopsided figure-of-8 is the analemma we actually see in the sky:
+- Added together, Kepler's elliptical orbit loop reinforces the symmetric figure-8 on one side of the year and cancels out on the other. One figure-8 loop swells and the other shrinks. That lopsided figure-of-8 is the analemma we actually see in the sky:
 
 ![analemma-real](/static/img/projects/sunriseclock/analemma-real.png)
 
