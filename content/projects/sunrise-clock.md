@@ -49,11 +49,10 @@ sweep of the indicators.
 
 ## The Astronomy
 
-The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already drawing out while the mornings keep darkening.
+The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already drawing out while the mornings keep darkening. Two things cause this, layered on top of each other:
 
-Two things cause this, layered on top of each other. 
 - The tilt of the Earth's axis (23.4°), which gives the seasons and drives the large, smooth swing in day length between summer and winter. On its own, that would cause a perfectly even, symmetric sunrise / sunset variation.
-- **The Equation of Time** - the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season. The Equation of Time has two sources: the same 23.4° tilt, plus the fact that Earth's orbit is an ellipse. Earth speeds up near the Sun (January) and slows when farther away (July) (Kepler's Second Law), and each day it must turn slightly more than 360° to face the sun again. That amount of extra rotation depends on the orbital speed.
+- **The Equation of Time** - the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season. The equation of time has two sources: the same 23.4° tilt, plus the fact that Earth's orbit is an ellipse. Earth speeds up near the Sun (January) and slows when farther away (July) (Kepler's Second Law), and each day it must turn slightly more than 360° to face the sun again. That amount of extra rotation depends on the orbital speed.
 
 ```
    Day 1:  Earth at position A
