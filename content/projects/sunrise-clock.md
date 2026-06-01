@@ -49,11 +49,11 @@ sweep of the indicators.
 
 ## Astronomy behind the cam shapes
 
-Daylight hours changes throughout the seasons - long days in summer, short in winter. That part is down to the Earth being tilted on its spinning axis (23.4°), and on its own is straightforward and predictable: day lengths would vary smoothly and symmetrically through the year, and a regular oval cam would reproduce it perfectly.
+Daylight hours change throughout the seasons - long days in summer, short in winter. That part is down to the Earth being tilted on its spinning axis (23.4°), and on its own is straightforward and predictable: day lengths would vary smoothly and symmetrically through the year, and a regular oval cam would reproduce it perfectly.
 
-However, the shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already drawing out while the mornings keep darkening. The sunrise and sunset curves aren't symmetric, and reproducing the annular cycle is more complicated than it first appears. 
+The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already drawing out while the mornings keep darkening. The sunrise and sunset curves aren't symmetric, and reproducing the annual cycle becomes more complicated. 
 
-It's due to an astronomical phenomenon called **The Equation of Time**: the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season. It comes from Earth's tilt and elliptical orbit acting together. Because the orbit is an ellipse, the Earth speeds up as it orbits closer to the Sun in January and slows as it orbits further from the Sun in July. This is **Kepler's second law**. The equation of time arises because each day the Earth must turn slightly more than a full 360° to bring the sun back to the same point in the sky. And the amount of extra rotation depends on the varying orbital speed.
+This is due to an astronomical phenomenon called **The Equation of Time**: the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season. It comes from Earth's tilt and elliptical orbit acting together. Because the orbit is an ellipse, the Earth speeds up as it orbits closer to the Sun in January and slows as it orbits further from the Sun in July. This is **Kepler's second law**. The equation of time emerges because each day the Earth must turn slightly more than a full 360° to bring the sun back to the same point in the sky. And the amount of extra rotation depends on the varying orbital speed.
 
 ```
 Day 1:  Earth at position A
@@ -65,9 +65,17 @@ Day 2:  Earth has moved in orbit
         (The extra 1° depends on orbital speed)
 ```   
      
-Add the smooth seasonal variation and the complex contribution from the equation of time, and the earliest sunset and latest sunrise get nudged off the solstice in opposite directions. The sun at the same clock-time is always at a different point in the sky - it never returns to the same spot over a full year. It traces a figure-of-eight across the sky. That shape is the **analemma**: the equation of time made visible.
+Add the smooth seasonal variation and the complex contribution from the equation of time, and the earliest sunset and latest sunrise get nudged off the solstice in opposite directions. The sun at the same clock-time is always at a different point in the sky throughout the year - the annual cycle tracing a distorted figure-of-eight across the sky. That shape is the **analemma**: the equation of time made visible.
 
-![analemma](/static/img/projects/sunriseclock/analemma.png)
+The distorted figure-of-eight comes from two simple shapes added together. The shapes below show the Sun's position at Noon across an annual cycle. Up–down is how high the Sun climbs i the sky, rising and falling once a year. The central vertical line is due south - a Sun perfectly in sync with clock-time would appear on it. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock noon.
+
+![analemma-decomposition](/static/img/projects/sunriseclock/analemma-decomposition.svg)
+
+- Tilt alone makes the Sun run fast at the solstices and slow at the equinoxes: fast, slow, fast, slow — twice a year. That twice-yearly wobble draws a clean, symmetric figure-8.
+- The elliptical orbit alone speeds the Sun up and slows it down just once a year (Kepler again), tracing a single slim, tilted loop.
+- Added together, the two shapes reinforce on one side of the year and cancel on the other. One loop swells and the other shrinks. That lopsided figure-of-8 is what we actually see in the sky:
+
+![analemma-real](/static/img/projects/sunriseclock/analemma-real.png)
 
 This is where the cam shapes come in. Both cam profiles are generated from a year of real sunrise and sunset data, so the axial tilt and the equation of time are programmed into the shape - frozen in plastic. And because those times depend on where you are, every cam is tailored to one location.
 
