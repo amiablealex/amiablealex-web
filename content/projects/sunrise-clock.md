@@ -65,9 +65,11 @@ Day 2:  Earth has moved in orbit
         (The extra 1° depends on orbital speed)
 ```   
      
-Add the smooth seasonal variation and the complex contribution from the equation of time, and the earliest sunset and latest sunrise get nudged off the solstice in opposite directions. The sun at the same clock-time is always at a different point in the sky throughout the year - the annual cycle tracing a distorted figure-of-eight across the sky. That shape is the **analemma**: the equation of time made visible.
+Add the smooth seasonal variation and the complex contribution from the equation of time, and the earliest sunset and latest sunrise are pushed off the solstice in *opposite* directions. They split because sunrise and sunset sit on opposite sides of *solar* midday, and solar midday is itself is still drifting later through December. After the winter solstice the days are already lengthening, so sunrise should start getting earlier; but the equation of time is still dragging solar noon later, and that wins for another week, holding sunrise back until its latest point around 30 December. The same drift works the other way at dusk, turning sunset around before the solstice, near 12 December.
 
-The distorted figure-of-eight comes from two simple shapes added together. The shapes below show the Sun's position at noon across an annual cycle. Up–down is how high the Sun climbs in the sky, rising and falling once a year. The central vertical line is due south - a Sun perfectly in sync with clock-time would appear on it. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock noon.
+The sun at the same clock-time is never in quite the same place in the sky throughout the year - the annual cycle traces a distorted figure-of-eight across the sky. That shape is the **analemma**: the equation of time made visible, etched into the sky.
+
+The distorted figure-of-eight comes from two simple shapes added together. The shapes below show the Sun's position at noon across an annual cycle. Up–down is how high the Sun climbs in the sky, rising and falling once a year. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock noon. The central vertical line on each diagram is due south - **solar noon** - the Sun perfectly in sync with clock-time would appear on it at exactly 12:00. 
 
 ![analemma-decomposition](/static/img/projects/sunriseclock/analemma-decomposition.svg)
 
@@ -76,6 +78,8 @@ The distorted figure-of-eight comes from two simple shapes added together. The s
 - Added together, Kepler's elliptical orbit loop reinforces the symmetric figure-8 on one side of the year and cancels out on the other. One figure-8 loop swells and the other shrinks. That lopsided figure-of-8 is the analemma we actually see in the sky:
 
 ![analemma-real](/static/img/projects/sunriseclock/analemma-real.png)
+
+This 
 
 **This is where the cam shapes come in**. Both cam profiles are generated from a year of real sunrise and sunset data. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed into the shape - frozen in plastic. And because the individual contributions of those effects depend on where you are on the planet, every cam is tailored to a location.
 
