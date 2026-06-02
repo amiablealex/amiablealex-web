@@ -57,10 +57,14 @@ ns('circle',{cx:cx,cy:cy,r:2.5,'class':'lab'});
 ns('text',{x:cx,y:34,'font-size':18,'font-weight':500,'class':'ttl','text-anchor':'middle'},'24 samples \u2192 one spline');
 ns('text',{x:cx,y:cy+Router+46,'font-size':14,'class':'lab','text-anchor':'middle'},'each point is the sunrise time for that date');
 var cards=[
- {i:0,  t:'21 Jun \u00b7 solstice', x:cx,          y:cy-Router-16, a:'middle'},
- {i:6,  t:'20 Sep',                x:cx+Router+12, y:cy+5,         a:'start'},
- {i:12, t:'21 Dec \u00b7 solstice', x:cx,          y:cy+Router+22, a:'middle'},
- {i:18, t:'22 Mar',                x:cx-Router-12, y:cy+5,         a:'end'}
+ {i:0,  t:'21 Jun', x:cx,           y:cy-Router-16, a:'middle'},
+ {i:3,  t:'6 Aug',  x:cx+161,       y:cy-155,       a:'start'},
+ {i:6,  t:'20 Sep', x:cx+Router+12, y:cy+5,         a:'start'},
+ {i:9,  t:'5 Nov',  x:cx+161,       y:cy+165,       a:'start'},
+ {i:12, t:'21 Dec', x:cx,           y:cy+Router+22, a:'middle'},
+ {i:15, t:'4 Feb',  x:cx-161,       y:cy+165,       a:'end'},
+ {i:18, t:'22 Mar', x:cx-Router-12, y:cy+5,         a:'end'},
+ {i:21, t:'6 May',  x:cx-161,       y:cy-155,       a:'end'}
 ];
 var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var spokes=[],dots=[],cardEls=[],ci;
