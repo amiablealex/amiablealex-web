@@ -227,16 +227,6 @@ the 80 mm arm dwarfs the ~20 mm throw, so the error is only a couple of percent.
 
 </details>
 
-
-<details><summary>The maths: throw, arm length, gear ratio</summary>
-_[INSTRUCTION: the two-step formula and both worked examples. Follower swing
-θ = arctan(throw ÷ arm). Hand sweep = θ × (sector teeth ÷ centre teeth). Then sunrise
-(your real GMT throw, 80 mm arm, 4:1) and sunset (real throw, 80 mm, 6:1) worked
-through to their sweep angles. State the one assumption: arm rides roughly horizontal
-on top of the cam, so roller rise ≈ cam's radial change — valid because the 80 mm arm
-dwarfs the ~20 mm throw (~2% error). Use your KaTeX now that it renders.]_
-</details>
-
 ### What I got wrong
 
 _[INSTRUCTION: the honest beats. Two of them. Frame as "caught and fixed," not disaster.
