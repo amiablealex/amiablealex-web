@@ -49,11 +49,13 @@ sweep of the indicators.
 
 ## Astronomy behind the cam shapes
 
-**Daylight hours change throughout the seasons** - long days in summer, short in winter. That part is down to the Earth being tilted on its spinning axis (23.4°), and on its own is straightforward and predictable: day lengths would vary smoothly and symmetrically through the year, and a regular oval cam would reproduce it perfectly.
+**Daylight hours change throughout the seasons** - long days in summer, short in winter - and this project aims to indicate this variation mechanically on a 24-hour clock face. The varying number of daylight hours in a day is mostly due to the Earth being tilted on its spinning axis (23.4°). On its own this effect is straightforward and predictable: daylight hours would vary smoothly and symmetrically through the year, and a regular oval cam fitted into the clock design would reproduce it perfectly.
 
-However, **the sunrise and sunset curves aren't symmetric**. The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already on their way towards spring while the mornings are still darkening. Reproducing the annual cycle is becoming more complicated. 
+However, **the sunrise and sunset curves aren't symmetric**. The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already on their way towards spring while the mornings are still darkening[^evenings]. Mechanically reproducing the annual cycle is becoming more complicated. 
 
-This is due to an astronomical phenomenon called **The Equation of Time**: the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season. It comes from Earth's tilt and elliptical orbit acting together. Because the orbit is an ellipse, the Earth speeds up as it orbits closer to the Sun in January and slows as it orbits further from the Sun in July. This is **Kepler's second law**. The equation of time emerges because each day the Earth must turn slightly more than a full 360° to bring the sun back to the same point in the sky. And the amount of extra rotation depends on the varying orbital speed.
+[^evenings]: The earliest-sunset effect is explained well in [The evenings are drawing out already](https://explainingscience.org/2019/12/13/the-evenings-are-drawing-out-already-2/), Explaining Science (2019).
+
+There is another mechanic also contributing its own effect to the daylight hours - an astronomical phenomenon called **The Equation of Time**: the gap between sun-time and clock-time. The Sun runs slightly fast or slow against the clock depending on the season, coming from the Earth's tilt and elliptical orbit acting together. Because the Earth's orbit is an ellipse, the Earth speeds up as it orbits closer to the Sun in January and slows as it orbits further from the Sun in July - **Kepler's second law**. The equation of time emerges because each day the Earth must turn slightly more than a full 360° to bring the sun back to the same point in the sky. The amount of extra rotation needed each day depends on the orbital speed, which in turn depends on which part of the orbit the Earth is in. So the equation of time varies throughout the seasons.
 
 ```
 Day 1:  Earth at position A
@@ -65,9 +67,9 @@ Day 2:  Earth has moved in orbit
         (The extra 1° depends on how far Earth has moved around its orbit since Day 1)
 ```   
      
-Add the smooth seasonal variation and the complex contribution from the equation of time, and the sun at the same clock-time is never in quite the same place in the sky throughout the year - it traces a distorted figure-of-eight across the sky. That shape is the **analemma**: the equation of time made visible, etched into the sky.
+Add together the seasonal variation from axial tilt and the complex contribution from the equation of time, and the sun at the same clock-time is never in quite the same place in the sky throughout the year - it traces a distorted figure-of-eight. That shape is the **analemma**: the equation of time made visible, etched into the sky.
 
-The distorted figure-of-eight comes from two simple shapes added together. The shapes below show the Sun's position at noon across an annual cycle. Up–down is how high the Sun climbs in the sky, rising and falling once a year. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock noon. The central vertical line on each diagram is due south - **solar noon** - the Sun perfectly in sync with clock-time would appear on it at exactly 12:00. 
+The shapes below show the Sun's position at noon across a one-year period. Up–down is how high the Sun climbs in the sky, rising and falling once a year. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock noon. The central vertical line on each diagram is due south - **solar noon** - the Sun perfectly in sync with clock-time would always appear due south at exactly 12:00pm. 
 
 ![analemma-decomposition](/static/img/projects/sunriseclock/analemma-decomposition.svg)
 
@@ -86,26 +88,30 @@ Those two contributing factors are also what pushes the earliest sunset and late
 <p>The equation of time took roughly two thousand years to understand.
 First to spot, then to explain, then to measure.</p>
 <ul>
-<li><strong>c. 150 CE — Ptolemy.</strong> Noticed the Sun didn't keep even time and,
-in the <em>Almagest</em>, gave the first method to convert sundial time into steady
-clock time. He could correct for the wobble without knowing its cause.</li>
+<li><strong>c. 150 CE — Ptolemy.</strong> Noticed the Sun didn't keep even time and
+gave the first method to convert sundial time into steady clock time. He could correct
+for the wobble without knowing its cause.</li>
 <li><strong>c. 1000 CE — Islamic astronomers.</strong> Ibn Yunus, in Cairo, sharpened
-Ptolemy's solar tables and corrected his figures — better numbers, still no
-explanation.</li>
-<li><strong>1609 — Kepler.</strong> Supplied the "why." His <em>Astronomia Nova</em>
-showed the orbit is an ellipse and that Earth speeds up as it nears the Sun — his
-first and second laws — explaining the once-a-year part of the wobble. The
-twice-a-year part, from the tilt, had been geometry since antiquity.</li>
+Ptolemy's solar tables and corrected his figures. Still no explanation.</li>
+<li><strong>1609 — Kepler.</strong> Arrives with the "why." His <em>Astronomia Nova</em>
+showed the orbit is an ellipse and that Earth speeds up as it nears the Sun - his
+first and second laws - explaining the once-a-year part of the wobble. The
+twice-a-year part, from the axial tilt, had been geometry since antiquity.</li>
 <li><strong>1656 — Huygens.</strong> Built the pendulum clock: the first timekeeper
-steady enough to make the Sun's drift against it — up to about a quarter-hour over
-the year — plainly visible. He published the first essentially correct tables of the
-correction in 1665.</li>
+steady enough to make the Sun drift against it. Up to about a quarter-hour over
+the year - plainly visible.</li>
 </ul>
 </details>
 
 
 ## Design Story
 
+
+
+
+
+
+<details><summary>Writing Notes</summary>
 ### Designing the profile
 - Year = 360° of cam rotation, sampled at 24 equal points (~15 days).
 - Why 24: started at 12, doubled it to catch the November plateau and January turnaround without overloading the spline.
@@ -202,3 +208,4 @@ tilt is also changing the "earliest possible sunrise". These combine in complex 
 slightly EARLIER. This creates the "bump" on your cam (radius increases from Oct to Nov).
 
 **The shape of the cam effectively programs all the effects that contribute to the sunrise / sunset variation into a single physical shape**.
+</details>
