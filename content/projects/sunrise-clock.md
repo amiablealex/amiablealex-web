@@ -93,7 +93,7 @@ When Earth is moving *slow* (July - aphelion):
 - Solar day is *shorter* than average
 - Sunrise/sunset times relative to the clock drift *earlier* with each passing day
 
-Add together this contribution from the equation of time to the seasonal variation from axial tilt and, and you get two 
+Add together this contribution from the equation of time and the seasonal variation from axial tilt, and what you get is two 
 independent astronomical phenomena combining in complex ways. The result is that - for the same clock time each day of the
 year - the Sun never sits in quite the same spot; instead it traces a distorted figure-of-eight. That shape is the 
 **analemma**: the equation of time made visible, etched into the sky. 
