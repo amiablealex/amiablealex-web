@@ -9,6 +9,7 @@
 #buildFig .cam{stroke:#2B2B2B;fill:#2B2B2B;fill-opacity:.04;stroke-linejoin:round;stroke-linecap:round}
 #buildFig .lab{fill:#6B6862}
 #buildFig .ttl{fill:#2B2B2B}
+/*
 @media (prefers-color-scheme:dark){
 #buildFig .base{stroke:#dcd7cd;stroke-opacity:.12}
 #buildFig .spoke{stroke:#dcd7cd;stroke-opacity:.26}
@@ -17,6 +18,7 @@
 #buildFig .lab{fill:#A8A49B}
 #buildFig .ttl{fill:#E9E5DC}
 }
+*/
 </style>
 <g id="buildRoot"></g>
 <script>

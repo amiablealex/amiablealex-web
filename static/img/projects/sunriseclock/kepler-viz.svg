@@ -6,12 +6,14 @@
 #keplerFig .sun{stroke:#2B2B2B;fill:none}
 #keplerFig .foc{fill:#2B2B2B;fill-opacity:.3}
 #keplerFig .earth{fill:#2B2B2B}
+/*
 @media (prefers-color-scheme:dark){
 #keplerFig .orbit{stroke:#E9E5DC;stroke-opacity:.4}
 #keplerFig .sun{stroke:#E9E5DC}
 #keplerFig .foc{fill:#E9E5DC;fill-opacity:.34}
 #keplerFig .earth{fill:#E9E5DC}
 }
+*/
 </style>
 <g id="keplerRoot"></g>
 <script>

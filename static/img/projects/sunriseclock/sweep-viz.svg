@@ -13,6 +13,7 @@
 #sweepFig .live{fill:#9E5C4F}
 #sweepFig .livestroke{stroke:#9E5C4F;fill:none}
 #sweepFig .tie{stroke:#9E5C4F;stroke-opacity:.55;fill:none;stroke-dasharray:2 4}
+/*
 @media (prefers-color-scheme:dark){
 #sweepFig .ax{stroke:#dcd7cd;stroke-opacity:.2}
 #sweepFig .gr{stroke:#dcd7cd;stroke-opacity:.1}
@@ -25,6 +26,7 @@
 #sweepFig .livestroke{stroke:#C98E80}
 #sweepFig .tie{stroke:#C98E80;stroke-opacity:.6}
 }
+*/
 </style>
 <g id="sweepRoot"></g>
 <script>
