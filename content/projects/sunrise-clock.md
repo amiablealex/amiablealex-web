@@ -79,19 +79,19 @@ Day 2:  Earth has moved in orbit
         (The extra 1° depends on how far Earth has moved around its orbit since Day 1)
 ```   
 
-When Earth moves FAST (January - perihelion):
+When Earth is moving *fast* (January - perihelion):
 
 - Earth travels further along orbit each day
-- Must rotate MORE to bring sun back to noon
-- Solar day is LONGER than average
-- Sunrise/sunset times relative to the clock drift LATER for each day that passes
+- Must rotate *more* to bring sun back to noon
+- Solar day is *longer* than average
+- Sunrise/sunset times relative to the clock drift *later* with each passing day
 
-When Earth moves SLOW (July - aphelion):
+When Earth is moving *slow* (July - aphelion):
 
 - Earth travels less far along orbit each day
 - Needs less extra rotation to get back to noon
-- Solar day is SHORTER than average
-- Sunrise/sunset times relative to the clock drift EARLIER for each day that passes
+- Solar day is *shorter* than average
+- Sunrise/sunset times relative to the clock drift *earlier* with each passing day
 
 Add together the seasonal variation from axial tilt and the contribution from the equation of time, and you get two 
 independent astronomical phenomena combining in complex ways. The result is that - for the same clock time each day of the
