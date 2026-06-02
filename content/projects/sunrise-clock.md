@@ -200,23 +200,24 @@ Two steps turn the cam into a hand sweep.
 First, the cam swings the follower arm. As the cam radius changes by an amount called the
 **throw**, the arm swings through an angle:
 
-$$\theta = \arctan\!\left(\frac{\text{throw}}{\text{arm length}}\right)$$
+\(\theta = \arctan\!\left(\dfrac{\text{throw}}{\text{arm length}}\right)\)
 
-Then the sector gear amplifies that swing by the gear ratio:
+Then the sector amplifies that swing by the gear ratio:
 
-$$\text{sweep} = \theta \times \frac{\text{sector teeth}}{\text{centre teeth}}$$
+\(\text{sweep} = \theta \times \dfrac{\text{sector teeth}}{\text{centre teeth}}\)
 
-Both arms are 80 mm. Working the two hands through, with sunrise geared 40:10, sunset 60:10:
+Both arms are 80 mm. Working the two hands through — sunrise geared 40:10, sunset 60:10:
 
-$$\arctan\!\left(\frac{24.1}{80}\right) = 16.8^\circ \quad\Rightarrow\quad 16.8^\circ \times \frac{40}{10} = 67^\circ$$
+\(\arctan\!\left(\dfrac{24.1}{80}\right) = 16.8^\circ \;\Rightarrow\; 16.8^\circ \times \dfrac{40}{10} = 67^\circ\)
 
-$$\arctan\!\left(\frac{16.0}{80}\right) = 11.3^\circ \quad\Rightarrow\quad 11.3^\circ \times \frac{60}{10} = 68^\circ$$
+\(\arctan\!\left(\dfrac{16.0}{80}\right) = 11.3^\circ \;\Rightarrow\; 11.3^\circ \times \dfrac{60}{10} = 68^\circ\)
 
 So the sunrise hand sweeps about 67° across the year and the sunset hand about 68° —
 matching the real spread of times at this latitude.
 
 **The one assumption.** This treats the point where the arm meets the cam as rising by
-exactly the cam's change in radius. Valid because arm (80mm) ≫ throw (~20 mm), ≈2% error.
+exactly the cam's change in radius — only true if the arm sits roughly horizontal. It does:
+the 80 mm arm dwarfs the ~20 mm throw, so the error is only a couple of percent.
 
 </details>
 
