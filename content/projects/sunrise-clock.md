@@ -49,7 +49,7 @@ sweep of the indicators.
 
 ## Astronomy behind the cam shapes
 
-**Daylight hours change throughout the seasons** - long days in summer, short in winter - and this project aims to indicate this variation mechanically on a 24-hour clock face. The varying number of daylight hours in a day is mostly due to the Earth being tilted on its spinning axis (23.4°). On its own this effect is straightforward and predictable: daylight hours would vary smoothly and symmetrically through the year, and a regular oval cam fitted into the clock design would reproduce it perfectly.
+**Daylight hours change throughout the seasons** - long days in summer, short in winter. This project aims to indicate this variation mechanically on a 24-hour clock face. The effect is mostly due to the Earth being tilted on its spinning axis (23.4°) - on its own this effect is straightforward and predictable: daylight hours would vary smoothly and symmetrically through the year, and a regular oval cam fitted into the clock design would reproduce it perfectly.
 
 However, **the sunrise and sunset curves aren't symmetric**. The shortest day is the winter solstice, around 21 December. But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the latest sunrise around 30 December. So for two weeks before Christmas the evenings are already on their way towards spring while the mornings are still darkening.[^evenings] Mechanically reproducing the annual cycle is becoming more complicated. 
 
