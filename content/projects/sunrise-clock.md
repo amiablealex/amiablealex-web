@@ -157,46 +157,69 @@ the year - plainly visible.</li>
 
 ## Design Story
 
-The cam edge has to carry the shape of all the complex interactions affecting the sunrise and sunset times put together. The 
-funny thing is - a bit like Ptolemy in 150 AD - you don't actually need to know any of the Astronomy to arrive at the correct 
-shape.
+The cam edge has to carry all of those interacting effects at once. The funny thing is, much
+like Ptolemy in 150 AD, is that you don't need to understand the astronomy to arrive at the
+correct shape.
 
 ### Generating the cam profile
 
-- one full turn of the cam = one year = 360°
-- take 24 equal points (~15 days apart), set first point as summer solstice June 21 for reference
-- sample the sumrise / sunset time for all of the 24 dates
-- set the maximum radius of the cam, restricted by design limitations
-- The mapping: each sampled time becomes a radius — latest sunrise → minimum radius, earliest → maximum
-  (and the reverse for sunset). A spline through the 24 radii is the cam edge.
-- The key property: because the radii come from REAL times, every astronomical effect
-  from the last section is baked in automatically — you don't model the equation of
-  time, you just use the data and it's already there
-- The calculator: one spreadsheet, a handful of inputs (the four extreme times, the
-  two gear ratios, arm length, max cam radius), out comes the 24-row table. Change the
-  location's times → new cam.
-  
-![cam-profile-or-spreadsheet](/static/img/projects/sunriseclock/24h-chain.png)
-_[caption instruction: the 24-point profile, or a screenshot of the calculator]_
+One full revolution of the cam is one year, so the year maps onto 360°. Sample that circle at
+24 equal points, about 15 days apart (\(365.25/24 = 15.21 days\) ), and set the summer solstice (21 June) as the
+reference point. The method is then simply:
 
-### The effect of Location
+1. Look up the real sunrise (or sunset) time at each of the 24 dates.
+1. Fix the cam's maximum radius, determined by the space available in the mechanism.
+1. Turn each time into a radius: the latest sunrise becomes the smallest radius, the earliest becomes the largest
+   **(and the reverse for sunset)**.
+1. Fit a smooth spline through the 24 radii. That curve is the cam edge.
 
-Two locations: East Midlands (53.2°N) and the South of England (51.2°N). Summer sunrise ~15 min apart, 
-winter near-identical — as evidence the location-tailoring is real and necessary, not cosmetic.
 
-### Cam to Indicator & The Maths
+Because every radius comes from a *real* sunrise time, the cam inherits every effect from the previous section. 
+There is nothing astronomical to model; the data already carries it.
 
-_[INSTRUCTION: the mechanical conversion, in plain prose for the main read — the cam
-raises a follower arm, a sector gear at its pivot drives a small centre gear, the hand
-sits on the centre gear. Keep the actual trig/numbers in the details below so the main
-text stays readable.]_
+All of this lives in a spreadsheet. A handful of inputs (the four extreme times, the
+two gear ratios, the arm length and the maximum cam radius) produce two 24-row tables of
+radii. Change the times, and out comes a different cam.
 
-- Follower swing
-- Hand sweep
-- Worked Sunrise
-- Worked Sunset
-- The One Assumption
-- Arm rides roughly horizontal on top of the cam, so arm contact point rise ≈ cam's radial change; valid because arm (80mm) ≫ throw (~20 mm), ≈2% error.
+![cam profile examples side by side](/static/img/projects/sunriseclock/24h-chain.png)
+
+
+### Cam to indicator
+
+The cam turns once a year. Its changing radius pushes a follower arm up and down; the arm
+pivots about a fixed point, and a toothed sector fixed at that pivot swings through a small
+angle as the arm rises. The sector meshes with a small ten-tooth gear at the centre of the
+dial, which carries the indicator hand. Because the sector is large and the centre gear
+small, the hand turns far more than the follower rotation. A 3d-printed clock spring ensures that the follower 
+always maintains contact with the cam and traces out the correct profile.
+
+<details><summary>The maths: throw, arm length and gear ratio</summary>
+
+Two steps turn the cam into a hand sweep.
+
+First, the cam swings the follower arm. As the cam radius changes by an amount called the
+**throw**, the arm swings through an angle:
+
+$$\theta = \arctan\!\left(\frac{\text{throw}}{\text{arm length}}\right)$$
+
+Then the sector gear amplifies that swing by the gear ratio:
+
+$$\text{sweep} = \theta \times \frac{\text{sector teeth}}{\text{centre teeth}}$$
+
+Both arms are 80 mm. Working the two hands through, with sunrise geared 40:10, sunset 60:10:
+
+$$\arctan\!\left(\frac{24.1}{80}\right) = 16.8^\circ \quad\Rightarrow\quad 16.8^\circ \times \frac{40}{10} = 67^\circ$$
+
+$$\arctan\!\left(\frac{16.0}{80}\right) = 11.3^\circ \quad\Rightarrow\quad 11.3^\circ \times \frac{60}{10} = 68^\circ$$
+
+So the sunrise hand sweeps about 67° across the year and the sunset hand about 68° —
+matching the real spread of times at this latitude.
+
+**The one assumption.** This treats the point where the arm meets the cam as rising by
+exactly the cam's change in radius. Valid because arm (80mm) ≫ throw (~20 mm), ≈2% error.
+
+</details>
+
 
 <details><summary>The maths: throw, arm length, gear ratio</summary>
 _[INSTRUCTION: the two-step formula and both worked examples. Follower swing
@@ -229,6 +252,7 @@ wasn't the mechanism but getting the data and the directions honest. Keep it lig
 
 
 ## Make Your Own
+
 - Makerworld Link
 - Calculator spreadsheet / app
 - Hardware List
