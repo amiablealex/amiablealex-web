@@ -161,10 +161,6 @@ The cam edge has to carry all of those interacting effects at once. The funny th
 like Ptolemy in 150 AD, is that you don't need to understand the astronomy to arrive at the
 correct shape.
 
-<object type="image/svg+xml" data="/static/img/projects/sunriseclock/sweep-viz.svg" width="100%" height="470" class="cam-viz" aria-label="A year of sunrise times, wrapped onto the cam">
-  <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="Static version of the sunrise cam shape" />
-</object>
-
 ### Generating the cam profile
 
 One full revolution of the cam is one year, so the year maps onto 360°. Sample that circle at
