@@ -183,10 +183,6 @@ reference point. The method is then simply:
 Because every radius comes from a *real* sunrise time, the cam inherits every effect from the previous section. 
 There is nothing astronomical to model; the data already carries it.
 
-All of this lives in a spreadsheet. A handful of inputs (the four extreme times, the
-two gear ratios, the arm length and the maximum cam radius) produce two 24-row tables of
-radii. Change the times, and out comes a different cam.
-
 <object type="image/svg+xml" data="/static/img/projects/sunriseclock/sweep-viz.svg"
         width="100%" class="cam-viz"
         style="display: block; aspect-ratio: 1000 / 470;"
