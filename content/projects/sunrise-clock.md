@@ -80,20 +80,22 @@ Day 2:  Earth has moved in orbit
 ```   
 
 When Earth moves FAST (January - perihelion):
-- Earth travels further along orbit each day.
-- Must rotate MORE to bring sun back to noon.
-- Solar day is LONGER than average.
+
+- Earth travels further along orbit each day
+- Must rotate MORE to bring sun back to noon
+- Solar day is LONGER than average
 - Sunrise/sunset times relative to the clock drift LATER for each day that passes
 
 When Earth moves SLOW (July - aphelion):
+
 - Earth travels less far along orbit each day
 - Needs less extra rotation to get back to noon
 - Solar day is SHORTER than average
 - Sunrise/sunset times relative to the clock drift EARLIER for each day that passes
 
-Add together the seasonal variation from axial tilt and the complex contribution from the equation of time, and you get two 
-independent astronomical phenomena combining in complex ways. The result is that - at the same clock time - the Sun is never 
-quite in the same place in the sky throughout the year - it traces a distorted figure-of-eight. That shape is the 
+Add together the seasonal variation from axial tilt and the contribution from the equation of time, and you get two 
+independent astronomical phenomena combining in complex ways. The result is that - for the same clock time each day of the
+year - the Sun never sits in quite the same spot; instead it traces a distorted figure-of-eight. That shape is the 
 **analemma**: the equation of time made visible, etched into the sky. 
 
 The shapes below show the Sun's position at noon across a one-year period. Up–down is how high the Sun climbs in the sky, 
