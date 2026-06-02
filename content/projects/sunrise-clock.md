@@ -85,8 +85,6 @@ Those two contributing factors are also what pushes the earliest sunset and late
 **This is where the cam shapes come in**. Both cam profiles are generated from a year of real sunrise and sunset data. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed into the shape - frozen in plastic. And because the individual contributions of those effects depend on where you are on the planet, every cam is tailored to a location.
 
 <details><summary>A short history</summary>
-<p>The equation of time took roughly two thousand years to understand.
-First to spot, then to explain, then to measure.</p>
 <ul>
 <li><strong>c. 150 CE — Ptolemy.</strong> Noticed the Sun didn't keep even time and
 gave the first method to convert sundial time into steady clock time. He could correct
