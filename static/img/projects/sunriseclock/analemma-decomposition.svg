@@ -43,9 +43,9 @@ text{font-family:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-ser
 <text class="soft-t" x="1022" y="335" font-size="72" text-anchor="middle" dominant-baseline="middle">=</text>
 
 <text class="ink-t" x="300" y="580" font-size="34" font-weight="500" text-anchor="middle">Axial tilt</text>
-<text class="soft-t" x="300" y="618" font-size="26" text-anchor="middle">a figure-8, twice a year</text>
+<text class="soft-t" x="300" y="618" font-size="26" text-anchor="middle">a figure-8, left-right twice a year</text>
 <text class="ink-t" x="800" y="580" font-size="34" font-weight="500" text-anchor="middle">Elliptical orbit</text>
-<text class="soft-t" x="800" y="618" font-size="26" text-anchor="middle">one slim loop, once a year</text>
+<text class="soft-t" x="800" y="618" font-size="26" text-anchor="middle">one slim loop, left-right once a year</text>
 <text class="ink-t" x="1300" y="580" font-size="34" font-weight="500" text-anchor="middle">What you actually see</text>
 <text class="soft-t" x="1300" y="618" font-size="26" text-anchor="middle">the real, lopsided analemma</text>
 </svg>
