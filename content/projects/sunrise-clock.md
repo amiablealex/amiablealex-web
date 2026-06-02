@@ -79,10 +79,9 @@ The shapes below show the Sun's position at noon across a one-year period. Up–
 
 <figure markdown="1">
 ![analemma-real](/static/img/projects/sunriseclock/analemma-real.png)
-<figcaption>The Sun photographed at 12:00pm for 1 year[^analemma]</figcaption>
+<figcaption>The Sun photographed at 12:00pm for one year, via the Vatican Observatory's
+[The Analemma and the Darkest Evening](https://www.vaticanobservatory.org/sacred-space-astronomy/the-analemma-and-the-darkest-evening/).</figcaption>
 </figure>
-
-[^analemma]: The Vatican Observatory's [The Analemma and the Darkest Evening](https://www.vaticanobservatory.org/sacred-space-astronomy/the-analemma-and-the-darkest-evening/)
 
 Those two contributing factors are also what pushes the earliest sunset and latest sunrise to *opposite* sides of the solstice - because sunrise and sunset sit on opposite sides of *solar* midday, and solar midday is itself still drifting later through December.
 <details>After the winter solstice the days are lengthening, so sunrise <em>should</em> start getting earlier; but the second factor - the equation of time - is still dragging solar noon later even after the solstice. That wins for another week, holding sunrise back until its latest point around 30 December. The same interaction works the other way at dusk, the equation of time turning sunset around before the solstice, near 12 December.</details> 
