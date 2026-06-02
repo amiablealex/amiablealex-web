@@ -1,0 +1,90 @@
+<div class="cam-viz">
+<svg id="buildFig" viewBox="0 0 640 600" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="bTtl bDesc">
+<title id="bTtl">Building the cam from 24 samples and a spline</title>
+<desc id="bDesc">Twenty-four spokes at equal angles, a point placed on each at the radius for that date, then a smooth spline through the points forming the cam edge.</desc>
+<style>
+#buildFig text{font-family:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-serif}
+#buildFig .base{stroke:#3c372d;stroke-opacity:.1;fill:none}
+#buildFig .spoke{stroke:#3c372d;stroke-opacity:.22;fill:none;stroke-linecap:round}
+#buildFig .dot{fill:#9E5C4F}
+#buildFig .cam{stroke:#2B2B2B;fill:#2B2B2B;fill-opacity:.04;stroke-linejoin:round;stroke-linecap:round}
+#buildFig .lab{fill:#6B6862}
+#buildFig .ttl{fill:#2B2B2B}
+@media (prefers-color-scheme:dark){
+#buildFig .base{stroke:#dcd7cd;stroke-opacity:.12}
+#buildFig .spoke{stroke:#dcd7cd;stroke-opacity:.26}
+#buildFig .dot{fill:#C98E80}
+#buildFig .cam{stroke:#E9E5DC;fill:#E9E5DC;fill-opacity:.05}
+#buildFig .lab{fill:#A8A49B}
+#buildFig .ttl{fill:#E9E5DC}
+}
+</style>
+<g id="buildRoot"></g>
+<script>
+<![CDATA[
+(function(){
+var SVG='http://www.w3.org/2000/svg';
+var root=document.getElementById('buildRoot'); if(!root) return;
+function ns(t,a,txt){var e=document.createElementNS(SVG,t);if(a)for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;root.appendChild(e);return e;}
+var phi=53.2*Math.PI/180;
+var cx=320,cy=292,Rmax=205,Rmin=98,Router=232,M=24,i;
+var lo=1e9,hi=-1e9;
+for(i=0;i<365;i++){
+  var decl=23.44*Math.PI/180*Math.cos(2*Math.PI*(i-172)/365.25);
+  var cH=-Math.tan(phi)*Math.tan(decl); if(cH>1)cH=1; if(cH<-1)cH=-1;
+  var H=Math.acos(cH)*180/Math.PI; var sr=12-H/15;
+  var B=2*Math.PI*(i-81)/365.25; var e=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B);
+  var c=sr-e/60; if(c<lo)lo=c; if(c>hi)hi=c;
+}
+var pts=[];
+for(i=0;i<M;i++){
+  var ang=i/M*2*Math.PI;
+  var Nf=172+ang/(2*Math.PI)*365.25;
+  var decl2=23.44*Math.PI/180*Math.cos(2*Math.PI*(Nf-172)/365.25);
+  var cH2=-Math.tan(phi)*Math.tan(decl2); if(cH2>1)cH2=1; if(cH2<-1)cH2=-1;
+  var H2=Math.acos(cH2)*180/Math.PI; var sr2=12-H2/15;
+  var B2=2*Math.PI*(Nf-81)/365.25; var e2=9.87*Math.sin(2*B2)-7.53*Math.cos(B2)-1.5*Math.sin(B2);
+  var c2=sr2-e2/60;
+  var r=Rmin+(Rmax-Rmin)*(hi-c2)/(hi-lo);
+  pts.push({x:cx+r*Math.sin(ang),y:cy-r*Math.cos(ang)});
+}
+function crClosed(p){var n=p.length,d='M'+p[0].x.toFixed(2)+' '+p[0].y.toFixed(2),j;
+  for(j=0;j<n;j++){var a=p[(j-1+n)%n],b=p[j],c=p[(j+1)%n],e=p[(j+2)%n];
+    var c1x=b.x+(c.x-a.x)/6,c1y=b.y+(c.y-a.y)/6,c2x=c.x-(e.x-b.x)/6,c2y=c.y-(e.y-b.y)/6;
+    d+='C'+c1x.toFixed(2)+' '+c1y.toFixed(2)+' '+c2x.toFixed(2)+' '+c2y.toFixed(2)+' '+c.x.toFixed(2)+' '+c.y.toFixed(2);}
+  return d+'Z';}
+ns('circle',{cx:cx,cy:cy,r:Rmax,'class':'base'});
+ns('circle',{cx:cx,cy:cy,r:2.5,'class':'lab'});
+ns('text',{x:cx,y:36,'font-size':18,'font-weight':500,'class':'ttl','text-anchor':'middle'},'24 samples \u2192 one spline');
+ns('text',{x:cx,y:cy+Router+34,'font-size':14,'class':'lab','text-anchor':'middle'},'each point is the sunrise time for that date');
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var spokes=[],dots=[];
+for(i=0;i<M;i++){
+  var ang2=i/M*2*Math.PI;
+  var s=ns('line',{x1:cx,y1:cy,x2:cx+Router*Math.sin(ang2),y2:cy-Router*Math.cos(ang2),'class':'spoke','stroke-width':1});
+  s.style.transition='opacity .45s ease'; s.style.opacity=reduce?1:0; spokes.push(s);
+}
+var spline=ns('path',{d:crClosed(pts),'class':'cam','stroke-width':2.6});
+for(i=0;i<M;i++){var dd=ns('circle',{cx:pts[i].x,cy:pts[i].y,r:4,'class':'dot'}); dd.style.transition='opacity .45s ease'; dd.style.opacity=reduce?1:0; dots.push(dd);}
+var len=spline.getTotalLength();
+spline.style.strokeDasharray=len; spline.style.strokeDashoffset=reduce?0:len;
+if(reduce) return;
+var loop;
+function run(){
+  spokes.forEach(function(s){s.style.opacity=0;});
+  dots.forEach(function(d){d.style.opacity=0;});
+  spline.style.transition='none'; spline.style.strokeDashoffset=len;
+  void root.getBBox();
+  spokes.forEach(function(s,k){setTimeout(function(){s.style.opacity=1;},200+k*55);});
+  var dStart=200+M*55+200;
+  dots.forEach(function(d,k){setTimeout(function(){d.style.opacity=1;},dStart+k*55);});
+  var sStart=dStart+M*55+250;
+  setTimeout(function(){spline.style.transition='stroke-dashoffset 1.5s ease'; spline.style.strokeDashoffset=0;},sStart);
+  loop=setTimeout(run, sStart+1500+2600);
+}
+run();
+})();
+]]>
+</script>
+</svg>
+</div>

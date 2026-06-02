@@ -1,0 +1,103 @@
+<div class="cam-viz">
+<svg id="sweepFig" viewBox="0 0 1000 470" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="sweepTtl sweepDesc">
+<title id="sweepTtl">A year of sunrise times, wrapped onto the cam</title>
+<desc id="sweepDesc">Left: sunrise-derived spoke length plotted across the calendar year. Right: the same value used as the cam radius at each angle. A marker sweeps the year; the height on the left equals the spoke length on the right.</desc>
+<style>
+#sweepFig text{font-family:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-serif}
+#sweepFig .ax{stroke:#3c372d;stroke-opacity:.16;fill:none}
+#sweepFig .gr{stroke:#3c372d;stroke-opacity:.07;fill:none}
+#sweepFig .lab{fill:#6B6862}
+#sweepFig .ttl{fill:#2B2B2B}
+#sweepFig .cam{stroke:#2B2B2B;fill:none;stroke-linejoin:round;stroke-linecap:round}
+#sweepFig .camfill{fill:#2B2B2B;fill-opacity:.04}
+#sweepFig .live{fill:#9E5C4F}
+#sweepFig .livestroke{stroke:#9E5C4F;fill:none}
+#sweepFig .tie{stroke:#9E5C4F;stroke-opacity:.55;fill:none;stroke-dasharray:2 4}
+@media (prefers-color-scheme:dark){
+#sweepFig .ax{stroke:#dcd7cd;stroke-opacity:.2}
+#sweepFig .gr{stroke:#dcd7cd;stroke-opacity:.1}
+#sweepFig .lab{fill:#A8A49B}
+#sweepFig .ttl{fill:#E9E5DC}
+#sweepFig .cam{stroke:#E9E5DC}
+#sweepFig .camfill{fill:#E9E5DC;fill-opacity:.05}
+#sweepFig .live{fill:#C98E80}
+#sweepFig .livestroke{stroke:#C98E80}
+#sweepFig .tie{stroke:#C98E80;stroke-opacity:.6}
+}
+</style>
+<g id="sweepRoot"></g>
+<script>
+<![CDATA[
+(function(){
+var SVG='http://www.w3.org/2000/svg';
+var root=document.getElementById('sweepRoot'); if(!root) return;
+function ns(t,a,txt){var e=document.createElementNS(SVG,t);if(a)for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;root.appendChild(e);return e;}
+var phi=53.2*Math.PI/180; // latitude (deg) — change for your location
+var pL=72,pT=72,pB=384,pR=452; var pW=pR-pL,pH=pB-pT;
+var cx=748,cy=232,Rmax=150,Rmin=62;
+var N=365,data=[],i;
+for(i=0;i<N;i++){
+  var decl=23.44*Math.PI/180*Math.cos(2*Math.PI*(i-172)/365.25);
+  var cH=-Math.tan(phi)*Math.tan(decl); if(cH>1)cH=1; if(cH<-1)cH=-1;
+  var H=Math.acos(cH)*180/Math.PI; var sr=12-H/15;
+  var B=2*Math.PI*(i-81)/365.25;
+  var eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B);
+  data.push({i:i,clock:sr-eot/60});
+}
+var lo=data[0].clock,hi=data[0].clock;
+for(i=0;i<N;i++){if(data[i].clock<lo)lo=data[i].clock;if(data[i].clock>hi)hi=data[i].clock;}
+for(i=0;i<N;i++){var d=data[i];
+  d.r=Rmin+(Rmax-Rmin)*(hi-d.clock)/(hi-lo);
+  var frac=(((d.i-172)%365.25)+365.25)%365.25; d.ang=2*Math.PI*frac/365.25;
+  d.fx=pL+(d.i/(N-1))*pW; d.fy=pB-(d.r-Rmin)/(Rmax-Rmin)*pH;
+  d.px=cx+d.r*Math.sin(d.ang); d.py=cy-d.r*Math.cos(d.ang);
+}
+ns('text',{x:pL,y:46,'font-size':22,'font-weight':500,'class':'ttl'},'Sunrise across the year');
+ns('text',{x:cx,y:46,'font-size':22,'font-weight':500,'class':'ttl','text-anchor':'middle'},'…wrapped onto the cam');
+var gy=[Rmin,(Rmin+Rmax)/2,Rmax],g;
+for(g=0;g<gy.length;g++){var yy=pB-(gy[g]-Rmin)/(Rmax-Rmin)*pH; ns('line',{x1:pL,y1:yy,x2:pR,y2:yy,'class':'gr'});}
+ns('line',{x1:pL,y1:pT-8,x2:pL,y2:pB,'class':'ax'});
+ns('line',{x1:pL,y1:pB,x2:pR,y2:pB,'class':'ax'});
+ns('text',{x:pL-30,y:(pT+pB)/2,'font-size':15,'class':'lab','text-anchor':'middle',transform:'rotate(-90 '+(pL-30)+' '+((pT+pB)/2)+')'},'spoke length');
+var mn=['J','F','M','A','M','J','J','A','S','O','N','D'];
+var cum=[0,31,59,90,120,151,181,212,243,273,304,334],m;
+for(m=0;m<12;m++){var mx=pL+(cum[m]/(N-1))*pW; ns('line',{x1:mx,y1:pB,x2:mx,y2:pB+5,'class':'ax'}); ns('text',{x:mx+(pW/12)/2,y:pB+20,'font-size':13,'class':'lab','text-anchor':'middle'},mn[m]);}
+ns('line',{x1:pL+(172/(N-1))*pW,y1:pT-2,x2:pL+(172/(N-1))*pW,y2:pB,'class':'gr'});
+ns('line',{x1:pL+(355/(N-1))*pW,y1:pT-2,x2:pL+(355/(N-1))*pW,y2:pB,'class':'gr'});
+var fp='M'+data[0].fx.toFixed(1)+' '+data[0].fy.toFixed(1);
+for(i=1;i<N;i++) fp+='L'+data[i].fx.toFixed(1)+' '+data[i].fy.toFixed(1);
+ns('path',{d:fp,'class':'cam','stroke-width':2.4});
+ns('circle',{cx:cx,cy:cy,r:(Rmin+Rmax)/2,'class':'gr'});
+ns('line',{x1:cx-Rmax-12,y1:cy,x2:cx+Rmax+12,y2:cy,'class':'gr'});
+ns('line',{x1:cx,y1:cy-Rmax-12,x2:cx,y2:cy+Rmax+12,'class':'gr'});
+var wp='M'+data[0].px.toFixed(1)+' '+data[0].py.toFixed(1);
+for(i=1;i<N;i++) wp+='L'+data[i].px.toFixed(1)+' '+data[i].py.toFixed(1);
+wp+='Z';
+ns('path',{d:wp,'class':'camfill'}); ns('path',{d:wp,'class':'cam','stroke-width':2.4});
+function wlab(ang,txt){var rr=Rmax+24,x=cx+rr*Math.sin(ang),y=cy-rr*Math.cos(ang);ns('text',{x:x,y:y,'font-size':14,'class':'lab','text-anchor':'middle','dominant-baseline':'middle'},txt);}
+wlab(0,'Jun'); wlab(Math.PI,'Dec'); wlab(Math.PI/2,'Sep'); wlab(3*Math.PI/2,'Mar');
+ns('circle',{cx:cx,cy:cy,r:2.5,'class':'lab'});
+var tieF=ns('line',{'class':'tie'});
+var spoke=ns('line',{'class':'livestroke','stroke-width':1.6});
+var dotF=ns('circle',{r:4.5,'class':'live'});
+var dotP=ns('circle',{r:4.5,'class':'live'});
+var read=ns('text',{x:cx,y:cy+Rmax+44,'font-size':18,'class':'lab','text-anchor':'middle'},'');
+var names=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthOf(idx){var mm=11,k;for(k=0;k<12;k++){if(idx>=cum[k])mm=k;}return names[mm];}
+function place(idx){var d=data[idx];
+  tieF.setAttribute('x1',pL);tieF.setAttribute('y1',d.fy);tieF.setAttribute('x2',d.fx);tieF.setAttribute('y2',d.fy);
+  spoke.setAttribute('x1',cx);spoke.setAttribute('y1',cy);spoke.setAttribute('x2',d.px);spoke.setAttribute('y2',d.py);
+  dotF.setAttribute('cx',d.fx);dotF.setAttribute('cy',d.fy);
+  dotP.setAttribute('cx',d.px);dotP.setAttribute('cy',d.py);
+  read.textContent=monthOf(idx);
+}
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduce){place(315);return;}
+var dur=16000,t0=null;
+function frame(ts){if(t0==null)t0=ts;var p=((ts-t0)%dur)/dur;place(Math.floor(p*N)%N);requestAnimationFrame(frame);}
+requestAnimationFrame(frame);
+})();
+]]>
+</script>
+</svg>
+</div>
