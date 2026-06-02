@@ -1,10 +1,11 @@
 <svg id="sweepFig" viewBox="0 0 1000 470" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="sweepTtl sweepDesc">
 <title id="sweepTtl">A year of sunrise times, wrapped onto the cam</title>
-<desc id="sweepDesc">Left: sunrise-derived spoke length plotted across the calendar year. Right: the same value used as the cam radius at each angle. A marker sweeps the year; the height on the left equals the spoke length on the right.</desc>
+<desc id="sweepDesc">Left: sunrise clock-time across the year, with early sunrise at the top and late at the bottom, marked by 04:00 and 08:00 reference lines. Right: the same value used as the cam radius at each angle. A marker sweeps the year; the height on the left equals the spoke length on the right.</desc>
 <style>
 #sweepFig text{font-family:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-serif}
 #sweepFig .ax{stroke:#3c372d;stroke-opacity:.16;fill:none}
 #sweepFig .gr{stroke:#3c372d;stroke-opacity:.07;fill:none}
+#sweepFig .ref{stroke:#3c372d;stroke-opacity:.3;fill:none;stroke-dasharray:4 5}
 #sweepFig .lab{fill:#6B6862}
 #sweepFig .ttl{fill:#2B2B2B}
 #sweepFig .cam{stroke:#2B2B2B;fill:none;stroke-linejoin:round;stroke-linecap:round}
@@ -15,6 +16,7 @@
 @media (prefers-color-scheme:dark){
 #sweepFig .ax{stroke:#dcd7cd;stroke-opacity:.2}
 #sweepFig .gr{stroke:#dcd7cd;stroke-opacity:.1}
+#sweepFig .ref{stroke:#dcd7cd;stroke-opacity:.34}
 #sweepFig .lab{fill:#A8A49B}
 #sweepFig .ttl{fill:#E9E5DC}
 #sweepFig .cam{stroke:#E9E5DC}
@@ -52,12 +54,17 @@ for(i=0;i<N;i++){var d=data[i];
   d.px=cx+d.r*Math.sin(d.ang); d.py=cy-d.r*Math.cos(d.ang);
 }
 ns('text',{x:pL,y:46,'font-size':22,'font-weight':500,'class':'ttl'},'Sunrise across the year');
+ns('text',{x:pL,y:64,'font-size':13,'class':'lab'},'sunrise time (GMT)');
 ns('text',{x:cx,y:46,'font-size':22,'font-weight':500,'class':'ttl','text-anchor':'middle'},'…wrapped onto the cam');
-var gy=[Rmin,(Rmin+Rmax)/2,Rmax],g;
-for(g=0;g<gy.length;g++){var yy=pB-(gy[g]-Rmin)/(Rmax-Rmin)*pH; ns('line',{x1:pL,y1:yy,x2:pR,y2:yy,'class':'gr'});}
 ns('line',{x1:pL,y1:pT-8,x2:pL,y2:pB,'class':'ax'});
 ns('line',{x1:pL,y1:pB,x2:pR,y2:pB,'class':'ax'});
-ns('text',{x:pL-30,y:(pT+pB)/2,'font-size':15,'class':'lab','text-anchor':'middle',transform:'rotate(-90 '+(pL-30)+' '+((pT+pB)/2)+')'},'spoke length');
+function clockToY(T){return pB-(hi-T)/(hi-lo)*pH;}
+function refLine(T,lab){var y=clockToY(T);
+  ns('line',{x1:pL,y1:y,x2:pR,y2:y,'class':'ref'});
+  ns('line',{x1:pL-4,y1:y,x2:pL,y2:y,'class':'ax'});
+  ns('text',{x:pL-9,y:y,'font-size':13,'class':'lab','text-anchor':'end','dominant-baseline':'middle'},lab);
+}
+refLine(4,'04:00'); refLine(8,'08:00');
 var mn=['J','F','M','A','M','J','J','A','S','O','N','D'];
 var cum=[0,31,59,90,120,151,181,212,243,273,304,334],m;
 for(m=0;m<12;m++){var mx=pL+(cum[m]/(N-1))*pW; ns('line',{x1:mx,y1:pB,x2:mx,y2:pB+5,'class':'ax'}); ns('text',{x:mx+(pW/12)/2,y:pB+20,'font-size':13,'class':'lab','text-anchor':'middle'},mn[m]);}

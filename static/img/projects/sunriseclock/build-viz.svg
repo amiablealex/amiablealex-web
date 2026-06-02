@@ -1,6 +1,6 @@
 <svg id="buildFig" viewBox="0 0 640 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="bTtl bDesc">
 <title id="bTtl">Building the cam from 24 samples and a spline</title>
-<desc id="bDesc">Twenty-four spokes at equal angles, a point placed on each at the radius for that date, then a smooth spline through the points forming the cam edge.</desc>
+<desc id="bDesc">Twenty-four spokes at equal angles, a point placed on each at the radius for that date, then a smooth spline through the points forming the cam edge. The summer solstice spoke points up at the largest radius; the winter solstice points down at the smallest.</desc>
 <style>
 #buildFig text{font-family:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-serif}
 #buildFig .base{stroke:#3c372d;stroke-opacity:.1;fill:none}
@@ -26,7 +26,7 @@ var SVG='http://www.w3.org/2000/svg';
 var root=document.getElementById('buildRoot'); if(!root) return;
 function ns(t,a,txt){var e=document.createElementNS(SVG,t);if(a)for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;root.appendChild(e);return e;}
 var phi=53.2*Math.PI/180;
-var cx=320,cy=292,Rmax=205,Rmin=98,Router=232,M=24,i;
+var cx=320,cy=300,Rmax=185,Rmin=92,Router=210,M=24,i;
 var lo=1e9,hi=-1e9;
 for(i=0;i<365;i++){
   var decl=23.44*Math.PI/180*Math.cos(2*Math.PI*(i-172)/365.25);
@@ -54,14 +54,24 @@ function crClosed(p){var n=p.length,d='M'+p[0].x.toFixed(2)+' '+p[0].y.toFixed(2
   return d+'Z';}
 ns('circle',{cx:cx,cy:cy,r:Rmax,'class':'base'});
 ns('circle',{cx:cx,cy:cy,r:2.5,'class':'lab'});
-ns('text',{x:cx,y:36,'font-size':18,'font-weight':500,'class':'ttl','text-anchor':'middle'},'24 samples \u2192 one spline');
-ns('text',{x:cx,y:cy+Router+34,'font-size':14,'class':'lab','text-anchor':'middle'},'each point is the sunrise time for that date');
+ns('text',{x:cx,y:34,'font-size':18,'font-weight':500,'class':'ttl','text-anchor':'middle'},'24 samples \u2192 one spline');
+ns('text',{x:cx,y:cy+Router+46,'font-size':14,'class':'lab','text-anchor':'middle'},'each point is the sunrise time for that date');
+var cards=[
+ {i:0,  t:'21 Jun \u00b7 solstice', x:cx,          y:cy-Router-16, a:'middle'},
+ {i:6,  t:'20 Sep',                x:cx+Router+12, y:cy+5,         a:'start'},
+ {i:12, t:'21 Dec \u00b7 solstice', x:cx,          y:cy+Router+22, a:'middle'},
+ {i:18, t:'22 Mar',                x:cx-Router-12, y:cy+5,         a:'end'}
+];
 var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-var spokes=[],dots=[];
+var spokes=[],dots=[],cardEls=[],ci;
 for(i=0;i<M;i++){
   var ang2=i/M*2*Math.PI;
   var s=ns('line',{x1:cx,y1:cy,x2:cx+Router*Math.sin(ang2),y2:cy-Router*Math.cos(ang2),'class':'spoke','stroke-width':1});
   s.style.transition='opacity .45s ease'; s.style.opacity=reduce?1:0; spokes.push(s);
+}
+for(ci=0;ci<cards.length;ci++){
+  var L=ns('text',{x:cards[ci].x,y:cards[ci].y,'font-size':13,'class':'lab','text-anchor':cards[ci].a},cards[ci].t);
+  L.style.transition='opacity .45s ease'; L.style.opacity=reduce?1:0; cardEls.push({el:L,i:cards[ci].i});
 }
 var spline=ns('path',{d:crClosed(pts),'class':'cam','stroke-width':2.6});
 for(i=0;i<M;i++){var dd=ns('circle',{cx:pts[i].x,cy:pts[i].y,r:4,'class':'dot'}); dd.style.transition='opacity .45s ease'; dd.style.opacity=reduce?1:0; dots.push(dd);}
@@ -72,9 +82,11 @@ var loop;
 function run(){
   spokes.forEach(function(s){s.style.opacity=0;});
   dots.forEach(function(d){d.style.opacity=0;});
+  cardEls.forEach(function(c){c.el.style.opacity=0;});
   spline.style.transition='none'; spline.style.strokeDashoffset=len;
   void root.getBBox();
   spokes.forEach(function(s,k){setTimeout(function(){s.style.opacity=1;},200+k*55);});
+  cardEls.forEach(function(c){setTimeout(function(){c.el.style.opacity=1;},200+c.i*55);});
   var dStart=200+M*55+200;
   dots.forEach(function(d,k){setTimeout(function(){d.style.opacity=1;},dStart+k*55);});
   var sStart=dStart+M*55+250;
