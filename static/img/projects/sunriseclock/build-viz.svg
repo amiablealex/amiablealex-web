@@ -1,4 +1,3 @@
-<div class="cam-viz">
 <svg id="buildFig" viewBox="0 0 640 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="bTtl bDesc">
 <title id="bTtl">Building the cam from 24 samples and a spline</title>
 <desc id="bDesc">Twenty-four spokes at equal angles, a point placed on each at the radius for that date, then a smooth spline through the points forming the cam edge.</desc>
@@ -87,4 +86,3 @@ run();
 ]]>
 </script>
 </svg>
-</div>
