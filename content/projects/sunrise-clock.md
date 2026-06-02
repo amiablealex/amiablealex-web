@@ -77,7 +77,12 @@ The shapes below show the Sun's position at noon across a one-year period. Up–
 - The elliptical orbit speeds the Sun up and slows it down just once a year: *fast, slow* (Kepler's Second Law), tracing a single slim, tilted loop.
 - Added together, Kepler's elliptical orbit loop reinforces the symmetric figure-8 on one side of the year and cancels out on the other. One figure-8 loop swells and the other shrinks. That lopsided figure-of-8 is the analemma we actually see in the sky:
 
+<figure markdown="1">
 ![analemma-real](/static/img/projects/sunriseclock/analemma-real.png)
+<figcaption>The Sun photographed at 12:00pm for 1 year[^analemma]</figcaption>
+</figure>
+
+[^analemma]: The Vatican Observatory's [The Analemma and the Darkest Evening](https://www.vaticanobservatory.org/sacred-space-astronomy/the-analemma-and-the-darkest-evening/)
 
 Those two contributing factors are also what pushes the earliest sunset and latest sunrise to *opposite* sides of the solstice - because sunrise and sunset sit on opposite sides of *solar* midday, and solar midday is itself still drifting later through December.
 <details>After the winter solstice the days are lengthening, so sunrise <em>should</em> start getting earlier; but the second factor - the equation of time - is still dragging solar noon later even after the solstice. That wins for another week, holding sunrise back until its latest point around 30 December. The same interaction works the other way at dusk, the equation of time turning sunset around before the solstice, near 12 December.</details> 
