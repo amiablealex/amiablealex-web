@@ -1,0 +1,54 @@
+<svg id="keplerFig" viewBox="0 0 420 320" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="kTtl kDesc">
+<title id="kTtl">Kepler's second law</title>
+<desc id="kDesc">An exaggerated elliptical orbit with the Sun at one focus and a faint dot at the other. A planet moves around the orbit, visibly faster when near the Sun and slower when far away.</desc>
+<style>
+#keplerFig .orbit{stroke:#2B2B2B;stroke-opacity:.35;fill:none}
+#keplerFig .sun{stroke:#2B2B2B;fill:none}
+#keplerFig .foc{fill:#2B2B2B;fill-opacity:.3}
+#keplerFig .earth{fill:#2B2B2B}
+@media (prefers-color-scheme:dark){
+#keplerFig .orbit{stroke:#E9E5DC;stroke-opacity:.4}
+#keplerFig .sun{stroke:#E9E5DC}
+#keplerFig .foc{fill:#E9E5DC;fill-opacity:.34}
+#keplerFig .earth{fill:#E9E5DC}
+}
+</style>
+<g id="keplerRoot"></g>
+<script>
+<![CDATA[
+(function(){
+var SVG='http://www.w3.org/2000/svg';
+var root=document.getElementById('keplerRoot'); if(!root) return;
+function ns(t,a){var e=document.createElementNS(SVG,t);if(a)for(var k in a)e.setAttribute(k,a[k]);root.appendChild(e);return e;}
+var cx=210,cy=160;
+var a=165, ecc=0.5, b=a*Math.sqrt(1-ecc*ecc), c=a*ecc;
+// Sun at right-hand focus; perihelion is then on the right.
+var sunx=cx+c, suny=cy, focx=cx-c, focy=cy;
+function pos(E){return {x:cx+a*Math.cos(E), y:cy+b*Math.sin(E)};}
+// Orbit outline
+var d='',k,seg=180;
+for(k=0;k<=seg;k++){var p=pos(k/seg*2*Math.PI); d+=(k?'L':'M')+p.x.toFixed(2)+' '+p.y.toFixed(2);}
+d+='Z';
+ns('path',{d:d,'class':'orbit','stroke-width':2.2});
+ns('circle',{cx:focx,cy:focy,r:3,'class':'foc'});
+ns('circle',{cx:sunx,cy:suny,r:14,'class':'sun','stroke-width':2});
+var earth=ns('circle',{cx:cx,cy:cy-b,r:7,'class':'earth'});
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduce){return;}
+// Mean anomaly advances uniformly in time; solve Kepler for eccentric anomaly E.
+// This makes the planet sweep equal area in equal time — the real second law.
+function solveE(Mn){var E=Mn,j;for(j=0;j<6;j++){E=E-(E-ecc*Math.sin(E)-Mn)/(1-ecc*Math.cos(E));}return E;}
+var period=14000,t0=null;
+function frame(ts){
+  if(t0==null)t0=ts;
+  var Mn=((ts-t0)%period)/period*2*Math.PI;
+  var p=pos(solveE(Mn));
+  earth.setAttribute('cx',p.x.toFixed(2));
+  earth.setAttribute('cy',p.y.toFixed(2));
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+]]>
+</script>
+</svg>

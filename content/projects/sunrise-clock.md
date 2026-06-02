@@ -65,7 +65,16 @@ This is because there is another mechanic also contributing its own effect to th
 phenomenon called **The Equation of Time**: the gap between sun-time and clock-time. The Sun runs slightly fast or slow 
 against the clock depending on the season, coming from the Earth's tilt and elliptical orbit acting together. Because the 
 Earth's orbit is an ellipse, the Earth speeds up as it orbits closer to the Sun in January and slows as it orbits further 
-from the Sun in July - **Kepler's second law**. The equation of time emerges because each day the Earth must turn slightly 
+from the Sun in July - **Kepler's second law**. 
+
+<object type="image/svg+xml" data="/static/img/projects/sunriseclock/kepler-viz.svg"
+        width="100%" class="cam-viz"
+        style="display:block; max-width:220px; margin-inline:auto; aspect-ratio:420 / 320;"
+        aria-label="Kepler's second law: a planet moving faster near the Sun and slower when far away">
+  <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="An elliptical orbit with the Sun at one focus">
+</object>
+
+The equation of time emerges because each day the Earth must turn slightly 
 more than a full 360° to bring the sun back to the same point in the sky. The amount of extra rotation needed each day 
 depends on the orbital speed, which in turn depends on which part of the orbit the Earth is in. So the equation of time 
 varies throughout the seasons.
