@@ -42,7 +42,7 @@ clock's location. As the CAM rotates, its variable radius raises and lowers a fo
 pivot meshes with a small gear in the centre, amplifying that small angular rotation into the full desired 
 sweep of the indicators. 
 
-![cam-arm-indicator-flow](/static/img/projects/sunriseclock/cam-arm-indicator.png)
+![cam-arm-indicator-flow](/static/img/projects/sunriseclock/cam-arm-indicator.png?v=1)
 
 ## Astronomy behind the cam shapes
 
