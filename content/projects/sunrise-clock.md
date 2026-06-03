@@ -186,7 +186,7 @@ First, look up the year's earliest and latest sunrise for a location. To make ca
 
 \[\text{sunrise variation} = \text{latest sunrise time} - \text{earliest sunrise time}\]
 
-For my latitude (03:35 and 08:16 UTC): 8.26 - 3.58 = 4.68 hours (4hrs 40min). On a 24-hour dial, 1 hour is 15 \(^circ\), and
+For my latitude (03:35 and 08:16 UTC): 8.26 - 3.58 = 4.68 hours (4hrs 40min). On a 24-hour dial, 1 hour is \(15^\circ\), and
 so we can work out desired indicator rotation: 
 
 \[S \approx 4.68\,\text{h} \times 15^\circ/\text{h} \approx 74.8^\circ\]
@@ -196,7 +196,7 @@ for the sunrise cam and 6:1 for the sunset cam. This ratio reduces the required 
  
 \[\theta = \frac{S}{G} = \frac{74.8^\circ}{4} \approx 18.7^\circ\]
 
-And work out how much the follower arm needs to lift to provide the desired 18.7\(^circ)\ rotation:
+And work out how much the follower arm needs to lift to provide the desired \(18.7^\circ\) rotation:
  
 \[t = L\tan\theta = 80\,\text{mm}\times\tan 18.7^\circ \approx 27.4\,\text{mm}\]
 
@@ -205,7 +205,7 @@ for the cam in the mechanism (about 41 mm). To get the minimum radius of the cam
 
 \[R_{\min} = R_{\max} - t \approx 41\,\text{mm} - 27.4\,\text{mm} \approx 13.6\,\text{mm}\]
 
-So the sunrise cam runs between about 14 mm and 41 mm. Sunset works out similar - 4.8 hours of annual spread, about 72\(^circ)\ 
+So the sunrise cam runs between about 14 mm and 41 mm. Sunset works out similar - 4.8 hours of annual spread, about \(72^\circ\)
 of sweep. The one difference is the gear ratio: for a fixed sweep a higher ratio needs a smaller throw (since \(\theta = S/G\) 
 shrinks), and I used 6:1 for sunset against 4:1 for sunrise:
 
@@ -222,7 +222,7 @@ around a couple of percent. Comfortably below what the print tolerances and gear
 ### Generating the cam profile
 
 With the cam throw determined, what's left is to plot the cam's actual shape. The cam is mounted onto a shaft that rotates
-once per year, so the year maps onto 360°. Sample that circle at 24 equal points, about 15 days apart \(365.25/24 = 15.21\text{ days}\), 
+once per year, so the year maps onto \(360^\circ\). Sample that circle at 24 equal points, about 15 days apart \(365.25/24 = 15.21\text{ days}\), 
 and set the summer solstice (21 June) as the reference point. The method is then simply:
 
 1. Look up the real sunrise (or sunset) time at each of the 24 dates.
