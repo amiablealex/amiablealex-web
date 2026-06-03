@@ -46,19 +46,14 @@ sweep of the indicators.
 
 ## Astronomy behind the cam shapes
 
-<img src="/static/img/projects/sunriseclock/camshapes-translucent.png?v=1"
-     alt="cam shapes"
-     class="bare"
-     style="display:block; max-width:320px; margin-inline:auto;">
-
-**Daylight hours change throughout the seasons** - long days in summer, short in winter. The effect is mostly due to the 
-Earth being tilted on its spinning axis (23.4°) - on its own this effect is straightforward and predictable: daylight 
+Daylight hours change throughout the seasons - long days in summer, short in winter. The effect is mostly because the 
+Earth is tilted on its spinning axis (23.4°). On its own this effect is straightforward and predictable: daylight 
 hours would vary smoothly and symmetrically through the year, and a regular oval cam would reproduce it perfectly.
 
 However, **the sunrise and sunset curves aren't symmetric**. The shortest day is the winter solstice, around 21 December. 
 But that isn't the day the sun sets earliest or rises latest. In the UK the earliest sunset is around 12 December, and the 
 latest sunrise around 30 December. So for two weeks before Christmas the evenings are already on their way towards spring 
-while the mornings are still darkening.[^evenings] Mechanically reproducing the annual cycle is becoming more complicated. 
+while the mornings are still darkening.[^evenings]
 
 [^evenings]: I found the latest sunrise / earliest sunset divergence around the solstice to be particularly well explained 
 in [The evenings are drawing out already](https://explainingscience.org/2019/12/13/the-evenings-are-drawing-out-already-2/), 
@@ -148,6 +143,11 @@ December.
 axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed into the shape - frozen in plastic. 
 And because the individual contributions of those effects depend on where you are on the planet, every cam is tailored to a 
 location.
+
+<img src="/static/img/projects/sunriseclock/camshapes-translucent.png?v=1"
+     alt="cam shapes"
+     class="bare"
+     style="display:block; max-width:260px; margin-inline:auto;">
 
 <details><summary>A short history</summary>
 <ul>
