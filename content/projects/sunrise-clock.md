@@ -201,18 +201,20 @@ There is nothing astronomical to model; the data already carries it.
 
 ### Cam to indicator
 
-The cam turns once a year. Its changing radius pushes a follower arm up and down; the arm
-pivots about a fixed point, and a toothed sector fixed at that pivot swings through a small
-angle as the arm rises. The sector meshes with a small ten-tooth gear at the centre of the
-dial, which carries the indicator hand. Because the sector is large and the centre gear
-small, the hand turns far more than the follower rotation. A 3d-printed clock spring ensures that the follower 
+The cam turns once a year, with a changing radius. A follower rests on the cam edge and gets pushed up and down as the cam turns.
+The arm pivots about a fixed point, and a toothed sector fixed at that pivot swings through a small
+angle as the arm rises and falls. This genereates an angular sweep equivalent to the function of the sunrise. 
+
+This sweeping angle needs to be magnified to achieve the real angle sweep of the sunrise on a 24-hour clock face - which is achieved
+by a small ten-tooth gear at the centre of the dial meshing with the sector. Sunrise indicator is fixed to the small center gear. 
+Because the sector is large and the centre gear small, the hand turns far more than the follower rotation. 
+
+A 3d-printed clock spring ensures that the follower 
 always maintains contact with the cam and traces out the correct profile.
 
-<details><summary>The maths: throw, arm length and gear ratio</summary>
+<details>markdown="1"><summary>The maths: throw, arm length and gear ratio</summary>
 
-Two steps turn the cam into a hand sweep.
-
-First, the cam swings the follower arm. As the cam radius changes by an amount called the
+Cam swings the follower arm. As the cam radius changes by an amount called the
 **throw**, the arm swings through an angle:
 
 \(\theta = \arctan\!\left(\dfrac{\text{throw}}{\text{arm length}}\right)\)
@@ -221,18 +223,22 @@ Then the sector amplifies that swing by the gear ratio:
 
 \(\text{sweep} = \theta \times \dfrac{\text{sector teeth}}{\text{centre teeth}}\)
 
-Both arms are 80 mm. Working the two hands through — sunrise geared 40:10, sunset 60:10:
+Both arms are 80 mm. Working the two hands through, sunrise geared 40:10, sunset 60:10:
 
 \(\arctan\!\left(\dfrac{24.1}{80}\right) = 16.8^\circ \;\Rightarrow\; 16.8^\circ \times \dfrac{40}{10} = 67^\circ\)
 
 \(\arctan\!\left(\dfrac{16.0}{80}\right) = 11.3^\circ \;\Rightarrow\; 11.3^\circ \times \dfrac{60}{10} = 68^\circ\)
 
-So the sunrise hand sweeps about 67° across the year and the sunset hand about 68° —
+So the sunrise hand sweeps about 67° across the year and the sunset hand about 68°, 
 matching the real spread of times at this latitude.
 
-**The one assumption.** This treats the point where the arm meets the cam as rising by
-exactly the cam's change in radius — only true if the arm sits roughly horizontal. It does:
-the 80 mm arm dwarfs the ~20 mm throw, so the error is only a couple of percent.
+**The one assumption.** Follower arm's contact point with the cam is assumed to rise by
+exactly the cam's change in radius, and keep the contact point exactly 80mm from the pivot.
+
+In reality as the follower rises the contact point becomes slightly less than 80mm and as the follower falls the 
+contact point becomes greater than 80mm.
+
+Assumption valid as the 80 mm arm significantly greater than the ~20 mm throw, so the error is only a couple of percent.
 
 </details>
 
