@@ -10,11 +10,13 @@ text{font-family:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-ser
 .ink-t{fill:#2B2B2B}
 .soft-t{fill:#6B6862}
 .dot{fill:#2B2B2B}
+/*
 @media (prefers-color-scheme:dark){
 .ink{stroke:#E9E5DC}.teal{stroke:#8FB6BB}.clay{stroke:#C98E80}
 .axis{stroke:#dcd7cd;stroke-opacity:.18}
 .ink-t{fill:#E9E5DC}.soft-t{fill:#A8A49B}.dot{fill:#E9E5DC}
 }
+*/
 </style>
 
 <text class="soft-t" x="40" y="48" font-size="24">↕  how high the Sun climbs  ·  the season</text>
