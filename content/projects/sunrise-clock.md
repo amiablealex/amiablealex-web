@@ -202,6 +202,13 @@ That sector rotation comes from the follower arm lifting about its pivot. With a
  
 \[t = L\tan\theta = 80\,\text{mm}\times\tan 17.6^\circ \approx 25.3\,\text{mm}\]
 
+<object type="image/svg+xml" data="/static/img/projects/sunriseclock/lift-viz.svg?v=1"
+        width="100%" class="cam-viz"
+        style="display:block; max-width:420px; margin-inline:auto; aspect-ratio:480 / 340;"
+        aria-label="The follower arm lifting: throw t equals arm length times tangent of theta">
+  <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="A right triangle showing the follower arm lifting through angle theta">
+</object>
+
 Finally, the throw is the difference between the cam's largest and smallest radius. The largest is set by the space available 
 for the cam in the mechanism (about 41 mm). To get the minimum radius:
 
