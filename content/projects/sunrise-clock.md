@@ -67,7 +67,7 @@ against the clock depending on the season, coming from the Earth's tilt and elli
 Earth's orbit is an ellipse, the Earth speeds up as it orbits closer to the Sun in January and slows as it orbits further 
 from the Sun in July - **Kepler's second law**. 
 
-<object type="image/svg+xml" data="/static/img/projects/sunriseclock/kepler-viz.svg"
+<object type="image/svg+xml" data="/static/img/projects/sunriseclock/kepler-viz.svg?v=1"
         width="100%" class="cam-viz"
         style="display:block; max-width:170px; margin-inline:auto; aspect-ratio:420 / 320;"
         aria-label="Kepler's second law: a planet moving faster near the Sun and slower when far away">
@@ -182,9 +182,9 @@ reference point. The method is then simply:
    **(and the reverse for sunset)**.
 1. Fit a smooth spline through the 24 radii. That curve is the cam edge.
 
-<object type="image/svg+xml" data="/static/img/projects/sunriseclock/build-viz.svg"
+<object type="image/svg+xml" data="/static/img/projects/sunriseclock/build-viz.svg?v=1"
         width="100%" class="cam-viz"
-        style="display: block; max-width:400px; aspect-ratio: 640 / 600;"
+        style="display: block; max-width:400px; margin-inline:auto; aspect-ratio: 640 / 600;"
         aria-label="Building the cam from 24 samples and a spline">
   <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="The sunrise cam shape, built from 24 sampled points">
 </object>
@@ -192,7 +192,7 @@ reference point. The method is then simply:
 Because every radius comes from a *real* sunrise time, the cam inherits every effect from the previous section. 
 There is nothing astronomical to model; the data already carries it.
 
-<object type="image/svg+xml" data="/static/img/projects/sunriseclock/sweep-viz.svg"
+<object type="image/svg+xml" data="/static/img/projects/sunriseclock/sweep-viz.svg?v=1"
         width="100%" class="cam-viz"
         style="display: block; aspect-ratio: 1000 / 470;"
         aria-label="A year of sunrise times, wrapped onto the cam">
