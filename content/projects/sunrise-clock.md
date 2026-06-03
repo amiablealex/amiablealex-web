@@ -69,7 +69,7 @@ from the Sun in July - **Kepler's second law**.
 
 <object type="image/svg+xml" data="/static/img/projects/sunriseclock/kepler-viz.svg"
         width="100%" class="cam-viz"
-        style="display:block; max-width:220px; margin-inline:auto; aspect-ratio:420 / 320;"
+        style="display:block; max-width:170px; margin-inline:auto; aspect-ratio:420 / 320;"
         aria-label="Kepler's second law: a planet moving faster near the Sun and slower when far away">
   <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="An elliptical orbit with the Sun at one focus">
 </object>
@@ -184,7 +184,7 @@ reference point. The method is then simply:
 
 <object type="image/svg+xml" data="/static/img/projects/sunriseclock/build-viz.svg"
         width="100%" class="cam-viz"
-        style="display: block; aspect-ratio: 640 / 600;"
+        style="display: block; max-width:400px; aspect-ratio: 640 / 600;"
         aria-label="Building the cam from 24 samples and a spline">
   <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="The sunrise cam shape, built from 24 sampled points">
 </object>
