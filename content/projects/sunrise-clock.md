@@ -46,7 +46,9 @@ sweep of the indicators.
 
 ## Astronomy behind the cam shapes
 
-This project aims to indicate the variation of sunrise and sunset mechanically on a 24-hour clock face. 
+<img src="/static/img/projects/sunriseclock/camshapes-translucent.png"
+     alt="cam shapes"
+     style="display:block; max-width:700px; margin-inline:auto;">
 
 **Daylight hours change throughout the seasons** - long days in summer, short in winter. The effect is mostly due to the 
 Earth being tilted on its spinning axis (23.4°) - on its own this effect is straightforward and predictable: daylight 
