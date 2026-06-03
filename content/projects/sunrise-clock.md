@@ -46,9 +46,10 @@ sweep of the indicators.
 
 ## Astronomy behind the cam shapes
 
-<img src="/static/img/projects/sunriseclock/camshapes-translucent.png"
+<img src="/static/img/projects/sunriseclock/camshapes-translucent.png?v=1"
      alt="cam shapes"
-     style="display:block; max-width:700px; margin-inline:auto;">
+     class="bare"
+     style="display:block; max-width:320px; margin-inline:auto;">
 
 **Daylight hours change throughout the seasons** - long days in summer, short in winter. The effect is mostly due to the 
 Earth being tilted on its spinning axis (23.4°) - on its own this effect is straightforward and predictable: daylight 

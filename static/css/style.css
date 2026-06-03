@@ -249,6 +249,7 @@ a { color: var(--teal-ink); text-decoration: none; }
 .prose a:hover { text-decoration-color: var(--teal); }
 .prose strong { font-weight: 600; }
 .prose img { border-radius: var(--radius-sm); margin: 1.4em 0; border: 1px solid var(--line); }
+.prose img.bare { border: none; border-radius: 0; }
 .prose blockquote {
   margin: 1.4em 0; padding: 2px 0 2px 18px;
   border-left: 3px solid var(--teal); color: var(--ink-soft); font-style: italic;
