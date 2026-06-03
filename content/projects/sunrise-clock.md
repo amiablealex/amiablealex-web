@@ -199,47 +199,38 @@ There is nothing astronomical to model; the data already carries it.
   <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="A year of sunrise times wrapped onto the cam">
 </object>
 
-### Cam to indicator
+### Cam to indicator: the trigonometry
 
-The cam turns once a year, with a changing radius. A follower rests on the cam edge and gets pushed up and down as the cam turns.
-The arm pivots about a fixed point, and a toothed sector fixed at that pivot swings through a small
-angle as the arm rises and falls. This genereates an angular sweep equivalent to the function of the sunrise. 
+The cam gives the follower a small rise and fall; the dial needs a hand swinging through 60+ degrees. Two steps bridge that 
+gap - a pivot and a gear ratio - and a line of trigonometry sizes each one.
 
-This sweeping angle needs to be magnified to achieve the real angle sweep of the sunrise on a 24-hour clock face - which is achieved
-by a small ten-tooth gear at the centre of the dial meshing with the sector. Sunrise indicator is fixed to the small center gear. 
-Because the sector is large and the centre gear small, the hand turns far more than the follower rotation. 
+#### Step one: rise into angle. 
+As the cam radius changes by an amount called the **throw**, the follower's contact point lifts by 
+that same amount, swinging the arm about its pivot through an angle:
 
-A 3d-printed clock spring ensures that the follower 
-always maintains contact with the cam and traces out the correct profile.
+[\theta = \arctan!\left(\dfrac{\text{throw}}{\text{arm length}}\right)]
 
-<details> markdown="1"><summary>The maths: throw, arm length and gear ratio</summary>
+#### Step two: angle into sweep. 
+A toothed sector at the pivot meshes with a small gear at the dial centre, multiplying that 
+swing by the tooth ratio:
 
-Cam swings the follower arm. As the cam radius changes by an amount called the
-**throw**, the arm swings through an angle:
+[\text{sweep} = \theta \times \dfrac{\text{sector teeth}}{\text{centre teeth}}]
 
-\(\theta = \arctan\!\left(\dfrac{\text{throw}}{\text{arm length}}\right)\)
+Both arms are 80 mm. Sunrise sector has 40-tooth sector, sunset has 60-tooth. Both meshed with 10-tooth center. 
+Working the two hands through:
 
-Then the sector amplifies that swing by the gear ratio:
+[\arctan!\left(\dfrac{24.1}{80}\right) = 16.8^\circ \quad\Rightarrow\quad 16.8^\circ \times \dfrac{40}{10} = 67^\circ]
 
-\(\text{sweep} = \theta \times \dfrac{\text{sector teeth}}{\text{centre teeth}}\)
+[\arctan!\left(\dfrac{16.0}{80}\right) = 11.3^\circ \quad\Rightarrow\quad 11.3^\circ \times \dfrac{60}{10} = 68^\circ]
 
-Both arms are 80 mm. Working the two hands through, sunrise geared 40:10, sunset 60:10:
+So the sunrise hand sweeps about 67° across the year and the sunset hand about 68° - matching the real spread of times 
+at this latitude.
 
-\(\arctan\!\left(\dfrac{24.1}{80}\right) = 16.8^\circ \;\Rightarrow\; 16.8^\circ \times \dfrac{40}{10} = 67^\circ\)
-
-\(\arctan\!\left(\dfrac{16.0}{80}\right) = 11.3^\circ \;\Rightarrow\; 11.3^\circ \times \dfrac{60}{10} = 68^\circ\)
-
-So the sunrise hand sweeps about 67° across the year and the sunset hand about 68°, 
-matching the real spread of times at this latitude.
-
-**The one assumption.** Follower arm's contact point with the cam is assumed to rise by
-exactly the cam's change in radius, and keep the contact point exactly 80mm from the pivot.
-
-In reality as the follower rises the contact point becomes slightly less than 80mm and as the follower falls the 
-contact point becomes greater than 80mm.
-
-Assumption valid as the 80 mm arm significantly greater than the ~20 mm throw, so the error is only a couple of percent.
-
+<details markdown="1"><summary>The one assumption</summary>
+The first step treats the follower's contact point as rising by exactly the cam's change in radius, staying a fixed 
+80 mm from the pivot. It doesn't, quite: as the arm swings up the contact point creeps inside 80 mm, and as it 
+swings down, outside. But with an 80 mm arm against a ~20 mm throw, the arm barely tilts, and the error stays 
+around a couple of percent. Comfortably below what the print tolerances and gear backlash contribute anyway.
 </details>
 
 ### What I got wrong
