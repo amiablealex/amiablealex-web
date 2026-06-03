@@ -212,7 +212,7 @@ Because the sector is large and the centre gear small, the hand turns far more t
 A 3d-printed clock spring ensures that the follower 
 always maintains contact with the cam and traces out the correct profile.
 
-<details>markdown="1"><summary>The maths: throw, arm length and gear ratio</summary>
+<details> markdown="1"><summary>The maths: throw, arm length and gear ratio</summary>
 
 Cam swings the follower arm. As the cam radius changes by an amount called the
 **throw**, the arm swings through an angle:
