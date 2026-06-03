@@ -113,7 +113,7 @@ rising and falling once a year. Any side-to-side variation (left-right) is showi
 noon. The central vertical line on each diagram is due south - **solar noon** - the Sun perfectly in sync with clock-time 
 would always appear due south at exactly 12:00pm. 
 
-![analemma-decomposition](/static/img/projects/sunriseclock/analemma-decomposition.svg)
+![analemma-decomposition](/static/img/projects/sunriseclock/analemma-decomposition.svg?v=1)
 
 - Axial tilt makes the Sun run fast at the solstices and slow at the equinoxes: *fast, slow, fast, slow*, twice a year. That
   twice-yearly period draws a clean, symmetric figure-8.
