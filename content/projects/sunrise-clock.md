@@ -210,6 +210,9 @@ that same amount, swinging the arm about its pivot through an angle:
 
 \[\theta = \arctan\!\left(\dfrac{\text{throw}}{\text{arm length}}\right)\]
 
+So setting the total cam throw as the difference between its max radius (summer) and its  min radius (winter), we can get 
+the total angle of rotation that the cam provides to the arm.
+
 #### Step two: angle into sweep
 A toothed sector at the pivot meshes with a small gear at the dial centre, multiplying that 
 swing by the tooth ratio:
