@@ -173,7 +173,7 @@ correct shape.
 ### Generating the cam profile
 
 One full revolution of the cam is one year, so the year maps onto 360°. Sample that circle at
-24 equal points, about 15 days apart (\(365.25/24 = 15.21 days\) ), and set the summer solstice (21 June) as the
+24 equal points, about 15 days apart \(365.25/24 = 15.21\text{ days}\), and set the summer solstice (21 June) as the
 reference point. The method is then simply:
 
 1. Look up the real sunrise (or sunset) time at each of the 24 dates.
@@ -204,24 +204,24 @@ There is nothing astronomical to model; the data already carries it.
 The cam gives the follower a small rise and fall; the dial needs a hand swinging through 60+ degrees. Two steps bridge that 
 gap - a pivot and a gear ratio - and a line of trigonometry sizes each one.
 
-#### Step one: rise into angle. 
+#### Step one: rise into angle
 As the cam radius changes by an amount called the **throw**, the follower's contact point lifts by 
 that same amount, swinging the arm about its pivot through an angle:
 
-[\theta = \arctan!\left(\dfrac{\text{throw}}{\text{arm length}}\right)]
+\[\theta = \arctan\!\left(\dfrac{\text{throw}}{\text{arm length}}\right)\]
 
-#### Step two: angle into sweep. 
+#### Step two: angle into sweep
 A toothed sector at the pivot meshes with a small gear at the dial centre, multiplying that 
 swing by the tooth ratio:
 
-[\text{sweep} = \theta \times \dfrac{\text{sector teeth}}{\text{centre teeth}}]
+\[\text{sweep} = \theta \times \dfrac{\text{sector teeth}}{\text{centre teeth}}\]
 
 Both arms are 80 mm. Sunrise sector has 40-tooth sector, sunset has 60-tooth. Both meshed with 10-tooth center. 
 Working the two hands through:
 
-[\arctan!\left(\dfrac{24.1}{80}\right) = 16.8^\circ \quad\Rightarrow\quad 16.8^\circ \times \dfrac{40}{10} = 67^\circ]
+\[\arctan\!\left(\dfrac{24.1}{80}\right) = 16.8^\circ \quad\Rightarrow\quad 16.8^\circ \times \dfrac{40}{10} = 67^\circ\]
 
-[\arctan!\left(\dfrac{16.0}{80}\right) = 11.3^\circ \quad\Rightarrow\quad 11.3^\circ \times \dfrac{60}{10} = 68^\circ]
+\[\arctan\!\left(\dfrac{16.0}{80}\right) = 11.3^\circ \quad\Rightarrow\quad 11.3^\circ \times \dfrac{60}{10} = 68^\circ\]
 
 So the sunrise hand sweeps about 67° across the year and the sunset hand about 68° - matching the real spread of times 
 at this latitude.
