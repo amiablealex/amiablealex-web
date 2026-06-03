@@ -179,42 +179,42 @@ makes the most logical sense for me to follow.
    
 ### Working backwards from the dial
 
-Four properties describe the mechanism - the arm length \(L\), the cam's **throw** \(t\) (its max-min radius difference), 
-the gear ratio \(G\) (sector teeth ÷ centre teeth), and the resulting indicator **sweep** \(S\). The design problem is to 
-pick each property so the hand sweeps exactly the right amount, and I solved it backwards: starting from the desired sweep, 
-ending with the cam throw.
+Four properties describe the mechanism - the arm length \(L\), the cam's **throw** \(t\)
+(the difference between its largest and smallest radius), the gear ratio \(G\) (sector
+teeth ÷ centre teeth), and the indicator's **sweep** \(S\). The design problem is to 
+pick each property so the hand sweeps exactly the right amount, so I worked backwards, starting from the desired sweep and
+to work out the necessary cam throw.
 
-First, look up the year's earliest and latest sunrise for a location. To make calculations easier I converted times into
-**decimal hours** - 3:45am becomes 3.75. The year's overall sunrise variation is simply latest − earliest.
+First, take the year's earliest and latest sunrise. Converting to decimal hours
+(3:45am → 3.75) makes them subtractable. Sunrise at 03:35 and 08:16 GMT,
+i.e. 3.58 and 8.26 - the indicator must sweep across that spread, expressed as a fraction
+of the full 24-hour dial:
 
-\[\text{sunrise variation} = \text{latest sunrise time} - \text{earliest sunrise time}\]
+\[S = \frac{8.26 - 3.58}{24}\times 360^\circ = \frac{4.68}{24}\times 360^\circ \approx 70.2^\circ\]
 
-For my latitude (03:35 and 08:16 UTC): 8.26 - 3.58 = 4.68 hours (4hrs 40min). On a 24-hour dial, 1 hour is \(15^\circ\), and
-so we can work out desired indicator rotation: 
+Next, a gear ratio amplifies a small sector rotation into the full sweep, so the sector
+only needs to turn by the desired full sweep divided by this ratio. A little trial and error landed on
+4:1 for sunrise and 6:1 for sunset, which give sensible cam shapes:
 
-\[S \approx 4.68\,\text{h} \times 15^\circ/\text{h} \approx 74.8^\circ\]
+\[\theta = \frac{S}{G} = \frac{70.2^\circ}{4} \approx 17.6^\circ\]
 
-Next, it was a bit of trial and error to determine a gear ratio that would resut in a sensible-shaped cam. I settled on 4:1
-for the sunrise cam and 6:1 for the sunset cam. This ratio reduces the required rotation needed at the sector:
+That sector rotation comes from the follower arm lifting about its pivot. With an 80 mm arm:
  
-\[\theta = \frac{S}{G} = \frac{74.8^\circ}{4} \approx 18.7^\circ\]
-
-And work out how much the follower arm needs to lift to provide the desired \(18.7^\circ\) rotation:
- 
-\[t = L\tan\theta = 80\,\text{mm}\times\tan 18.7^\circ \approx 27.4\,\text{mm}\]
+\[t = L\tan\theta = 80\,\text{mm}\times\tan 17.6^\circ \approx 25.3\,\text{mm}\]
 
 Finally, the throw is the difference between the cam's largest and smallest radius. The largest is set by the space available 
-for the cam in the mechanism (about 41 mm). To get the minimum radius of the cam:
+for the cam in the mechanism (about 41 mm). To get the minimum radius:
 
-\[R_{\min} = R_{\max} - t \approx 41\,\text{mm} - 27.4\,\text{mm} \approx 13.6\,\text{mm}\]
+\[R_{\min} = R_{\max} - t \approx 41\,\text{mm} - 25.3\,\text{mm} \approx 15.7\,\text{mm}\]
 
-So the sunrise cam runs between about 14 mm and 41 mm. Sunset works out similar - 4.8 hours of annual spread, about \(72^\circ\)
-of sweep. The one difference is the gear ratio: for a fixed sweep a higher ratio needs a smaller throw (since \(\theta = S/G\) 
-shrinks), and I used 6:1 for sunset against 4:1 for sunrise:
+So the sunrise cam runs between about 16 mm and 41 mm. Sunset runs through the same steps;
+its annual spread is slightly wider (about 4.8 h → 72°), and its 6:1 ratio needs a smaller
+throw for the same sweep:
 
-\[\theta = \frac{72^\circ}{6} \approx 12^\circ \qquad t = 80\,\text{mm}\times\tan 12^\circ \approx 17.0\,\text{mm} \qquad R_{\min} \approx 23\,\text{mm}\]
+\[\theta = \frac{72^\circ}{6} = 12^\circ \qquad t = 80\,\text{mm}\times\tan 12^\circ \approx 17.0\,\text{mm} \qquad R_{\min} \approx 24\,\text{mm}\]
 
 <details markdown="1"><summary>The one assumption</summary>
+  
 The first step treats the follower's contact point as rising by exactly the cam's change in radius, staying a fixed 
 80 mm from the pivot. It doesn't, quite: as the arm swings up the contact point creeps inside 80 mm, and as it 
 swings down, outside. But with an 80 mm arm against a ~20 mm throw, the arm barely tilts, and the error stays 
