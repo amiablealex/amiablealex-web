@@ -55,9 +55,7 @@ for(i=0;i<N;i++){var d=data[i];
   d.fx=pL+(d.i/(N-1))*pW; d.fy=pB-(d.r-Rmin)/(Rmax-Rmin)*pH;
   d.px=cx+d.r*Math.sin(d.ang); d.py=cy-d.r*Math.cos(d.ang);
 }
-ns('text',{x:pL,y:46,'font-size':22,'font-weight':500,'class':'ttl'},'Sunrise across the year');
 ns('text',{x:pL,y:64,'font-size':13,'class':'lab'},'sunrise time (GMT)');
-ns('text',{x:cx,y:46,'font-size':22,'font-weight':500,'class':'ttl','text-anchor':'middle'},'…wrapped onto the cam');
 ns('line',{x1:pL,y1:pT-8,x2:pL,y2:pB,'class':'ax'});
 ns('line',{x1:pL,y1:pB,x2:pR,y2:pB,'class':'ax'});
 function clockToY(T){return pB-(hi-T)/(hi-lo)*pH;}
