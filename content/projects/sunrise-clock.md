@@ -182,7 +182,7 @@ reference point. The method is then simply:
    **(and the reverse for sunset)**.
 1. Fit a smooth spline through the 24 radii. That curve is the cam edge.
 
-<object type="image/svg+xml" data="/static/img/projects/sunriseclock/build-viz.svg?v=1"
+<object type="image/svg+xml" data="/static/img/projects/sunriseclock/build-viz.svg?v=2"
         width="100%" class="cam-viz"
         style="display: block; max-width:400px; margin-inline:auto; aspect-ratio: 640 / 600;"
         aria-label="Building the cam from 24 samples and a spline">
