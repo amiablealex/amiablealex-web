@@ -56,8 +56,6 @@ function crClosed(p){var n=p.length,d='M'+p[0].x.toFixed(2)+' '+p[0].y.toFixed(2
   return d+'Z';}
 ns('circle',{cx:cx,cy:cy,r:Rmax,'class':'base'});
 ns('circle',{cx:cx,cy:cy,r:2.5,'class':'lab'});
-ns('text',{x:cx,y:34,'font-size':18,'font-weight':500,'class':'ttl','text-anchor':'middle'},'24 samples \u2192 one spline');
-ns('text',{x:cx,y:cy+Router+46,'font-size':14,'class':'lab','text-anchor':'middle'},'each point is the sunrise time for that date');
 var cards=[
  {i:0,  t:'21 Jun', x:cx,           y:cy-Router-16, a:'middle'},
  {i:3,  t:'6 Aug',  x:cx+161,       y:cy-155,       a:'start'},
