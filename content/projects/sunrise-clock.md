@@ -108,7 +108,7 @@ year - the Sun never sits in quite the same spot; instead it traces a distorted 
 
 The shapes below show the Sun's position at noon across a one-year period. Up–down is how high the Sun climbs in the sky, 
 rising and falling once a year. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock 
-noon. The central vertical line on each diagram is due south - **solar noon** - the Sun perfectly in sync with clock-time 
+noon. The central vertical line on each diagram is due south - **solar noon**. The Sun perfectly in sync with clock-time 
 would always appear due south at exactly 12:00pm. 
 
 ![analemma-decomposition](/static/img/projects/sunriseclock/analemma-decomposition.svg?v=1)
