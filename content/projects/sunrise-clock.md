@@ -47,7 +47,7 @@ sweep of the indicators.
 ## Astronomy behind the cam shapes
 
 Daylight hours change throughout the seasons - long days in summer, short in winter. The effect is mostly because the 
-Earth is tilted on its spinning axis (23.4°). On its own this effect is straightforward and predictable: daylight 
+Earth is tilted on its spinning axis by \(23.4^\circ\). On its own this effect is straightforward and predictable: daylight 
 hours would vary smoothly and symmetrically through the year, and a regular oval cam would reproduce it perfectly.
 
 However, **the sunrise and sunset curves aren't symmetric**. The shortest day is the winter solstice, around 21 December. 
@@ -72,10 +72,9 @@ from the Sun in July - **Kepler's second law**.
   <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="An elliptical orbit with the Sun at one focus">
 </object>
 
-The equation of time emerges because each day the Earth must turn slightly 
-more than a full 360° to bring the sun back to the same point in the sky. The amount of extra rotation needed each day 
-depends on the orbital speed, which in turn depends on which part of the orbit the Earth is in. So the equation of time 
-varies throughout the seasons.
+The equation of time emerges because each day the Earth must turn slightly more than a full \(360^\circ\) to bring the sun 
+back to the same point in the sky. The amount of extra rotation needed each day depends on the orbital speed, which 
+in turn depends on which part of the orbit the Earth is in. So the equation of time varies throughout the seasons.
 
 ```
 Day 1:  Earth at position A
@@ -182,8 +181,8 @@ makes the most logical sense for me to follow.
 Four properties describe the mechanism - the arm length \(L\), the cam's **throw** \(t\)
 (the difference between its largest and smallest radius), the gear ratio \(G\) (sector
 teeth ÷ centre teeth), and the indicator's **sweep** \(S\). The design problem is to 
-pick each property so the hand sweeps exactly the right amount. I worked backwards, starting from the desired sweep
-to work out the necessary cam throw.
+pick each property so the hand sweeps exactly the right amount. I worked backwards, 
+starting from the desired sweep to work out the necessary cam throw.
 
 Take the year's absolute earliest and latest sunrise. For sunrise at 03:35 and 08:16 GMT,
 i.e. 3.58 and 8.26 - the indicator must sweep across that spread. Expressed as a fraction
@@ -192,8 +191,8 @@ be \(70.2^\circ\):
 
 \[S = \frac{8.26 - 3.58}{24}\times 360^\circ = \frac{4.68}{24}\times 360^\circ \approx 70.2^\circ\]
 
-Next, a gear ratio amplifies rotation, so that the sector only needs to rotate a much smaller amount 
-to achieve the full \(70.2^\circ\) rotation at the center. Changing this gear ratio varies how much 
+So that the sector arm only needs to rotate a much smaller amount to achieve the full \(70.2^\circ\) 
+at the center, a gear ratio amplifies the rotation. Changing this gear ratio varies how much 
 work the cam has to do - and having different ratios for the sunrise and sunset mechanism allows the 
 sector pivots to be fixed at different points. Some trial and error landed on 4:1 for sunrise and 6:1 
 for sunset, which gave sensible cam shapes. To work out the necessary rotation of the sector to 
@@ -201,7 +200,7 @@ provide the full \(70.2^\circ\) at the center:
 
 \[\theta = \frac{S}{G} = \frac{70.2^\circ}{4} \approx 17.6^\circ\]
 
-Thirdly, we need to find the required distance t that the 80 mm arm needs to raise to give the desired 
+To find the required distance t that the 80 mm arm needs to raise to give the desired 
 \(17.6\circ\) rotation at the pivot:
 
 <object type="image/svg+xml" data="/static/img/projects/sunriseclock/lift-viz.svg?v=1"
@@ -221,7 +220,7 @@ by \(t = 25.3mm\). The largest radius \(R_{\max}\) is set by the space available
 \[R_{\min} = R_{\max} - t \approx 41\,\text{mm} - 25.3\,\text{mm} \approx 15.7\,\text{mm}\]
 
 So the sunrise cam runs between about 16 mm and 41 mm. Sunset runs through the same steps;
-its annual spread is slightly wider (about 4.8 h → 72°), and its 6:1 ratio needs a smaller
+its annual spread is slightly wider (about 4.8 h → \(72^\circ\)), and its 6:1 ratio needs a smaller
 throw for the same sweep:
 
 \[\begin{aligned}
@@ -269,12 +268,12 @@ You don't actually need to understand any of the astronomy; the data already con
 The sunset cam follows the same process - 24 points & spline, slightly different min & max radius range. 
 With one difference I didn't spot until the clock was assembled.
 
-One detail comes out of this - the June 21 solstice was deliberately plotted at 0°, and the winter solstice at 180°. But the 
+One detail comes out of this - the June 21 solstice was deliberately plotted at \(0^\circ\), and the winter solstice at \(180^\circ\). But the 
 maximum cam radius was defined as the *earliest sunrise* and the min radius as the *latest sunrise*. The the latest sunrise 
 happens a *after* the winter solstice - you can see it on the cams here:
 
 
-The cam's fattest point sits slightly off 0°, and its narrowest just past the 180° position. That small offset frozen into the
+The cam's fattest point sits slightly off \(0^\circ\), and its narrowest just past the \(180^\circ\) position. That small offset frozen into the
 shape, is the **equation of time made physical** - the same lopsidedness from the analemma, now in the cam's silhouette.
  
 ### What I got wrong
