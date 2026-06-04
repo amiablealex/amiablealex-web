@@ -225,8 +225,8 @@ its annual spread is slightly wider (about 4.8 h → 72°), and its 6:1 ratio ne
 throw for the same sweep:
 
 \[\begin{aligned}
-\theta &= \frac{72^\circ}{6} = 12^\circ \\
-t &= 80\,\text{mm}\times\tan 12^\circ \approx 17.0\,\text{mm} \\
+\theta &= \frac{72^\circ}{6} = 12^\circ \\[6pt]
+t &= 80\,\text{mm}\times\tan 12^\circ \approx 17.0\,\text{mm} \\[6pt]
 R_{\min} &\approx 24\,\text{mm}
 \end{aligned}\]
 
