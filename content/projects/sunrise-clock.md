@@ -191,17 +191,17 @@ be \(70.2^\circ\):
 
 \[S = \frac{8.26 - 3.58}{24}\times 360^\circ = \frac{4.68}{24}\times 360^\circ \approx 70.2^\circ\]
 
-So that the sector arm only needs to rotate a much smaller amount to achieve the full \(70.2^\circ\) 
-at the center, a gear ratio amplifies the rotation. Changing this gear ratio varies how much 
+A gear ratio amplifies rotation so that the sector arm only needs to rotate a much smaller 
+amount to achieve the full \(70.2^\circ\) at the center. Changing this gear ratio varies how much 
 work the cam has to do - and having different ratios for the sunrise and sunset mechanism allows the 
 sector pivots to be fixed at different points. Some trial and error landed on 4:1 for sunrise and 6:1 
-for sunset, which gave sensible cam shapes. To work out the necessary rotation of the sector to 
-provide the full \(70.2^\circ\) at the center:
+for sunset, which gave sensible cam shapes. To provide the full \(70.2^\circ\) at the center, the 
+rotation of the sector needs to be \(17.6^\circ\):
 
 \[\theta = \frac{S}{G} = \frac{70.2^\circ}{4} \approx 17.6^\circ\]
 
-To find the required distance t that the 80 mm arm needs to raise to give the desired 
-\(17.6\circ\) rotation at the pivot:
+For the sector arm to rotate, it must be fixed at one end and lifted at the other. To achieve the
+\(17.6^\circ\) rotation at the pivot point, the 80 mm arm needs to raised by 25.3mm:
 
 <object type="image/svg+xml" data="/static/img/projects/sunriseclock/lift-viz.svg?v=1"
         width="100%" class="cam-viz"
@@ -212,20 +212,20 @@ To find the required distance t that the 80 mm arm needs to raise to give the de
 
 \[t = L\tan\theta = 80\,\text{mm}\times\tan 17.6^\circ \approx 25.3\,\text{mm}\]
 
-Finally, the **throw** is the difference between the cam's largest and smallest radius. 
-It's what raises and lowers the follower arm resting on the cams surface - and we know the arm needs to be raised
+Finally, the **throw** is the difference between the cam's largest and smallest radius. It's what determines how much 
+the follower arm resting on the cam raises and lowers by - and we know the arm needs to be raised
 by \(t = 25.3mm\). The largest radius \(R_{\max}\) is set by the space available for the cam in the mechanism 
-(about 41 mm). To get the minimum radius:
+(about 41 mm). With a 25.3mm throw, the minimum radius is 15.7mm:
 
 \[R_{\min} = R_{\max} - t \approx 41\,\text{mm} - 25.3\,\text{mm} \approx 15.7\,\text{mm}\]
 
 So the sunrise cam runs between about 16 mm and 41 mm. Sunset runs through the same steps;
 its annual spread is slightly wider (about 4.8 h → \(72^\circ\)), and its 6:1 ratio needs a smaller
-throw for the same sweep:
+throw to achieve the same sweep:
 
 \[\begin{aligned}
-\theta &= \frac{72^\circ}{6} = 12^\circ \\[8pt]
-t &= 80\,\text{mm}\times\tan 12^\circ \approx 17.0\,\text{mm} \\[8pt]
+\theta &= \frac{72^\circ}{6} = 12^\circ \\[9pt]
+t &= 80\,\text{mm}\times\tan 12^\circ \approx 17.0\,\text{mm} \\[9pt]
 R_{\min} &\approx 24\,\text{mm}
 \end{aligned}\]
 
