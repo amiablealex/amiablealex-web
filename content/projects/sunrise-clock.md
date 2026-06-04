@@ -197,7 +197,8 @@ up/down required from the cam. Some trial and error landed on 4:1 for sunrise an
 for sunset[^ratios], which gave sensible cam dimensions. To provide the full \(70.2^\circ\) at the center, the 
 rotation of the sunrise sector needs to be \(17.6^\circ\):
 
-[^ratios]: Having different ratios for the sunrise and sunset mechanism allows the sector pivots to be fixed at different points. 
+[^ratios]: Having different ratios for the sunrise and sunset mechanism means the sector pivots can be fixed at different points, avoiding 
+having to design the support frame for complicated overlaps.
 
 \[\theta = \frac{S}{G} = \frac{70.2^\circ}{4} \approx 17.6^\circ\]
 
