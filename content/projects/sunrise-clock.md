@@ -138,10 +138,9 @@ December.
   time turning sunset around before the solstice, near 12 December.
 </details> 
 
-**This is where the cam shapes come in**. Both cam profiles are generated from a year of real sunrise and sunset data. So the 
-axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed into the shape - frozen in plastic. 
-And because the individual contributions of those effects depend on where you are on the planet, every cam is tailored to a 
-location.
+**This is where the cam shapes come in**. The profiles are generated from a year of real sunrise and sunset data, each cam 
+tailored to a specific location. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed 
+into the shape.
 
 <img src="/static/img/projects/sunriseclock/camshapes-translucent.png?v=1"
      alt="cam shapes"
@@ -168,40 +167,40 @@ the year - plainly visible.</li>
 
 ## Design Story
 
-The cam edge has to carry all of those interacting effects at once. The funny thing is, much
-like Ptolemy in 150 AD, is that you don't need to understand the astronomy to arrive at the
-correct shape. Building it is two jobs, and I'll go through it in the order I actually worked it out, because it 
-makes the most logical sense for me to follow. 
+To accurately reproduce the daylight hours, the cam shape has to carry all of the astronomical 
+effects from the previous section. Although, you don't actually need to understand any of 
+the astronomy to arrive at the correct shape. It follows a two-step process:
 
-1. Size the mechanism: work backwards from the dial to find the cam throw that gives the hand its correct annual sweep.
+1. Size the mechanism: work backwards from the clock face to find the cam throw that gives the hand its correct rotation.
 1. Generate the profile: sample a year of real sunrise times and turn each one into a radius.
    
-### Working backwards from the dial
+### Working backwards from the clock face
 
 Four properties describe the mechanism - the arm length \(L\), the cam's **throw** \(t\)
 (the difference between its largest and smallest radius), the gear ratio \(G\) (sector
 teeth ÷ centre teeth), and the indicator's **sweep** \(S\). The design problem is to 
-pick each property so the hand sweeps exactly the right amount. I worked backwards, 
-starting from the desired sweep to work out the necessary cam throw.
+pick each property so the hand sweeps exactly the right amount. It helps to work backwards, 
+starting from the desired indicator sweep to work out the necessary cam throw.
 
-Take the year's absolute earliest and latest sunrise. For sunrise at 03:35 and 08:16 GMT,
-i.e. 3.58 and 8.26 - the indicator must sweep across that spread. Expressed as a fraction
-of the full 24-hour dial, the sunrise indicator's full rotation on the clock face needs to 
+Take the year's absolute earliest and latest sunrise. For example, sunrise at 03:35 and 08:16 GMT,
+i.e. decimal time of 3.58 and 8.26 - the indicator must sweep across that spread. Expressed as a fraction
+of the full 24-hour dial, the sunrise indicator's total rotation over the year needs to 
 be \(70.2^\circ\):
 
 \[S = \frac{8.26 - 3.58}{24}\times 360^\circ = \frac{4.68}{24}\times 360^\circ \approx 70.2^\circ\]
 
-A gear ratio amplifies rotation so that the sector arm only needs to rotate a much smaller 
-amount to achieve the full \(70.2^\circ\) at the center. Changing this gear ratio varies how much 
-work the cam has to do - and having different ratios for the sunrise and sunset mechanism allows the 
-sector pivots to be fixed at different points. Some trial and error landed on 4:1 for sunrise and 6:1 
-for sunset, which gave sensible cam shapes. To provide the full \(70.2^\circ\) at the center, the 
-rotation of the sector needs to be \(17.6^\circ\):
+So that the sector arm only needs to rotate a small amount to achieve the full \(70.2^\circ\) at the center, 
+a gear ratio amplifies rotation. Changing the ratio varies how much work the cam has to do - higher ratio = less 
+up/down required from the cam. Some trial and error landed on 4:1 for sunrise and 6:1 
+for sunset[^ratios], which gave sensible cam dimensions. To provide the full \(70.2^\circ\) at the center, the 
+rotation of the sunrise sector needs to be \(17.6^\circ\):
+
+[^ratios]: Having different ratios for the sunrise and sunset mechanism allows the sector pivots to be fixed at different points. 
 
 \[\theta = \frac{S}{G} = \frac{70.2^\circ}{4} \approx 17.6^\circ\]
 
 For the sector arm to rotate, it must be fixed at one end and lifted at the other. To achieve the
-\(17.6^\circ\) rotation at the pivot point, the 80 mm arm needs to raised by 25.3mm:
+\(17.6^\circ\) rotation at the pivot point, the 80mm arm needs to raised by 25.3mm:
 
 <object type="image/svg+xml" data="/static/img/projects/sunriseclock/lift-viz.svg?v=1"
         width="100%" class="cam-viz"
