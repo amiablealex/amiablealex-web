@@ -215,7 +215,7 @@ For the sector arm to rotate, it must be fixed at one end and lifted at the othe
 Finally, the **throw** is the difference between the cam's largest and smallest radius. It's what determines how much 
 the follower arm resting on the cam raises and lowers by - and we know the arm needs to be raised
 by \(t = 25.3mm\). The largest radius \(R_{\max}\) is set by the space available for the cam in the mechanism 
-(about 41 mm). With a 25.3mm throw, the minimum radius is 15.7mm:
+(about 41 mm). With a 25.3mm throw, the minimum radius has to be 15.7mm:
 
 \[R_{\min} = R_{\max} - t \approx 41\,\text{mm} - 25.3\,\text{mm} \approx 15.7\,\text{mm}\]
 
