@@ -123,7 +123,7 @@ would always appear due south at exactly 12:00pm.
 
 <figure markdown="1">
 ![analemma-real](/static/img/projects/sunriseclock/analemma-real.png)
-<figcaption>The Sun photographed at 12:00pm for one year, via the Vatican Observatory's
+<figcaption>The Sun photographed at the same time of day for one year, via the Vatican Observatory's
 <a href="https://www.vaticanobservatory.org/sacred-space-astronomy/the-analemma-and-the-darkest-evening/">The Analemma and the 
   Darkest Evening</a>.</figcaption>
 </figure>
