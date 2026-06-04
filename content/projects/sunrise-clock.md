@@ -182,25 +182,25 @@ makes the most logical sense for me to follow.
 Four properties describe the mechanism - the arm length \(L\), the cam's **throw** \(t\)
 (the difference between its largest and smallest radius), the gear ratio \(G\) (sector
 teeth ÷ centre teeth), and the indicator's **sweep** \(S\). The design problem is to 
-pick each property so the hand sweeps exactly the right amount, so I worked backwards, starting from the desired sweep and
+pick each property so the hand sweeps exactly the right amount. I worked backwards, starting from the desired sweep
 to work out the necessary cam throw.
 
-First, take the year's earliest and latest sunrise. Converting to decimal hours
-(3:45am → 3.75) makes them subtractable. Sunrise at 03:35 and 08:16 GMT,
-i.e. 3.58 and 8.26 - the indicator must sweep across that spread, expressed as a fraction
+Take the year's absolute earliest and latest sunrise. For sunrise at 03:35 and 08:16 GMT,
+i.e. 3.58 and 8.26 - the indicator must sweep across that spread. Expressed as a fraction
 of the full 24-hour dial:
 
 \[S = \frac{8.26 - 3.58}{24}\times 360^\circ = \frac{4.68}{24}\times 360^\circ \approx 70.2^\circ\]
 
-Next, a gear ratio amplifies a small sector rotation into the full sweep, so the sector
-only needs to turn by the desired full sweep divided by this ratio. A little trial and error landed on
-4:1 for sunrise and 6:1 for sunset, which give sensible cam shapes:
+By including a gear ratio to amplify rotation, the sector only needs to rotate a small amount to get the center gear to
+rotate the full \(70.2\circ\) - changing this gear ratio varies how much work the cam has to do. Having different ratios 
+for the sunrise and sunset mechanism allows the sector pivots to be fixed at different points, avoiding complicated 
+overlap.Some trial and error landed on 4:1 for sunrise and 6:1 for sunset.
+
+So, for sunrise, to work out the necessary rotation of the sector to provide the full \(70.2\circ\):
 
 \[\theta = \frac{S}{G} = \frac{70.2^\circ}{4} \approx 17.6^\circ\]
 
-That sector rotation comes from the follower arm lifting about its pivot. With an 80 mm arm:
- 
-\[t = L\tan\theta = 80\,\text{mm}\times\tan 17.6^\circ \approx 25.3\,\text{mm}\]
+The required distance t that the 80 mm arm needs to raise to give a \(17.6\circ\) rotation at the pivot can be seen here:
 
 <object type="image/svg+xml" data="/static/img/projects/sunriseclock/lift-viz.svg?v=1"
         width="100%" class="cam-viz"
@@ -209,7 +209,9 @@ That sector rotation comes from the follower arm lifting about its pivot. With a
   <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="A right triangle showing the follower arm lifting through angle theta">
 </object>
 
-Finally, the throw is the difference between the cam's largest and smallest radius. The largest is set by the space available 
+\[t = L\tan\theta = 80\,\text{mm}\times\tan 17.6^\circ \approx 25.3\,\text{mm}\]
+
+Finally, the throw t is the difference between the cam's largest and smallest radius. The largest is set by the space available 
 for the cam in the mechanism (about 41 mm). To get the minimum radius:
 
 \[R_{\min} = R_{\max} - t \approx 41\,\text{mm} - 25.3\,\text{mm} \approx 15.7\,\text{mm}\]
@@ -218,7 +220,11 @@ So the sunrise cam runs between about 16 mm and 41 mm. Sunset runs through the s
 its annual spread is slightly wider (about 4.8 h → 72°), and its 6:1 ratio needs a smaller
 throw for the same sweep:
 
-\[\theta = \frac{72^\circ}{6} = 12^\circ \qquad t = 80\,\text{mm}\times\tan 12^\circ \approx 17.0\,\text{mm} \qquad R_{\min} \approx 24\,\text{mm}\]
+\[\begin{aligned}
+\theta &= \frac{72^\circ}{6} = 12^\circ \\
+t &= 80\,\text{mm}\times\tan 12^\circ \approx 17.0\,\text{mm} \\
+R_{\min} &\approx 24\,\text{mm}
+\end{aligned}\]
 
 <details markdown="1"><summary>The one assumption</summary>
   
@@ -228,16 +234,14 @@ swings down, outside. But with an 80 mm arm against a ~20 mm throw, the arm bare
 around a couple of percent. Comfortably below what the print tolerances and gear backlash contribute anyway.
 </details>
 
-
 ### Generating the cam profile
 
-With the cam throw determined, what's left is to plot the cam's actual shape. The cam is mounted onto a shaft that rotates
-once per year, so the year maps onto \(360^\circ\). Sample that circle at 24 equal points, about 15 days apart \(365.25/24 = 15.21\text{ days}\), 
-and set the summer solstice (21 June) as the reference point. The method is then simply:
+With the cam's minimum and maximum radii determined, what's left is to plot the cam's actual shape. The cam is mounted onto a shaft that rotates
+once per year, so the year maps onto \(360^\circ\). Sample at 24 equal points, about 15 days apart \(365.25/24 = 15.21\text{ days}\), 
+and set the summer solstice (21 June) as the starting point. The method is then simply:
 
 1. Look up the real sunrise (or sunset) time at each of the 24 dates.
-1. Fix the cam's maximum radius, determined by the space available in the mechanism.
-1. Turn each time into a radius: the latest sunrise becomes the smallest radius, the earliest becomes the largest
+1. Turn each time into a radius, with latest sunrise = min radius, earliest = max
    **(and the reverse for sunset)**.
 1. Fit a smooth spline through the 24 radii. That curve is the cam edge.
 
@@ -258,14 +262,17 @@ You don't actually need to understand any of the astronomy to capture it; the da
   <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="A year of sunrise times wrapped onto the cam">
 </object>
 
-One detail falls out of this, and you can see it in the wrap above. I pinned the solstice at 0°, but I set the maximum radius 
-to the *earliest sunrise* - and thanks to the equation of time the earliest sunrise lands a little *before* the June solstice, 
-the latest a little *after* December. So the cam's fattest point sits slightly off top, and its narrowest just past the 
-6 o'clock position rather than dead on it. That small offset, frozen into the spokes, is the equation of time made physical - 
-the same lopsidedness from the analemma, now in the cam's silhouette.
- 
-The sunset cam comes from exactly the same recipe - same 24 points, same spline, same kind of radius range. With one difference I didn't spot until the clock was assembled.
+The sunset cam follows the same process - 24 points & spline, slightly different min & max radius range. 
+With one difference I didn't spot until the clock was assembled.
 
+One detail comes out of this - the June 21 solstice was deliberately plotted at 0°, and the winter solstice at 180°. But the 
+maximum cam radius was defined as the *earliest sunrise* and the min radius as the *latest sunrise*. The the latest sunrise 
+happens a *after* the winter solstice - you can see it on the cams here:
+
+
+The cam's fattest point sits slightly off 0°, and its narrowest just past the 180° position. That small offset frozen into the
+shape, is the **equation of time made physical** - the same lopsidedness from the analemma, now in the cam's silhouette.
+ 
 ### What I got wrong
 
 I built both cams the same way: biggest radius pointing straight up at the summer solstice. The sunrise cam worked. So I set the clock to the winter solstice, parked the sunset hand at about 4 pm, and wound the year forward. The evenings should draw out - sunset creeping later through January, February, March. Instead the sunset hand marched the wrong way: 4 pm, 3 pm, 2 pm, backwards into the afternoon.
