@@ -257,7 +257,7 @@ and set the summer solstice (21 June) as the starting point. The method is then 
 </object>
 
 Because every radius comes from a *real* sunrise time, the cam inherits every effect from the the astronomy section. 
-You don't actually need to understand any of the astronomy to capture it; the data already carries it.
+You don't actually need to understand any of the astronomy; the data already contains it.
 
 <object type="image/svg+xml" data="/static/img/projects/sunriseclock/sweep-viz.svg?v=2"
         width="100%" class="cam-viz"
