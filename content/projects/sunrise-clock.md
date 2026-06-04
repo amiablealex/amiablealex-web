@@ -232,10 +232,10 @@ R_{\min} &\approx 24\,\text{mm}
 
 <details markdown="1"><summary>The one assumption</summary>
   
-The first step treats the follower's contact point as rising by exactly the cam's change in radius, staying a fixed 
+The follower's contact point on the cam is assumed to rise by exactly the cam's change in radius, staying a fixed 
 80 mm from the pivot. It doesn't, quite: as the arm swings up the contact point creeps inside 80 mm, and as it 
-swings down, outside. But with an 80 mm arm against a ~20 mm throw, the arm barely tilts, and the error stays 
-around a couple of percent. Comfortably below what the print tolerances and gear backlash contribute anyway.
+swings down, outside. But with an 80 mm arm against a ~20 mm throw, the angle stays small, and the error is only a 
+few percent.
 </details>
 
 ### Generating the cam profile
