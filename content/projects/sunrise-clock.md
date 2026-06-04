@@ -187,20 +187,22 @@ to work out the necessary cam throw.
 
 Take the year's absolute earliest and latest sunrise. For sunrise at 03:35 and 08:16 GMT,
 i.e. 3.58 and 8.26 - the indicator must sweep across that spread. Expressed as a fraction
-of the full 24-hour dial:
+of the full 24-hour dial, the sunrise indicator's full rotation on the clock face needs to 
+be \(70.2^\circ\):
 
 \[S = \frac{8.26 - 3.58}{24}\times 360^\circ = \frac{4.68}{24}\times 360^\circ \approx 70.2^\circ\]
 
-By including a gear ratio to amplify rotation, the sector only needs to rotate a small amount to get the center gear to
-rotate the full \(70.2\circ\) - changing this gear ratio varies how much work the cam has to do. Having different ratios 
-for the sunrise and sunset mechanism allows the sector pivots to be fixed at different points, avoiding complicated 
-overlap.Some trial and error landed on 4:1 for sunrise and 6:1 for sunset.
-
-So, for sunrise, to work out the necessary rotation of the sector to provide the full \(70.2\circ\):
+Next, a gear ratio amplifies rotation, so that the sector only needs to rotate a much smaller amount 
+to achieve the full \(70.2^\circ\) rotation at the center. Changing this gear ratio varies how much 
+work the cam has to do - and having different ratios for the sunrise and sunset mechanism allows the 
+sector pivots to be fixed at different points. Some trial and error landed on 4:1 for sunrise and 6:1 
+for sunset, which gave sensible cam shapes. To work out the necessary rotation of the sector to 
+provide the full \(70.2^\circ\) at the center:
 
 \[\theta = \frac{S}{G} = \frac{70.2^\circ}{4} \approx 17.6^\circ\]
 
-The required distance t that the 80 mm arm needs to raise to give a \(17.6\circ\) rotation at the pivot can be seen here:
+Thirdly, we need to find the required distance t that the 80 mm arm needs to raise to give the desired 
+\(17.6\circ\) rotation at the pivot:
 
 <object type="image/svg+xml" data="/static/img/projects/sunriseclock/lift-viz.svg?v=1"
         width="100%" class="cam-viz"
@@ -211,8 +213,10 @@ The required distance t that the 80 mm arm needs to raise to give a \(17.6\circ\
 
 \[t = L\tan\theta = 80\,\text{mm}\times\tan 17.6^\circ \approx 25.3\,\text{mm}\]
 
-Finally, the throw t is the difference between the cam's largest and smallest radius. The largest is set by the space available 
-for the cam in the mechanism (about 41 mm). To get the minimum radius:
+Finally, the **throw** is the difference between the cam's largest and smallest radius. 
+It's what raises and lowers the follower arm resting on the cams surface - and we know the arm needs to be raised
+by \(t = 25.3mm\). The largest radius \(R_{\max}\) is set by the space available for the cam in the mechanism 
+(about 41 mm). To get the minimum radius:
 
 \[R_{\min} = R_{\max} - t \approx 41\,\text{mm} - 25.3\,\text{mm} \approx 15.7\,\text{mm}\]
 
