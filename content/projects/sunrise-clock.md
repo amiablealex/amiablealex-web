@@ -183,9 +183,11 @@ pick each property so the hand sweeps exactly the right amount. It helps to work
 starting from the desired indicator sweep to work out the necessary cam throw.
 
 Take the year's absolute earliest and latest sunrise. For example, sunrise at 03:35 and 08:16 GMT,
-i.e. decimal time of 3.58 and 8.26 - the indicator must sweep across that spread. Expressed as a fraction
+i.e. decimal time of 3.58 and 8.26[^decimal] - the indicator must sweep across that spread. Expressed as a fraction
 of the full 24-hour dial, the sunrise indicator's total rotation over the year needs to 
 be \(70.2^\circ\):
+
+[^decimal]: Converting times to decimal format e.g 3:45am → 3.75 makes doing calculations much easier 
 
 \[S = \frac{8.26 - 3.58}{24}\times 360^\circ = \frac{4.68}{24}\times 360^\circ \approx 70.2^\circ\]
 
