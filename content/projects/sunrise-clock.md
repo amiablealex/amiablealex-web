@@ -293,19 +293,15 @@ shape, is the **equation of time made physical** - the same lopsidedness from th
  
 ### What I got wrong
 
-1. I built both cams the same way: setting the largest radius at the summer solstice. After assembling the clock, I set the cam positions to the winter solstice, set the sunrise and sunset indicators at about the right times, and wound the year forward. The sunrise indicator started at about 8am and moved slowly back to 7:30am, 7am.... The sunset indicator started at about 4pm and also started slowly moving backwards, to 3pm, 2pm, 1pm.... !
+---
+Through the year the two hands have to move in **opposite** directions - toward summer, sunrise gets earlier (indicator anticlockwise) while sunset gets later (indicator clockwise). But both cams are fixed to the same shaft, turning the same direction, and a growing cam radius always pushes its follower the same way, swinging its hand in one fixed direction. But at first I built both cams the same way: setting the largest radius at the summer solstice. After assembling the clock, I set the cam positions to the winter solstice, set the sunrise and sunset indicators at about the right times, and wound the year forward. The sunrise indicator started at about 8am and moved slowly back (correctly) to 7:30am, 7am.... The sunset indicator started at about 4pm and also started slowly moving backwards, to 3pm, 2pm, 1pm.... !
   
-   Through the year the two hands have to move in **opposite** directions - toward summer, sunrise gets earlier (indicator anticlockwise) while sunset gets later (indicator clockwise). But both cams are fixed to the same shaft, turning the same direction, and a growing cam radius always pushes its follower the same way, swinging its hand in one fixed direction.
+The fix was to invert the sunset cam: put its **minimum** radius at the summer solstice instead of its maximum. Now as the shaft turns toward summer the sunrise cam's radius grows while the sunset cam's shrinks, the two followers move oppositely, and the indicators sweep in the correct directions. The rule was always *earlier in the day → larger cam radius*. Apply it correctly and the earliest sunrise (June) and the earliest sunset (December) sit on **opposite sides of the year**. So the sunrise cam's largest radius lands at \(0^\circ\) and the sunset cam's at \(180^\circ\). The mistake was thinking "big radius = summer" instead of "big radius = earliest".
 
-   The fix is to invert the sunset cam: put its **minimum** radius at the summer solstice instead of its maximum. Now as the shaft turns toward summer the sunrise cam's radius grows while the sunset cam's shrinks, the two followers move oppositely, and the indicators sweep in the correct directions.
+---
+The intention was never to incorporate the clocks-change (British Summer Time) into the design, as a smooth cam profile could never cause the follower to 'jump' 1 hour at an instantaneous point. But when generating the cam profiles, I obtained sunrise and sunset data in the local clock time - and the summer half of the year was secretly in British Summer Time (BST). I didn't notice until 6 months after i'd built the first clock that both indicators were now ~1 hour ahead of where they should have been. The fix was to redesign and replace the two cams, this time converting the summer times to GMT, so that the entire cam is programmed at a consistent time zone.
 
-   The rule was always *earlier in the day → larger cam radius*. Apply it correctly and the earliest sunrise (June) and the earliest sunset (December) sit on **opposite sides of the year**. So the sunrise cam's largest radius lands at \(0^\circ\) and the sunset cam's at \(180^\circ\). The mistake was thinking "big radius = summer" instead of "big radius = earliest".
- 
-1. When generating the cam profiles, I obtained sunrise and sunset data in the local clock time. Eventually I realised that the summer half of the year was secretly in British Summer Time (BST). The fix was to regenerate everything and convert the summer times to GMT, so that the entire cam is programmed with a consistent time zone.
-  
-   The intention was never to incorporate the clocks-change into the design, as a smooth cam profile could never cause the follower to 'jump' 1 hour at an instantaneous point.
-
-   My solution for the daylight savings time is simply that the 12'o'clock position should be treated as 'solar noon'. Therefore in BST the top of the clock indicates 1pm, and in GMT it indicates 12pm. That way, the only necessary adjustment is how to read the clock.
+   My solution for the daylight savings time is simply to treat the 12'o'clock position as 'solar noon'. Therefore in BST the top of the clock indicates 1pm, and in GMT it indicates 12pm. That way, the clock can be left alone and the only necessary adjustment is how to read it.
 
    And for a clock with numerical labels, here's my solution:
 
