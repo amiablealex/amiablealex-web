@@ -155,7 +155,7 @@ the year - plainly visible.</li>
 
 ## Design Story
 
-![design-photo](/static/img/projects/sunriseclock/design1.png?v=1)
+[image]
 
 To accurately reproduce the daylight hours, the cam shape has to carry all of the astronomical 
 effects from the previous section. Although, you don't actually need to understand any of 
@@ -284,6 +284,8 @@ And for a clock with numerical labels, here's my solution:
    [image]
    
 ## Make Your Own
+
+![design-photo](/static/img/projects/sunriseclock/design1.png?v=1)
 
 - Makerworld Link
 - Calculator spreadsheet / app
