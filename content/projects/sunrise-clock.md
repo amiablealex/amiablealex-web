@@ -27,7 +27,7 @@ The hour hand reads as a 'how far through the daylight' indicator - the arc betw
 ## How it works
 
 The clock is driven by a standard 12-hour quartz movement. From it, two independent gear chains do separate jobs.
-The first drives the time hand (one revolution in 24h). A single 2:1 reduction (15T → 30T) turns the 12h drive into 24h, 
+The first drives the hour hand (one revolution in 24h). A single 2:1 reduction (15T → 30T) turns the 12h drive into 24h, 
 with an idler gear to make sure the hour hand rotates clockwise.
 
 ![24h-chain-annotated](/static/img/projects/sunriseclock/24h-chain.png)
@@ -55,12 +55,12 @@ But that isn't the day the sun sets earliest or rises latest. In the UK the earl
 latest sunrise around 30 December. So for two weeks before Christmas the evenings are already on their way towards spring 
 while the mornings are still darkening.[^evenings]
 
-[^evenings]: I found the latest sunrise / earliest sunset divergence around the solstice to be particularly well explained 
+[^evenings]: The latest sunrise / earliest sunset divergence around the solstice is particularly well explained 
 in [The evenings are drawing out already](https://explainingscience.org/2019/12/13/the-evenings-are-drawing-out-already-2/), 
 Explaining Science (2019).
 
-This is because there is another mechanic also contributing its own effect to the daylight hours - an astronomical 
-phenomenon called **The Equation of Time**: the gap between sun-time and clock-time. The Sun runs slightly fast or slow 
+This is because there is another atronomical phenomenon also contributing its own effect to the daylight hours - 
+**The Equation of Time**: the deviation of the Sun from regular clock-time. The Sun runs slightly fast or slow 
 against the clock depending on the season, coming from the Earth's tilt and elliptical orbit acting together. Because the 
 Earth's orbit is an ellipse, the Earth speeds up as it orbits closer to the Sun in January and slows as it orbits further 
 from the Sun in July - **Kepler's second law**. 
@@ -100,15 +100,15 @@ When Earth is moving *slow* (July - aphelion):
 - Solar day is *shorter* than average
 - Sunrise/sunset times relative to the clock drift *earlier* with each passing day
 
-Add together this contribution from the equation of time and the seasonal variation from axial tilt, and what you get is two 
-independent astronomical phenomena combining in complex ways. The result is that - for the same clock time each day of the
-year - the Sun never sits in quite the same spot; instead it traces a distorted figure-of-eight. That shape is the 
-**analemma**: the equation of time made visible, etched into the sky. 
+Add together this contribution from the equation of time and the seasonal variation from axial tilt, and the result is two 
+independent astronomical phenomena combining in complex ways. For the same clock time each day of the year, the Sun never 
+sits in quite the same spot; instead it traces a distorted figure-of-eight. That shape is the **analemma**: the equation 
+of time made visible, etched into the sky. 
 
-The shapes below show the Sun's position at noon across a one-year period. Up–down is how high the Sun climbs in the sky, 
-rising and falling once a year. Any side-to-side variation (left-right) is showing the Sun being ahead of or behind the clock 
-noon. The central vertical line on each diagram is due south - **solar noon; the Sun perfectly in sync with clock-time 
-would always appear due south at exactly 12:00pm. 
+The shapes below represent the Sun's position at noon across a one-year period. Up–down is how high the Sun climbs in the sky, 
+rising and falling once a year (high in summer, low in winter). The central vertical line on each diagram is due south - 
+**solar noon**; the Sun perfectly in sync with clock-time would always appear due south at exactly 12:00pm. Therefore any 
+side-to-side variation away from the center line (left-right) represents the solar noon being ahead of or behind the clock noon.  
 
 ![analemma-decomposition](/static/img/projects/sunriseclock/analemma-decomposition.svg?v=1)
 
@@ -127,9 +127,9 @@ would always appear due south at exactly 12:00pm.
   Darkest Evening</a>.</figcaption>
 </figure>
 
-Those two contributing factors are also what pushes the earliest sunset and latest sunrise to *opposite* sides of the solstice - 
-because sunrise and sunset sit on opposite sides of *solar* midday, and solar midday is itself still drifting later through
-December.
+The complex interaction of these effects are also what pushes the earliest sunset and latest sunrise to *opposite* sides of 
+the solstice. Sunrise and sunset sit on opposite sides of *solar* midday (not the clock 12:00pm), and solar midday is still 
+drifting later through the end of December.
 
 <details><summary>Further explanation</summary>
   After the winter solstice the days are lengthening, so sunrise <em>should</em> start getting earlier; but the second factor - 
@@ -137,15 +137,6 @@ December.
   sunrise back until its latest point around 30 December. The same interaction works the other way at dusk, the equation of 
   time turning sunset around before the solstice, near 12 December.
 </details> 
-
-**This is where the cam shapes come in**. The profiles are generated from a year of real sunrise and sunset data, each cam 
-tailored to a specific location. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed 
-into the shape.
-
-<img src="/static/img/projects/sunriseclock/camshapes-translucent.png?v=1"
-     alt="cam shapes"
-     class="bare"
-     style="display:block; max-width:260px; margin-inline:auto;">
 
 <details><summary>A short history</summary>
 <ul>
@@ -164,6 +155,14 @@ the year - plainly visible.</li>
 </ul>
 </details>
 
+**This is where the cam shapes come in**. The profiles are generated from a year of real sunrise and sunset data, each cam 
+tailored to a specific location. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed 
+into the shape.
+
+<img src="/static/img/projects/sunriseclock/camshapes-translucent.png?v=1"
+     alt="cam shapes"
+     class="bare"
+     style="display:block; max-width:260px; margin-inline:auto;">
 
 ## Design Story
 
@@ -171,16 +170,20 @@ To accurately reproduce the daylight hours, the cam shape has to carry all of th
 effects from the previous section. Although, you don't actually need to understand any of 
 the astronomy to arrive at the correct shape. It follows a two-step process:
 
-1. Size the mechanism: work backwards from the clock face to find the cam throw that gives the hand its correct rotation.
-1. Generate the profile: sample a year of real sunrise times and turn each one into a radius.
+1. Size the mechanism: work backwards from the clock face to find the cam throw that gives the indicator its correct sweep
+1. Generate the profile: sample a year of real sunrise times and turn each into a radius
    
 ### Working backwards from the clock face
 
 Four properties describe the mechanism - the arm length \(L\), the cam's **throw** \(t\)
 (the difference between its largest and smallest radius), the gear ratio \(G\) (sector
-teeth ÷ centre teeth), and the indicator's **sweep** \(S\). The design problem is to 
-pick each property so the hand sweeps exactly the right amount. It helps to work backwards, 
-starting from the desired indicator sweep to work out the necessary cam throw.
+teeth ÷ centre teeth), and the indicator's **sweep** \(S\). 
+
+[image]
+
+The design problem is to pick each property so the indicator sweeps exactly the right amount. 
+The key is to work backwards, starting from the desired indicator sweep and tracing the mechanism back to work 
+out the necessary cam throw.
 
 Take the year's absolute earliest and latest sunrise. For example, sunrise at 03:35 and 08:16 GMT,
 i.e. decimal time of 3.58 and 8.26[^decimal] - the indicator must sweep across that spread. Expressed as a fraction
@@ -217,13 +220,12 @@ For the sector arm to rotate, it must be fixed at one end and lifted at the othe
 Finally, the **throw** is the difference between the cam's largest and smallest radius. It's what determines how much 
 the follower arm resting on the cam raises and lowers by - and we know the arm needs to be raised
 by \(t = 25.3mm\). The largest radius \(R_{\max}\) is set by the space available for the cam in the mechanism 
-(about 41 mm). With a 25.3mm throw, the minimum radius has to be 15.7mm:
+(about 41 mm). For a 25.3mm throw, the minimum radius has to be 15.7mm:
 
 \[R_{\min} = R_{\max} - t \approx 41\,\text{mm} - 25.3\,\text{mm} \approx 15.7\,\text{mm}\]
 
-So the sunrise cam runs between about 16 mm and 41 mm. Sunset runs through the same steps;
-its annual spread is slightly wider (about 4.8 h → \(72^\circ\)), and its 6:1 ratio needs a smaller
-throw to achieve the same sweep:
+Sunset runs through the same steps; its annual spread is slightly wider (about 4.8 h → \(72^\circ\)), 
+and its 6:1 ratio needs a smaller throw to achieve the same sweep:
 
 \[\begin{aligned}
 \theta &= \frac{72^\circ}{6} = 12^\circ \\[9pt]
@@ -242,7 +244,7 @@ few percent.
 ### Generating the cam profile
 
 With the cam's minimum and maximum radii determined, what's left is to plot the cam's actual shape. The cam is mounted onto a shaft that rotates
-once per year, so the year maps onto \(360^\circ\). Sample at 24 equal points, about 15 days apart \(365.25/24 = 15.21\text{ days}\), 
+once per year, so the year maps onto a \(360^\circ\) circle. Sample at 24 equal points, about 15 days apart \(365.25/24 = 15.21\text{ days}\), 
 and set the summer solstice (21 June) as the starting point. The method is then simply:
 
 1. Look up the real sunrise (or sunset) time at each of the 24 dates.
@@ -267,13 +269,14 @@ You don't actually need to understand any of the astronomy; the data already con
   <img src="/static/img/projects/sunriseclock/fallback-image.png" alt="A year of sunrise times wrapped onto the cam">
 </object>
 
-The sunset cam follows the same process - 24 points & spline, slightly different min & max radius range. 
-With one difference I didn't spot until the clock was assembled.
+The sunset cam follows the same process, just with a slightly different min & max radius range. 24 sunset times, 
+each converted to a radius, draw a spline through the points.  With one difference I didn't spot until the clock was assembled.
 
 One detail comes out of this - the June 21 solstice was deliberately plotted at \(0^\circ\), and the winter solstice at \(180^\circ\). But the 
 maximum cam radius was defined as the *earliest sunrise* and the min radius as the *latest sunrise*. The the latest sunrise 
 happens a *after* the winter solstice - you can see it on the cams here:
 
+[image]
 
 The cam's fattest point sits slightly off \(0^\circ\), and its narrowest just past the \(180^\circ\) position. That small offset frozen into the
 shape, is the **equation of time made physical** - the same lopsidedness from the analemma, now in the cam's silhouette.
