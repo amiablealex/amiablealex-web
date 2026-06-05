@@ -161,10 +161,11 @@ into the shape.
 
 <details markdown="1"><summary>Why sunrise and sunset aren't centred on mid-day</summary>
   
-    - The geographic offset: for every degree of longitude you move west from the meridian, solar noon is delayed by about 4 minutes, pushing the true 'middle-of-the-day' later.
-    - The astronomical offset (*equation of time*): Even if you are standing exactly on the Prime Meridian in Greenwich, the effect from the equation of time still shifts the solar noon by up to ~30 minutes from 12:00pm
-
-    *An example>: On February 27th - The equation of time pushes the solar noon about 13 minutes late (12:13 PM). Longitude (e.g Belfast) pushes the midpoint another 24 minutes later. The cumulative effect is that Belfast sees sunrise and sunset centered around approx. 12:37 PM. Sunrise and sunset times appear asymmetrical - the afternoon feels "longer" than the morning.*
+  The geographic offset: for every degree of longitude you move west from the meridian, solar noon is delayed by about 4 minutes, pushing the true 'middle-of-the-day' later.
+  
+  The astronomical offset (*equation of time*): Even if you are standing exactly on the Prime Meridian in Greenwich, the effect from the equation of time still shifts the solar noon by up to ~30 minutes from 12:00pm
+  
+  *An example>: On February 27th - The equation of time pushes the solar noon about 13 minutes late (12:13 PM). Longitude (e.g Belfast) pushes the midpoint another 24 minutes later. The cumulative effect is that Belfast sees sunrise and sunset centered around approx. 12:37 PM. Sunrise and sunset times appear asymmetrical - the afternoon feels "longer" than the morning.*
 
 </details>
 
