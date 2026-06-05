@@ -155,6 +155,8 @@ the year - plainly visible.</li>
 
 ## Design Story
 
+![design-photo](/static/img/projects/sunriseclock/design1.png?v=1)
+
 To accurately reproduce the daylight hours, the cam shape has to carry all of the astronomical 
 effects from the previous section. Although, you don't actually need to understand any of 
 the astronomy to arrive at the correct shape. It follows a two-step process:
