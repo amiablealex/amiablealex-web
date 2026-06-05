@@ -268,8 +268,6 @@ And for a clock with numerical labels, here's my solution:
    
 ## Make Your Own
 
-![design-photo](/static/img/projects/sunriseclock/design1.png?v=1)
-
 - Makerworld Link
 - Calculator spreadsheet / app
 - Hardware List
