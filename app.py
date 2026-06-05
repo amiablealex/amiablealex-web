@@ -26,7 +26,7 @@ SITE = {
     "name": "amiablealex",
     "tagline": "simple isn't easy",
     # The professional email shown on the Contact page (placeholder for now).
-    "email": "alex@profdomain.com",
+    "email": "contact@amiablealex.com",
     # Social links shown in the header and footer.
     "github": "https://github.com/amiablealex",
     "linkedin": "https://www.linkedin.com/in/alexbritten",
