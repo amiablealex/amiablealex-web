@@ -136,23 +136,6 @@ into the shape.
      class="bare"
      style="display:block; max-width:260px; margin-inline:auto;">
 
-<details><summary>A short history</summary>
-<ul>
-<li><strong>c. 150 CE — Ptolemy.</strong> Noticed the Sun didn't keep even time and
-gave the first method to convert sundial time into steady clock time. He could correct
-for the wobble without knowing its cause.</li>
-<li><strong>c. 1000 CE — Islamic astronomers.</strong> Ibn Yunus, in Cairo, sharpened
-Ptolemy's solar tables and corrected his figures. Still no explanation.</li>
-<li><strong>1609 — Kepler.</strong> Arrives with the "why." His <em>Astronomia Nova</em>
-showed the orbit is an ellipse and that Earth speeds up as it nears the Sun - his
-first and second laws - explaining the once-a-year part of the wobble. The
-twice-a-year part, from the axial tilt, had been geometry since antiquity.</li>
-<li><strong>1656 — Huygens.</strong> Built the pendulum clock: the first timekeeper
-steady enough to make the Sun drift against it. Up to about a quarter-hour over
-the year - plainly visible.</li>
-</ul>
-</details>
-
 ## Design Story
 
 [image]
