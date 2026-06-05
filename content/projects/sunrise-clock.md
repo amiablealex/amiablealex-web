@@ -289,3 +289,5 @@ And for a clock with numerical labels, here's my solution:
 - Calculator spreadsheet / app
 - Hardware List
 - Assembly Guide
+
+![side-on](/static/img/projects/sunriseclock/side-on.png?v=1)
