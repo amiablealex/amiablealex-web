@@ -138,7 +138,10 @@ into the shape.
 
 ## Design Story
 
-![design-lines](/static/img/projects/sunriseclock/design-lies.png?v=1)
+<img src="/static/img/projects/sunriseclock/design-lines.png?v=1"
+     alt="design lines"
+     class="bare"
+     style="display:block; margin-inline:auto;">
 
 To accurately reproduce the daylight hours, the cam shape has to carry all of the astronomical 
 effects from the previous section. Although, you don't actually need to understand any of 
