@@ -159,6 +159,15 @@ the year - plainly visible.</li>
 tailored to a specific location. So the axial tilt, the equation of time, Kepler's Second Law, and the analemma are all programmed 
 into the shape.
 
+<details markdown="1"><summary>Why sunrise and sunset aren't centred on mid-day</summary>
+  
+    - The geographic offset: for every degree of longitude you move west from the meridian, solar noon is delayed by about 4 minutes, pushing the true 'middle-of-the-day' later.
+    - The astronomical offset (*equation of time*): Even if you are standing exactly on the Prime Meridian in Greenwich, the effect from the equation of time still shifts the solar noon by up to ~30 minutes from 12:00pm
+
+    *An example>: On February 27th - The equation of time pushes the solar noon about 13 minutes late (12:13 PM). Longitude (e.g Belfast) pushes the midpoint another 24 minutes later. The cumulative effect is that Belfast sees sunrise and sunset centered around approx. 12:37 PM. Sunrise and sunset times appear asymmetrical - the afternoon feels "longer" than the morning.*
+
+</details>
+
 <img src="/static/img/projects/sunriseclock/camshapes-translucent.png?v=1"
      alt="cam shapes"
      class="bare"
@@ -283,60 +292,27 @@ shape, is the **equation of time made physical** - the same lopsidedness from th
  
 ### What I got wrong
 
-I built both cams the same way: biggest radius pointing straight up at the summer solstice. The sunrise cam worked. So I set the clock to the winter solstice, parked the sunset hand at about 4 pm, and wound the year forward. The evenings should draw out - sunset creeping later through January, February, March. Instead the sunset hand marched the wrong way: 4 pm, 3 pm, 2 pm, backwards into the afternoon.
- 
-Here's the trap. Through the year the two hands have to move in **opposite** directions - toward summer, sunrise gets earlier (hand one way) while sunset gets later (hand the other way), and the daylight arc between them widens. But both cams ride the same shaft, turning the same direction, and a growing cam radius always pushes its follower the same way, swinging its hand in one fixed sense. Two identical cams therefore drive both hands the *same* way - so if sunrise is right, sunset is exactly backwards.
- 
-The fix is to invert the sunset cam: put its **minimum** radius at the summer solstice instead of its maximum. Now as the shaft turns toward summer the sunrise cam's radius grows while the sunset cam's shrinks, the two followers move oppositely, and the hands finally sweep apart as they should.
- 
-What clicked afterwards is that this isn't really a special-case flip at all. The rule was always *earlier in the day → larger radius*. Apply it honestly and the earliest sunrise (June) and the earliest sunset (December) sit on **opposite sides of the year** - so the sunrise cam's bulge lands at midsummer and the sunset cam's at midwinter, automatically. My mistake was thinking "big radius = summer" instead of "big radius = earliest." Get the rule right and the inversion falls out for free.
- 
-The second bug hid in the data. My first set of times came in local clock time - which in the UK means the summer half of the year secretly carries the extra daylight-saving hour. Baked into the cam, that one-hour summer offset faked an asymmetry between the sunrise and sunset sweeps that shouldn't exist. A simple check caught it: the midpoint between sunrise and sunset should sit near solar noon, around 12:00, all year - but in summer mine came out near 13:00, the tell-tale DST hour. The fix was to regenerate everything from true GMT, with no seasonal jump. A smooth cam couldn't reproduce the instantaneous clocks-change leap anyway, so GMT is the honest frame - and the visuals above all use it.
- 
-Both bugs taught the same lesson: the mechanism was never the hard part. Getting the data honest and the directions right was.
+1. I built both cams the same way: setting the largest radius at the summer solstice. After assembling the clock, I set the cam positions to the winter solstice, set the sunrise and sunset indicators at about the right times, and wound the year forward. The sunrise indicator started at about 8am and moved slowly back to 7:30am, 7am.... The sunset indicator started at about 4pm and also started slowly moving backwards, to 3pm, 2pm, 1pm.... !
+  
+   Through the year the two hands have to move in **opposite** directions - toward summer, sunrise gets earlier (indicator anticlockwise) while sunset gets later (indicator clockwise). But both cams are fixed to the same shaft, turning the same direction, and a growing cam radius always pushes its follower the same way, swinging its hand in one fixed direction.
 
-<details>
-_[INSTRUCTION: the honest beats. Two of them. Frame as "caught and fixed," not disaster.
-Lead with whichever you find more interesting.]_
+   The fix is to invert the sunset cam: put its **minimum** radius at the summer solstice instead of its maximum. Now as the shaft turns toward summer the sunrise cam's radius grows while the sunset cam's shrinks, the two followers move oppositely, and the indicators sweep in the correct directions.
 
-_[BEAT 1 — the GMT / daylight-saving mix-up. In your own words: the source times secretly
-had the clocks-change hour baked in, which faked an asymmetry between the sunrise and
-sunset sweeps; you caught it with the solar-noon test (midpoints should sit near 12,
-but summer came out near 13:00); fixing it meant regenerating the profiles in true GMT.
-Optionally: the one-line takeaway that a smooth cam can't follow the DST jump anyway.]_
+   The rule was always *earlier in the day → larger cam radius*. Apply it correctly and the earliest sunrise (June) and the earliest sunset (December) sit on **opposite sides of the year**. So the sunrise cam's largest radius lands at \(0^\circ\) and the sunset cam's at \(180^\circ\). The mistake was thinking "big radius = summer" instead of "big radius = earliest".
+ 
+1. When generating the cam profiles, I obtained sunrise and sunset data in the local clock time. Eventually I realised that the summer half of the year was secretly in British Summer Time (BST). The fix was to regenerate everything and convert the summer times to GMT, so that the entire cam is programmed with a consistent time zone.
+  
+   The intention was never to incorporate the clocks-change into the design, as a smooth cam profile could never cause the follower to 'jump' 1 hour at an instantaneous point.
 
-_[BEAT 2 — the inverted cam / direction error. In your own words: from winter to summer,
-sunrise must move earlier while sunset moves later — opposite directions on the dial —
-but a rising cam radius turns its hand one fixed way, so identical cams sent both hands
-the same way. Fix: invert the sunset cam (minimum radius at the winter solstice instead
-of maximum) so the same rising radius drives its hand the other way.]_
+   My solution for the daylight savings time is simply that the 12'o'clock position should be treated as 'solar noon'. Therefore in BST the top of the clock indicates 1pm, and in GMT it indicates 12pm. That way, the only necessary adjustment is how to read the clock.
 
-_[INSTRUCTION: optional closing line — what these two taught you, e.g. that the hard part
-wasn't the mechanism but getting the data and the directions honest. Keep it light.]_
-</details>
+   And for a clock with numerical labels, here's my solution:
 
+   [image]
+   
 ## Make Your Own
 
 - Makerworld Link
 - Calculator spreadsheet / app
 - Hardware List
 - Assembly Guide
-
-<details><summary>Writing Notes</summary>
-
-### Rotational-vs-linear-follower subtlety
-Because the arm pivots and the roller sits on top, the cam's push is nearly perpendicular to the arm → near-zero pressure angle → efficient. 
-(A nice "why horizontal is actually optimal" footnote — went back and forth on this and it's genuinely counterintuitive.)
-
-
-### Why sunrise and sunset are not centered exactly around mid-day
-- The geographic offset - for every degree of longitude you move west from the meridian, solar noon is delayed by about
-  4 minutes, pushing the true 'middle-of-the-day' later.
-- The astronomical offset (*The Equation of Time*) - Even if you are standing exactly on the Prime Meridian in
-  Greenwich, the effect from the equation of time means the Sun still won't be at its peak at exactly 12:00pm.
-
-*An example>: On February 27th - The equation of time pushes the solar noon about 13 minutes later (12:13 PM). Longitude
-(e.g Belfast) pushes the midpoint another 24 minutes later. The cumulative effect is that Belfast sees sunrise and sunset centered
-around approx. 12:37 PM. Sunrise and sunset times appear asymmetrical - the afternoon feels "longer" than the morning.*
-
-</details>
