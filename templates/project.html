@@ -3,6 +3,7 @@
 
 {% block title %}{{ project.title }} · {{ site.name }}{% endblock %}
 {% block description %}{{ project.summary }}{% endblock %}
+{% block og_image %}{% if project.cover %}{{ url_for('static', filename='img/projects/' ~ project.cover) }}{% else %}{{ url_for('static', filename='img/og-image.png') }}{% endif %}{% endblock %}
 
 {% block content %}
 <article class="project">
