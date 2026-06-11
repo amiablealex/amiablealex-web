@@ -276,4 +276,4 @@ And for a clock with numerical labels, here's my solution:
 - Hardware List
 - Assembly Guide
 
-![side-on](/static/img/projects/sunriseclock/side-on.png?v=1)
+![Printer](/static/img/projects/sunriseclock/printer.png)
