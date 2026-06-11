@@ -160,10 +160,9 @@ out the necessary cam throw.
 
 [image]
 
-Take the year's absolute earliest and latest sunrise. For example, sunrise at 03:35 and 08:16 GMT,
-i.e. decimal time of 3.58 and 8.27[^decimal] - the indicator must sweep across that spread. Expressed as a fraction
-of the full 24-hour dial, the sunrise indicator's total rotation over the year needs to 
-be \(70.3^\circ\):
+Take the year's absolute earliest and latest sunrise. For example, sunrise at 03:35 and 08:16 GMT - the indicator must sweep across that spread of 
+4.69 hours[^decimal] (approx 4hrs and 41 minutes). Expressed as a fraction of the full 24-hour dial, the sunrise indicator's total rotation 
+over the year needs to be \(70.3^\circ\):
 
 [^decimal]: Converting times to decimal format e.g 3:45am → 3.75 makes doing calculations much easier 
 
@@ -171,7 +170,7 @@ be \(70.3^\circ\):
 
 A gear ratio between the sector and the centre amplifies the sector's rotation, so the sector itself only needs to 
 turn a fraction of the indicator's full sweep. The higher the ratio, the less the cam has to lift.[^ratios]  At 4:1, the sunrise sector 
-only needs to rotate (17.6^\circ) to drive the full (70.3^\circ) at the centre:
+only needs to rotate \(17.6^\circ\) to drive the full \(70.3^\circ\) at the centre:
 
 [^ratios]: Some trial and error landed on 4:1 for sunrise and 6:1 for sunset, which gave sensible cam dimensions. Having different ratios means the sector pivots can be fixed at different points, avoiding 
 having to design the support frame with complicated overlaps.
