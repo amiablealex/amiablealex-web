@@ -19,7 +19,7 @@ tech: [Python, Flask, API, Prompt Engineering, LLM]
 
 ## What this is
 
-My Kitchen is a household's recipe brain: a place that knows what's in stock, what's been cooked and what's saved, and turns all of it into “here's what to make.” The key design choice is that every recipe links to your real ingredient catalogue, not free text — which is what lets the app tell you what's genuinely cookable right now.
+The household's recipe brain: it knows what's in stock, all of your recipes, and turns all of it into “here's what you can make.” The key design choice is that every recipe links to your real ingredient catalogue, not free text — which is what lets the app tell you what's genuinely cookable right now.
 
 ## Why I made it
 
