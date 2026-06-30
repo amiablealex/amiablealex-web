@@ -4,7 +4,7 @@ category: Web app
 accent: teal
 summary: "A social predictions game with leagues and leaderboards."
 date: 2026-05
-featured: true
+featured: false
 cover: f1-predictions/cover.png
 links:
   - label: Live
