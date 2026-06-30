@@ -8,7 +8,7 @@ featured: true
 order: 3
 cover: my-kitchen/cover.png
 links:
-  - label: Site
+  - label: my-kitchen.io
     url: "https://my-kitchen.io"
     icon: external-link
   - label: "GitHub"
