@@ -5,6 +5,7 @@ accent: teal
 summary: "The self-hosted recipe brain for your house. It knows all your recipes and what's in stock, and provides suggestions for “here's what you can make.”"
 date: 2026-06
 featured: true
+order: 3
 cover: my-kitchen/cover.png
 links:
   - label: Site
