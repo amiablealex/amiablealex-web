@@ -2,7 +2,7 @@
 title: My Kitchen
 category: Web app
 accent: teal
-summary: "The self-hosted recipe brain for your house. It knows all your recipes and what's in stock, and provides suggestions for “here's what you can make.”"
+summary: "Self-hosted recipe brain for your house. It knows all your recipes and what's in stock, and provides suggestions for “here's what you can make.”"
 date: 2026-06
 featured: true
 order: 3
@@ -20,13 +20,4 @@ tech: [Python, Flask, API, Prompt Engineering, LLM]
 
 ## What this is
 
-The household's recipe brain: it knows what's in stock, all of your recipes, and turns all of it into “here's what you can make.” The key design choice is that every recipe links to your real ingredient catalogue, not free text, which is the engine that enables the app tell you what's cookable right now.
-
-## Why I made it
-
-[ What prompted it. ]
-
-## Things I learned
-
-[ Two or three interesting problems solved or things discovered along
-the way. ]
+The household's recipe brain: it knows what's in stock, all of your recipes, and turns all of it into “here's what you can make”. Every recipe links to a real ingredient catalogue, which enables an engine to tell you **what's cookable right now**.
