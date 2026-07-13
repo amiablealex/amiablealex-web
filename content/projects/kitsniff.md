@@ -25,24 +25,21 @@ tech: [Python, Flask, PostgreSQL, Prompt Engineering, LLM]
 Wordle-style daily puzzle for the kitchen - each day a new mystery ingredient is selected. Players guess ingredients and receive feedback on properties - Colour, Flavour, and Food Group.
 Puzzle solves unlock recipes, provenance stories, and culinary trivia. Achievements, leaderboards, and a culinary exploration atlas track progress.
 
-## Why I made it
-
-Had the idea one day and quickly realised nothing like it existed. It particularly appealed to me because the kitchen / food angle is so relatable. Everyone has some grasp of culinary knowledge from their daily lives - making this game accessible and relevant to a wide community of friends and family.  
+This idea particularly appealed to me because the kitchen / food angle is so relatable - everyone has some grasp of culinary knowledge from their daily lives making this game accessible and relevant to a wide community of friends and family.  
 
 ## Culinary / Education Layer
 
-- **KitSniff as a teaching tool** - smuggling in education. Each of ~300 ingredients carries hand-curated provenance (cultural and historical origin stories), nutritional tags, superfood flags, and geographic locations, and the post-game modal turns each solve into a little piece of food storytelling.
+- **KitSniff as a teaching tool** - smuggling in education. Each of ~300 ingredients carries curated provenance (cultural and historical origin stories), nutritional tags, superfood flags, geographic locations, and the post-game popup turns each solve into a little piece of food storytelling.
 
 ## Personality Layer
 
-- **The Basil origin story** - family independently converging on Basil as best opening guess — i.e  the "best Wordle starting word" logic. Resulting in building the teasing Basil welcome messages. And the dynamic of the Basilisk achievement ending up incentivising users to start guessing basil, resulting in more users being exposed to the teasing welcome messages. Perfectly captures my whole game development ethos: small community, watching how they play, the game quietly responding.
-- **Birthday feature**
+- **The Basil origin story** - users independently converging on Basil as best opening guess. Resulted in building the Basil welcome messages. And the Basilisk acccolade (use basil as first-guess 50 times) resulting in people more likely to be exposed to the basil welcome messages feature was a particularly fun dynamic. A good example of features interacting with each other (accolade incentivising easter-egg discovery).
 
 ## Engineering Story
 
-- **Migrating to SQL database early** (within 5 days of initial launch) with cleanly organised and structured data was the number one best decision made for the project. Resulting in entire history of user data being captured and accumulating from the get-go.
-- **Growing up from a Pi hobby to cloud production** - the magic of zero-downtime deployments and local development freedom. PostgreSQL's strictness vs SQLite's loose typing caused many nuisance during the migration phase (e.g `is_active` column stored as `0`/`1` integers clashing with a native boolean `won` column). This is where i learnt the necessity and power of environment variables - an ephemeral deployment detecting its environment.
-- **Automated social pipeline** - because the selection algorithm deliberately favours never-picked ingredients, debuts are the norm — yet the AI kept leading every single day with "first-ever appearance!" And near-miss property matches were so tempting that no amount of prompt instruction stopped it calling them "heartbreaking". Eventually had to delete the data from the SQL entirely. That tension between what the data invites and what's actually interesting is a sharp, true story about both prompt engineering and the algorithm's design.
+- **Migrating to SQL database early** (within 5 days of initial launch) with cleanly organised and structured data was the number one best decision made for the project. Resulting in entire history of game data being captured and accumulating from the start.
+- **Moving from local Pi to cloud deployment** - the magic of zero-downtime deployments and local development freedom. PostgreSQL's strictness vs SQLite's loose typing caused many nuisance during the migration phase (e.g `is_active` column stored as `0`/`1` integers clashing with a native boolean `won` column). I learnt the necessity and power of environment variables, and an ephemeral deployment "detecting its environment" i.e DEV / PROD.
+- **Automated social pipeline** - because the selection algorithm deliberately favours never-picked ingredients, debuts are frequent and usual. But the AI kept leading every single day with "first-ever appearance!" And near-miss property matches were so tempting that no amount of prompt instruction stopped it calling them "heartbreaking". Eventually had to delete the data from the social SQL pipeline entirely.
 
 ## Particularly Interesting Puzzle Logic
 
