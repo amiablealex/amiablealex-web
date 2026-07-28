@@ -37,7 +37,7 @@ Each of ~300 ingredients carries carefully curated provenance (cultural and hist
 
 ## Stuff that i found particularly interesting
 
-- **Horseradish**. Of all the ingredients Horseradish is special - it's the only case where a player tends to submit the same phrase to mean more than one thing. i.e Horseradish Root and Horseradish Sauce (both are in the game, one as a vegetable and one as a condiment). Of course there are other similar instances (e.g Chilli and Chilli powder), but in these cases it is usually obvious which one the user intends. This resulted in some particularly interesting logic especially for Horseradish.
+- **Horseradish**. Of all the ingredients Horseradish is special - it's the only case where a player tends to submit the same phrase to mean more than one thing. i.e the guess of "Horseradish" can mean Horseradish Root or Horseradish Sauce (both are in the game, one as a vegetable and one as a condiment). Of course there are other similar instances (e.g Chilli and Chilli powder), but in these cases it is usually obvious which one the user intends. The Horseradish case is different as there is no reliable way to infer intention, resulting in some particularly interesting logic written especially for it. I find the concept of writing special code all about Horseradish to be quite amusing.
     - If the user has 'vegetable' property as confirmed and submits 'Horseradish', then accept the guess as 'Horseradish root'.
     - If the user has 'condiment' property as confirmed and submits 'Horseradish', then accept the guess as 'Horseradish Sauce'.
     - If the user has neither property confirmed and submits 'Horseradish', then fire a popup to ask the user whether they meant the root or the sauce.
