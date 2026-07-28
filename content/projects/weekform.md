@@ -22,6 +22,8 @@ tech: [JavaScript, Python, Flask, PostgreSQL]          # [ add the real stack ]
 An online web tool for generating a nice shareable image strip summarising a week of workouts. The minimalist shareable png export is the primary purpose, and I later 
 added user accounts and a database so that progress could be saved and displayed in an organised calendar month-view.
 
+![weekform shareable](/static/img/projects/weekform/strip.png?v=1)
+
 ## Why I made it
 
 Made because I wanted it for myself, to share my fitness progress to group chats in a way that wasn't simply flooding the channel with every workout. It also serves as an incentive and inspiration
