@@ -7,10 +7,7 @@
 {% block description %}{{ step.summary or guide.summary }}{% endblock %}
 
 {% block content %}
-<article class="guide"
-         data-guide="{{ guide.slug }}"
-         data-step="{{ step.number }}"
-         data-total="{{ last }}">
+<article class="guide">
 
   <a class="back-link" href="{{ url_for('project_detail', slug=project.slug) }}">{{ icon('arrow-left', 16) }} {{ project.title }}</a>
 
@@ -22,25 +19,25 @@
     </div>
 
     <div class="guide-stepline">
-      {% if step.number == 0 %}
-      <span class="guide-stepword">Start here</span>
-      {% else %}
-      <span class="guide-stepword">Step</span>
-      <span class="guide-stepnum">{{ '%02d'|format(step.number) }}</span>
-      <span class="guide-stepof">of {{ last }}</span>
-      {% endif %}
+      <span class="guide-stepid">
+        {% if step.number == 0 %}
+        <span class="guide-stepword">Start here</span>
+        {% else %}
+        <span class="guide-stepword">Step</span>
+        <span class="guide-stepnum">{{ '%02d'|format(step.number) }}</span>
+        <span class="guide-stepof">of {{ last }}</span>
+        {% endif %}
+      </span>
 
-      {% if step.number > 0 %}
-      <button class="guide-tick" type="button" data-tick aria-pressed="false">
-        <span class="tick-box" aria-hidden="true"></span>
-        <span class="tick-label">Mark done</span>
-      </button>
-      {% endif %}
-    </div>
-
-    <div class="guide-progress">
-      <div class="guide-bar"><span class="guide-bar-fill" data-fill></span></div>
-      <span class="guide-count" data-count></span>
+      <nav class="guide-dots" aria-label="Jump to step">
+        {% for s in guide.steps if s.number > 0 %}
+        <a class="guide-dot{% if s.number <= step.number %} is-filled{% endif %}{% if s.number == step.number %} is-current{% endif %}"
+           href="{{ url_for('project_guide_step', slug=project.slug, number=s.number) }}"
+           title="{{ s.number }}. {{ s.title }}"
+           aria-label="Step {{ s.number }}: {{ s.title }}"
+           {% if s.number == step.number %}aria-current="step"{% endif %}><span></span></a>
+        {% endfor %}
+      </nav>
     </div>
 
     <h1 class="guide-title">{{ step.title }}</h1>
@@ -52,12 +49,11 @@
       <p class="toc-label">Steps</p>
       <ol class="rail-list">
         {% for s in guide.steps %}
-        <li class="rail-item{% if s.number == step.number %} is-current{% endif %}" data-step="{{ s.number }}">
+        <li class="rail-item{% if s.number == step.number %} is-current{% endif %}">
           <a href="{{ url_for('project_guide_step', slug=project.slug, number=s.number) }}"
              {% if s.number == step.number %}aria-current="step"{% endif %}>
             <span class="rail-num">{{ '%02d'|format(s.number) }}</span>
             <span class="rail-title">{{ s.title }}</span>
-            <span class="rail-check" aria-hidden="true">&#10003;</span>
           </a>
         </li>
         {% endfor %}
@@ -108,46 +104,6 @@
   var root = document.querySelector('.guide');
   if (!root) return;
 
-  var key = 'guide:' + root.dataset.guide + ':done';
-  var total = Number(root.dataset.total) || 0;
-  var current = Number(root.dataset.step);
-  var tick = root.querySelector('[data-tick]');
-  var fill = root.querySelector('[data-fill]');
-  var count = root.querySelector('[data-count]');
-  var done;
-
-  try {
-    done = new Set(JSON.parse(localStorage.getItem(key) || '[]'));
-  } catch (e) {
-    done = new Set();
-  }
-
-  function save() {
-    try { localStorage.setItem(key, JSON.stringify(Array.from(done))); } catch (e) {}
-  }
-
-  function paint() {
-    root.querySelectorAll('.rail-item').forEach(function (li) {
-      li.classList.toggle('is-done', done.has(Number(li.dataset.step)));
-    });
-    if (fill) fill.style.width = (total ? (done.size / total) * 100 : 0) + '%';
-    if (count) count.textContent = done.size + ' of ' + total + ' done';
-    if (tick) {
-      var on = done.has(current);
-      tick.classList.toggle('is-on', on);
-      tick.setAttribute('aria-pressed', on ? 'true' : 'false');
-      tick.querySelector('.tick-label').textContent = on ? 'Done' : 'Mark done';
-    }
-  }
-
-  if (tick) {
-    tick.addEventListener('click', function () {
-      if (done.has(current)) { done.delete(current); } else { done.add(current); }
-      save();
-      paint();
-    });
-  }
-
   document.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
@@ -168,8 +124,6 @@
       btn.replaceWith(frame);
     });
   });
-
-  paint();
 })();
 </script>
 {% endblock %}
