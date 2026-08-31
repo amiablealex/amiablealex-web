@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+
+{% block title %}{{ guide.title }} · {{ project.title }}{% endblock %}
+{% block description %}{{ guide.summary }}{% endblock %}
+
+{% block content %}
+<article class="guide guide-full">
+  <a class="back-link" href="{{ url_for('project_guide_step', slug=project.slug, number=0) }}">{{ icon('arrow-left', 16) }} Step by step</a>
+
+  <header class="guide-head">
+    <div class="guide-meta">
+      <span class="pill pill-{{ guide.accent }}">{{ project.title }}</span>
+      {% if guide.time %}<span class="guide-fact">{{ guide.time }}</span>{% endif %}
+      {% if guide.difficulty %}<span class="guide-fact">{{ guide.difficulty }}</span>{% endif %}
+    </div>
+    <h1 class="guide-title">{{ guide.title }}</h1>
+    {% if guide.summary %}<p class="guide-summary">{{ guide.summary }}</p>{% endif %}
+    <p class="guide-printnote">Every step on one page, for printing or reading at the bench.</p>
+  </header>
+
+  {% for step, html in rendered %}
+  <section class="guide-full-step">
+    <h2 class="full-step-head">
+      <span class="full-step-num">{% if step.number == 0 %}Start{% else %}{{ '%02d'|format(step.number) }}{% endif %}</span>
+      <span class="full-step-title">{{ step.title }}</span>
+    </h2>
+    {% if step.summary %}<p class="guide-summary">{{ step.summary }}</p>{% endif %}
+    <div class="prose">{{ html | safe }}</div>
+  </section>
+  {% endfor %}
+</article>
+
+<script>
+document.querySelectorAll('.video-facade').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var frame = document.createElement('iframe');
+    frame.src = 'https://www.youtube-nocookie.com/embed/' + btn.dataset.yt +
+                '?autoplay=1&rel=0&modestbranding=1';
+    frame.title = btn.getAttribute('aria-label') || 'Video';
+    frame.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen';
+    frame.allowFullscreen = true;
+    btn.replaceWith(frame);
+  });
+});
+</script>
+{% endblock %}

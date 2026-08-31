@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+
+{% set last = guide.steps|length - 1 %}
+
+{% block title %}{{ step.title }} · {{ guide.title }} · {{ project.title }}{% endblock %}
+{% block description %}{{ step.summary or guide.summary }}{% endblock %}
+
+{% block content %}
+<article class="guide"
+         data-guide="{{ guide.slug }}"
+         data-step="{{ step.number }}"
+         data-total="{{ last }}">
+
+  <a class="back-link" href="{{ url_for('project_detail', slug=project.slug) }}">{{ icon('arrow-left', 16) }} {{ project.title }}</a>
+
+  <header class="guide-head">
+    <div class="guide-meta">
+      <span class="pill pill-{{ guide.accent }}">{{ guide.title }}</span>
+      {% if guide.time %}<span class="guide-fact">{{ guide.time }}</span>{% endif %}
+      {% if guide.difficulty %}<span class="guide-fact">{{ guide.difficulty }}</span>{% endif %}
+    </div>
+
+    <div class="guide-stepline">
+      {% if step.number == 0 %}
+      <span class="guide-stepword">Start here</span>
+      {% else %}
+      <span class="guide-stepword">Step</span>
+      <span class="guide-stepnum">{{ '%02d'|format(step.number) }}</span>
+      <span class="guide-stepof">of {{ last }}</span>
+      {% endif %}
+
+      {% if step.number > 0 %}
+      <button class="guide-tick" type="button" data-tick aria-pressed="false">
+        <span class="tick-box" aria-hidden="true"></span>
+        <span class="tick-label">Mark done</span>
+      </button>
+      {% endif %}
+    </div>
+
+    <div class="guide-progress">
+      <div class="guide-bar"><span class="guide-bar-fill" data-fill></span></div>
+      <span class="guide-count" data-count></span>
+    </div>
+
+    <h1 class="guide-title">{{ step.title }}</h1>
+    {% if step.summary %}<p class="guide-summary">{{ step.summary }}</p>{% endif %}
+  </header>
+
+  <div class="guide-body">
+    <aside class="guide-rail" aria-label="Steps in this guide">
+      <p class="toc-label">Steps</p>
+      <ol class="rail-list">
+        {% for s in guide.steps %}
+        <li class="rail-item{% if s.number == step.number %} is-current{% endif %}" data-step="{{ s.number }}">
+          <a href="{{ url_for('project_guide_step', slug=project.slug, number=s.number) }}"
+             {% if s.number == step.number %}aria-current="step"{% endif %}>
+            <span class="rail-num">{{ '%02d'|format(s.number) }}</span>
+            <span class="rail-title">{{ s.title }}</span>
+            <span class="rail-check" aria-hidden="true">&#10003;</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ol>
+      <a class="rail-all" href="{{ url_for('project_guide_all', slug=project.slug) }}">All steps on one page</a>
+    </aside>
+
+    <div class="prose">
+      {{ body_html | safe }}
+
+      <nav class="guide-nav" aria-label="Step navigation">
+        {% if prev_step %}
+        <a class="guide-nav-link is-prev" data-prev
+           href="{{ url_for('project_guide_step', slug=project.slug, number=prev_step.number) }}">
+          {{ icon('arrow-left', 16) }}
+          <span>
+            <span class="nav-hint">Previous</span>
+            <span class="nav-title">{{ prev_step.title }}</span>
+          </span>
+        </a>
+        {% else %}<span></span>{% endif %}
+
+        {% if next_step %}
+        <a class="guide-nav-link is-next" data-next
+           href="{{ url_for('project_guide_step', slug=project.slug, number=next_step.number) }}">
+          <span>
+            <span class="nav-hint">Next</span>
+            <span class="nav-title">{{ next_step.title }}</span>
+          </span>
+          {{ icon('arrow-right', 16) }}
+        </a>
+        {% else %}
+        <a class="guide-nav-link is-next" href="{{ url_for('project_detail', slug=project.slug) }}">
+          <span>
+            <span class="nav-hint">That's the build</span>
+            <span class="nav-title">Back to {{ project.title }}</span>
+          </span>
+          {{ icon('arrow-right', 16) }}
+        </a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+</article>
+
+<script>
+(function () {
+  var root = document.querySelector('.guide');
+  if (!root) return;
+
+  var key = 'guide:' + root.dataset.guide + ':done';
+  var total = Number(root.dataset.total) || 0;
+  var current = Number(root.dataset.step);
+  var tick = root.querySelector('[data-tick]');
+  var fill = root.querySelector('[data-fill]');
+  var count = root.querySelector('[data-count]');
+  var done;
+
+  try {
+    done = new Set(JSON.parse(localStorage.getItem(key) || '[]'));
+  } catch (e) {
+    done = new Set();
+  }
+
+  function save() {
+    try { localStorage.setItem(key, JSON.stringify(Array.from(done))); } catch (e) {}
+  }
+
+  function paint() {
+    root.querySelectorAll('.rail-item').forEach(function (li) {
+      li.classList.toggle('is-done', done.has(Number(li.dataset.step)));
+    });
+    if (fill) fill.style.width = (total ? (done.size / total) * 100 : 0) + '%';
+    if (count) count.textContent = done.size + ' of ' + total + ' done';
+    if (tick) {
+      var on = done.has(current);
+      tick.classList.toggle('is-on', on);
+      tick.setAttribute('aria-pressed', on ? 'true' : 'false');
+      tick.querySelector('.tick-label').textContent = on ? 'Done' : 'Mark done';
+    }
+  }
+
+  if (tick) {
+    tick.addEventListener('click', function () {
+      if (done.has(current)) { done.delete(current); } else { done.add(current); }
+      save();
+      paint();
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+    var link = e.key === 'ArrowLeft' ? root.querySelector('[data-prev]')
+             : e.key === 'ArrowRight' ? root.querySelector('[data-next]') : null;
+    if (link) link.click();
+  });
+
+  root.querySelectorAll('.video-facade').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var frame = document.createElement('iframe');
+      frame.src = 'https://www.youtube-nocookie.com/embed/' + btn.dataset.yt +
+                  '?autoplay=1&rel=0&modestbranding=1';
+      frame.title = btn.getAttribute('aria-label') || 'Video';
+      frame.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen';
+      frame.allowFullscreen = true;
+      frame.loading = 'lazy';
+      btn.replaceWith(frame);
+    });
+  });
+
+  paint();
+})();
+</script>
+{% endblock %}

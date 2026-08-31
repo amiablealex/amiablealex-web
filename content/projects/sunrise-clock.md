@@ -12,6 +12,7 @@ links:
     url: "https://makerworld.com/en/models/2465134-mechanical-sunrise-clock#profileId-2705952"
     icon: printer
 tech: [Fusion 360, A1 Mini, "3D printing"]
+guide: sunrise-clock
 ---
 
 
