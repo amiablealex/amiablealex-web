@@ -5,10 +5,11 @@ accent: clay
 time: ""
 difficulty: ""
 step_title: "Parts & Equipment"
-step_summary: "Before you start"
+step_summary: ""
 ---
 
-Print everything first.
+Print everything first. Use the print profiles published at the makerworld link, or download the files and run through your own slicing software. 
+Some tolerances are designed to be overly tight / press fit, so accuracy is important. Bambulab printers with PLA should achieve tolerances very similar to mine; other printers may produce varied results and you may need to adjust the model yourself.
 
 ## Printed parts
 
@@ -39,11 +40,9 @@ Print everything first.
 
 ## Other parts
 
-- 1 × UTS IEC R6 High Torque Quartz Clock Mechanism
-- 1.5mm Solid Steel Rods (OD 1.5mm, 304 Stainless Steel)
-- 8mm Hollow Brass Tube (concentric - OD 8mm, wall 0.5mm, ~Xmm length)
-- 6mm Hollow Brass Tube (concentric - OD 8mm, wall 0.5mm, ~Xmm length)
-- 4mm Hollow Brass Tube (concentric - OD 8mm, wall 0.5mm, ~Xmm length)
+- 1 × UTS IEC R6 High Torque Quartz Clock Mechanism | [Amazon](https://amzn.eu/d/03vyiZzt)
+- 1.5mm Solid Steel Rods (OD 1.5mm, 304 Stainless Steel) | [Amazon](https://amzn.eu/d/0ahsDmJ8)
+- 8mm, 6mm, 4mm Hollow Brass Tubes (concentric - ODs 8mm/6mm/4mm, wall 0.5mm, at least 70mm length) | [Amazon](https://amzn.eu/d/0aYRQiG1)
 
 ## Tools
 
@@ -51,5 +50,3 @@ Print everything first.
 - 1.5mm drill bit
 - coping saw
 - Wire cutters
-
-![Everything laid out before assembly](parts-layout.jpg)
