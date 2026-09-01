@@ -1,6 +1,6 @@
 ---
 title: Clean up the gears
-summary: "Five minutes with a file here saves an hour of debugging later."
+summary: ""
 ---
 
 Every gear comes off the plate with a small lip on the first layer. Left alone
