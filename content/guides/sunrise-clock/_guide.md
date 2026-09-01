@@ -1,36 +1,55 @@
 ---
 title: Assembly guide
-summary: "Building the mechanical sunrise clock from a box of printed parts."
+summary: "Building the mechanical sunrise clock"
 accent: clay
-time: "3–4 hours"
-difficulty: "No soldering"
-step_title: "Tools & parts"
-step_summary: "Everything to have on the bench before you start."
+time: ""
+difficulty: ""
+step_title: "Parts & Equipment"
+step_summary: "Before you start"
 ---
 
-Print everything first — the full plate takes about 14 hours on an A1 Mini at
-0.2 mm. Nothing here needs supports except the frame back.
+Print everything first.
 
 ## Printed parts
 
 | Part | Qty | Notes |
 | --- | --- | --- |
-| Frame back | 1 | Supports on, 15% infill |
-| Gear, 15T | 8 | 0.15 mm layers for tooth quality |
-| Gear, 45T | 6 | |
-| Sunrise cam | 1 | Generated for your latitude |
-| Sunset cam | 1 | Note the inverted profile |
+| 01_Gear_15T-45T_5x | 5 | abc |
+| 02_Gear_45T_Shaft | 1 | abc |
+| 03_Face | 1 | abc |
+| 04_Gauge | 1 | abc |
+| 05_Gear_15T_Powered | 1 | abc |
+| 06_Gear_15T_Spacer | 1 | abc |
+| 07_Gear_30T_Center | 1 | abc |
+| 08_Hand_Hour | 1 | abc |
+| 09_Retainer_Bottom | 1 | abc |
+| 10_Retainer_Top | 1 | abc |
+| 11_Cam_Sunrise | 1 | abc |
+| 12_Gear_SunriseCenter | 1 | abc |
+| 13_Hand_Sunrise | 1 | abc |
+| 14_Pin_Sunrise | 1 | abc |
+| 15_Sector_Sunrise | 1 | abc |
+| 16_Cam_Sunset | 1 | abc |
+| 17_Gear_SunsetCenter | 1 | abc |
+| 18_Hand_Sunset | 1 | abc |
+| 19_Pin_Sunset | 1 | abc |
+| 20_Sector_Sunset | 1 | abc |
+| 21_Hairspring_NeedToMirror_2x | 2 | abc |
 
-## Hardware
 
-- 1 × quartz clock movement, 12 h, with a long shaft
-- 12 × M3 × 8 mm socket cap screws
-- 8 × 2 mm steel rod, 40 mm long, for the gear shafts
+## Other parts
+
+- 1 × UTS IEC R6 High Torque Quartz Clock Mechanism
+- 1.5mm Solid Steel Rods (OD 1.5mm, 304 Stainless Steel)
+- 8mm Hollow Brass Tube (concentric - OD 8mm, wall 0.5mm, ~Xmm length)
+- 6mm Hollow Brass Tube (concentric - OD 8mm, wall 0.5mm, ~Xmm length)
+- 4mm Hollow Brass Tube (concentric - OD 8mm, wall 0.5mm, ~Xmm length)
 
 ## Tools
 
-- 2.5 mm hex key
-- Needle file or craft knife for cleaning up elephant's foot
-- Digital calipers, if you want to check the gear spacing
+- small hammer
+- 1.5mm drill bit
+- coping saw
+- Wire cutters
 
 ![Everything laid out before assembly](parts-layout.jpg)
