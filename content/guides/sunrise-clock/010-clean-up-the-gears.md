@@ -10,7 +10,7 @@ summary: "Rotating parts are deliberately modelled with centre hole too tight - 
 
 ## 2. Take a rotating piece and follow these steps:
 
-![Step01](youtube:pAx5wKqp6_w)
+![Step01](youtube:Xx3CGt9HM_o)
 
 - Run a 1.5mm drill bit through the hole. It will probably take small amount of material away, widening the hole. You may have to push the drill bit quite hard into the hole to get it started. Make sure to keep it aligned straight into the hole, and not at any angle. Push until the drill bit goes all the way through the hole.
 - Repeat with the drill bit from the other side of the hole.
