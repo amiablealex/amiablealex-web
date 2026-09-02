@@ -4,8 +4,7 @@ summary: "Rotating parts are deliberately modelled with centre hole too tight - 
 ---
 
 
-
-## Collect all nine pieces that turn on stainless shaft
+## Collect all nine pieces that will need to spin on a steel rod
 [image of the nine rotating pieces]
 
 ## Take a rotating piece and follow these steps:
