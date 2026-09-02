@@ -5,11 +5,10 @@ accent: clay
 time: ""
 difficulty: ""
 step_title: "Parts & Equipment"
-step_summary: ""
+step_summary: "Print everything first. Use the print profiles published at the makerworld link, or download the files and run through your own slicing software. 
+Some tolerances are designed to be overly tight / press fit, so accuracy is important. Bambulab printers with PLA should achieve tolerances very similar to mine; other printers may produce varied results and you may need to adjust the model yourself."
 ---
 
-Print everything first. Use the print profiles published at the makerworld link, or download the files and run through your own slicing software. 
-Some tolerances are designed to be overly tight / press fit, so accuracy is important. Bambulab printers with PLA should achieve tolerances very similar to mine; other printers may produce varied results and you may need to adjust the model yourself.
 
 ## Printed parts
 
