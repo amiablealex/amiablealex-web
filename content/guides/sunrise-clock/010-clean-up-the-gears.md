@@ -5,10 +5,10 @@ summary: "Rotating parts are deliberately modelled with centre hole too tight - 
 
 
 
-## 1. Collect all nine pieces that turn on stainless shaft
+## Collect all nine pieces that turn on stainless shaft
 [image of the nine rotating pieces]
 
-## 2. Take a rotating piece and follow these steps:
+## Take a rotating piece and follow these steps:
 
 ![Step01](youtube:Xx3CGt9HM_o)
 
@@ -17,7 +17,7 @@ summary: "Rotating parts are deliberately modelled with centre hole too tight - 
 - Switch the drill bit for a stainless steel rod and push through the hole, eroding slightly more material away. Make sure to keep passing the steel rod through the hole, for plenty more times after it goes through the first time, taking a little more material away each time.
 - Keep going until the piece spins freely with very low resistance on the steel rod.
 
-## 3. Repeat for all the parts that need to rotate on a steel rod (9 parts).
+## Repeat for all the parts that need to rotate on a steel rod (9 parts).
 
 ## TAKE CARE: 
 Drill bit and steel rod is sharp, don’t injure yourself by pushing the drill / rod through a hole and into your hand on other side of hole when pushing through.
