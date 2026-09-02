@@ -3,6 +3,7 @@ title: Clean up the rotating parts
 summary: "Rotating parts are deliberately modelled with centre hole too tight - the steel rod will not pass through straight away. This is because if they were printed with holes that fit the rods the chances are that the parts would be too loose and wobble around the axis. Axial alignment of rotating parts is very critical for the clockwork. The best way to achieve perfect alignment is to print deliberately too tight and gradually erode the centre hole, first with 1.5mm drill bit and then with the steel rod. Eventually the gear will fit and rotate perfectly on the steel rods, you will know when it's right because it will spin on the rod with very little resistance and no axial wobble. This process is crucial to get a working clock with perfect alignment and tiny turning resistance."
 ---
 
+![This is an example youtube embed](youtube:dQw4w9WgXcQ)
 
 ## Collect all nine pieces that turn on stainless shaft
 [image of the nine rotating pieces]
@@ -27,5 +28,3 @@ Drill bit and steel rod is sharp, don’t injure yourself by pushing the drill /
 {: .figure-row }
 
 ![This is an example video](video:example-video.mp4)
-
-![This is an example youtube embed](youtube:dQw4w9WgXcQ)
