@@ -1,26 +1,32 @@
 ---
-title: Clean up the gears
+title: Clean up the rotating parts
 summary: ""
 ---
 
-Every gear comes off the plate with a small lip on the first layer. Left alone
-it holds the gear a fraction of a millimetre proud of the frame, and the tooth
-engagement suffers across the whole chain.
+Rotating parts are deliberately modelled with centre hole too tight - the steel rod will not pass through straight away. This is because if they were printed with holes that fit the rods the chances are that the parts would be too loose and wobble around the axis. Axial alignment of rotating parts is very critical for the clockwork. The best way to achieve perfect alignment is to print deliberately too tight and gradually erode the centre hole, first with 1.5mm drill bit and then with the steel rod. Eventually the gear will fit and rotate perfectly on the steel rods, you will know when it's right because it will spin on the rod with very little resistance and no axial wobble. This process is crucial to get a working clock with perfect alignment and tiny turning resistance.
 
-Run a needle file flat across the bottom face of each gear until it sits
-completely flush on a flat surface. You are removing almost nothing — if you
-can see material coming off, ease up.
+Collect all pieces that turn on stainless shaft (9 pieces).
+[image of the nine rotating pieces]
 
-![The lip on a freshly printed gear](gear-lip-before.jpg)
-![The same gear after ten seconds of filing](gear-lip-after.jpg)
+## Take a rotating piece and follow these steps:
+1. Run a 1.5mm drill bit through the hole. It will probably take small amount of material away, widening the hole. You may have to push the drill bit quite hard into the hole to get it started. Make sure to keep it aligned straight into the hole, and not at any angle. Push until the drill bit goes all the way through the hole.
+1. Repeat with the drill bit from the other side of the hole.
+1. Switch the drill bit for a stainless steel rod and push through the hole, eroding slightly more material away. Make sure to keep passing the steel rod through the hole, for plenty more times after it goes through the first time, taking a little more material away each time.
+1. Keep going until the piece spins freely with very low resistance on the steel rod.
+
+Do this for all the parts that need to rotate on a steel rod (9 parts).
+
+## TAKE CARE: 
+Drill bit and steel rod is sharp, don’t injure yourself by pushing the drill / rod through a hole and into your hand on other side of hole when pushing through.
+
+## Notes:
+- Be careful around the tall gear not to snap the drill bit by putting pressure at an angle. Keep it straight.
+- Note on cam gear with tall shaft: hole not go all way through? I made an error on the design at first where the hole didn't go all the way through the part (fixed now). Either re-print the latest version of this part or use electric drill with 1.5mm drill bit to drill through the hole so that it passes all the way through. 
+
+![This is an example two-row image](example-image.jpg)
+![second image](example-image-2.jpg)
 {: .figure-row }
 
-Test each gear on a spare 2 mm rod. It should drop on under its own weight and
-spin freely for a second or two when flicked.
+![This is an example video](video:example-video.mp4)
 
-![A cleaned gear spinning freely on its shaft](video:gear-spin.mp4)
-
-If a gear binds, ream the bore with the rod itself — twist it through a few
-times rather than reaching for a drill, which will oversize the hole.
-
-![Walkthrough: cleaning and test-fitting the full gear set](youtube:dQw4w9WgXcQ)
+![This is an example youtube embed](youtube:dQw4w9WgXcQ)
