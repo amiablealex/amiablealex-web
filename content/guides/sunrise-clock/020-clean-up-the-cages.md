@@ -5,7 +5,7 @@ summary: "Similar to the previous step, we need to clean up the holes for the ro
 
 ![Parts for step 02](step2-parts.png)
 
-## Take one frame half and follow these steps:
+## Take both frames and follow these steps:
 ![Step02](youtube:-6B5ES5ewag)
 
 - Run a 1.5mm drill bit into each hole by hand. Make sure to keep the drill pointed directly into the hole, at no angle.
