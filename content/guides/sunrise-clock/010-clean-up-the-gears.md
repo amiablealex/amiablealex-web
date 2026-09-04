@@ -3,9 +3,7 @@ title: Clean up the rotating parts
 summary: "Rotating parts are deliberately modelled with centre hole too tight - the steel rod will not pass through straight away. This is because if they were printed with holes that fit the rods the chances are that the parts would be too loose and wobble around the axis. Axial alignment of rotating parts is very critical for the clockwork. The best way to achieve perfect alignment is to print deliberately too tight and gradually erode the centre hole, first with 1.5mm drill bit and then with the steel rod. Eventually the gear will fit and rotate perfectly on the steel rods, you will know when it's right because it will spin on the rod with very little resistance and no axial wobble. This process is crucial to get a working clock with perfect alignment and tiny turning resistance."
 ---
 
-
-## Collect all nine pieces that will need to spin on a steel rod
-[image of the nine rotating pieces]
+![Parts for step 01](step1-parts.png)
 
 ## Take a rotating piece and follow these steps:
 
@@ -16,9 +14,9 @@ summary: "Rotating parts are deliberately modelled with centre hole too tight - 
 - Switch the drill bit for a stainless steel rod and push through the hole, eroding slightly more material away. Make sure to keep passing the steel rod through the hole, for plenty more times after it goes through the first time, taking a little more material away each time.
 - Keep going until the piece spins freely with very low resistance on the steel rod.
 
-## Repeat for all the parts that need to rotate on a steel rod (9 parts).
+## Repeat for all nine parts that to rotate on a steel rod.
 
-## TAKE CARE: 
+## Take Care: 
 Drill bit and steel rod is sharp, don’t injure yourself by pushing the drill / rod through a hole and into your hand on other side of hole when pushing through.
 
 ## Notes:
@@ -28,5 +26,3 @@ Drill bit and steel rod is sharp, don’t injure yourself by pushing the drill /
 ![This is an example two-row image](example-image.jpg)
 ![second image](example-image-2.jpg)
 {: .figure-row }
-
-![This is an example video](video:example-video.mp4)
