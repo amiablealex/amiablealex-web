@@ -16,10 +16,10 @@ summary: "Rotating parts are deliberately modelled with centre hole too tight - 
 
 ## Repeat for all nine parts that to rotate on a steel rod.
 
-## Take Care: 
+### Take Care: 
 Drill bit and steel rod is sharp, don’t injure yourself by pushing the drill / rod through a hole and into your hand on other side of hole when pushing through.
 
-## Notes:
+### Notes:
 - Be careful around the tall gear not to snap the drill bit by putting pressure at an angle. Keep it straight.
 - Note on cam gear with tall shaft: hole not go all way through? I made an error on the design at first where the hole didn't go all the way through the part (fixed now). Either re-print the latest version of this part or use electric drill with 1.5mm drill bit to drill through the hole so that it passes all the way through. 
 
