@@ -3,7 +3,12 @@ title: Assembly guide
 summary: "Building the mechanical sunrise clock"
 accent: clay
 time: ""
-difficulty: ""
+difficulty: "Hard"
+notice_title: "v1 assembly guide"
+notice: >-
+  This design isn't the best and the build is a challenge. A v2 redesign is in
+  progress that makes assembly and calibration much easier. If you've already
+  printed v1, this guide works. If not, consider waiting.
 step_title: "Parts & Equipment"
 step_summary: "Print everything first. Use the print profiles published at the makerworld link, or download the files and run through your own slicing software. 
 Some tolerances are designed to be overly tight / press fit, so accuracy is important. Bambulab printers with PLA should achieve tolerances very similar to mine; other printers may produce varied results and you may need to adjust the model yourself."

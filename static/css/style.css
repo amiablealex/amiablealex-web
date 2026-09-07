@@ -588,3 +588,32 @@ html, body { overflow-x: hidden; }
   .guide-nav-link.is-next { margin-left: 0; text-align: left; flex-direction: row-reverse; justify-content: flex-end; }
   .prose .figure-row { grid-template-columns: 1fr; }
 }
+
+/* ---- Guide notice (per-guide warning banner) ---------------------------- */
+.guide-notice {
+  --notice-ink: #7a5a12;
+  --notice-bg: #fdf6e3;
+  --notice-line: #e3c77a;
+
+  display: flex; align-items: flex-start; gap: 12px;
+  margin: 0 0 28px;
+  padding: 14px 18px;
+  background: var(--notice-bg);
+  border: 1px solid var(--notice-line);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  color: var(--notice-ink);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.notice-icon { flex: none; margin-top: 2px; }
+.notice-body { min-width: 0; }
+.notice-body > :first-child { margin-top: 0; }
+.notice-body > :last-child { margin-bottom: 0; }
+.notice-body p { margin: 0 0 6px; }
+.notice-title { font-weight: 600; }
+.guide-notice a { color: var(--notice-ink); text-decoration: underline; text-underline-offset: 3px; }
+
+@media print {
+  .guide-notice { background: none; }
+}

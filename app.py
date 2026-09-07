@@ -168,6 +168,8 @@ def load_guide(slug):
         "accent": meta.get("accent", "teal"),
         "time": meta.get("time", ""),
         "difficulty": meta.get("difficulty", ""),
+        "notice_title": meta.get("notice_title", ""),
+        "notice": markdown.markdown(str(meta["notice"])) if meta.get("notice") else "",
         "steps": steps,
     }
 
