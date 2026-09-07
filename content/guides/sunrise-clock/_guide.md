@@ -9,6 +9,14 @@ step_summary: "Print everything first. Use the print profiles published at the m
 Some tolerances are designed to be overly tight / press fit, so accuracy is important. Bambulab printers with PLA should achieve tolerances very similar to mine; other printers may produce varied results and you may need to adjust the model yourself."
 ---
 
+## This guide is for v1, and v1 is hard.
+
+The current design asks a lot: reaming printed holes to fit, cutting steel rod and brass tube to length, press-fitting hands onto shafts with pliers, and a one-shot calibration that can't be redone without partial disassembly. It works, I've built it several times, but it isn't beginner-friendly.
+
+I'm working on v2, which redesigns most components around making assembly and calibration straightforward: hands you can set easily, a date dial you read instead of counting turns, screw-together frame halves to ease disassembly & maintenance, and a removable clock movement to make the whole thing adjustable.
+
+If you've already printed v1, this guide is for that. If you haven't started, it may be worth waiting.
+
 
 ## Printed parts
 
