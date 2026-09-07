@@ -16,7 +16,7 @@ Some tolerances are designed to be overly tight / press fit, so accuracy is impo
 
 ## This guide is for v1, and v1 is hard.
 
-The current design asks a lot: reaming printed holes to fit, cutting steel rod and brass tube to length, press-fitting hands onto shafts with pliers, and a one-shot calibration that can't be redone without partial disassembly. It works, I've built it several times, but it isn't beginner-friendly.
+The current design isn't the best - it includes things like reaming printed holes to fit, fiddly hand adjustments with pliers, and a one-shot calibration that can't be redone easily. It works - I've built it several times - but it isn't simple.
 
 I'm working on v2, which redesigns most components around making assembly and calibration straightforward: hands you can set easily, a date dial you read instead of counting turns, screw-together frame halves to ease disassembly & maintenance, and a removable clock movement to make the whole thing adjustable.
 
