@@ -11,7 +11,7 @@ summary: ""
 1. Apply the large sector + hairspring assembly onto the frame. Place sector onto it’s steel rod as in the image below.
    Rest the sector arm on it’s respective cam, and curl up the spring (almost a full turn) to build a little tension and then lock the spring into place by pushing it’s securing end into the hole.
    The sector should now be spring-loaded, resting on it’s cam groove.
-1. Repeat for the smaller sector, on the other steel pin and resting on the other cam groove.
+1. Repeat for the smaller sector, placing on the other steel pin, curling up the hairspring and locking into its place, and resting the sector arm on the other cam groove.
 
 
 ![Step11-1](step11-1.png)
