@@ -17,3 +17,8 @@ Do not press so far as to clamp the casing onto the gears, otherwise the mechani
 ![step13-1](step13-1.png)
 ![step13-2](step13-2.png)
 {: .figure-row }
+
+### Checkpoint:
+At this stage, the gears should be aligned and you should be able to rotate the mechanism, by spinning any of the wheels furthest from the Cam end of the chain, like this:
+
+![Step13](youtube:I5n01MmVsOc)
