@@ -18,7 +18,7 @@ Here are some examples:
 | Dec 2nd | 346 |
 
 And you can actually just google it:
-![step18 google](step18-google.png)
+![step17 google](step17_google.png)
 
 ## Turn the annual chain to today's position 
 Lets use the example of September 3rd: it is 256 days forwards from the winter solstice. This means we need to advance the clock mechanism through 256 days.
@@ -32,11 +32,12 @@ Instead of turning the gear at position 1 512 turns, we can make it easier:
 
 So, to advance the clock mechanism through 256 days, we just need to rotate the gear at position 4 clockwise by almost 19 full turns.
 
-![step18 calc](step18-calc.png)
+![step17 calc](step17_calc.png)
 
 In the example in the video, I actually reduce the required rotation even further:
-- Although September 3rd is 256 days forwards of the winter solstice, it is also 97 days before the next one. 
-- So instead of rotating the gear at position 4 clockwise by almost 19 turns, I actually rotate it in the opposite direction (anticlockwise) by 7.2 turns (97 x 24 / 12 / 3 / 3 / 3). 
+
+- Although September 3rd is 256 days forwards of the winter solstice, it is also 97 days before the next one.
+- So instead of rotating the gear at position 4 clockwise by almost 19 turns, I actually rotate it in the opposite direction (anticlockwise) by 7.2 turns (97 x 24 / 12 / 3 / 3 / 3).
 - The cams end up in the same position as if i had rotated the 19 turns clockwise.
 
-![Step18](youtube:2Pz-NeOZCgM)
+![Step17](youtube:2Pz-NeOZCgM)
