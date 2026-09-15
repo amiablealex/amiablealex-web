@@ -5,6 +5,8 @@ summary: ""
 
 Earlier we set the clock to it's winter solstice position and then added the indicator hands. Before we fix the mechanism and set the hour hand, we need to run the annual part of the mechanism to get it into the correct position for today's date.
 
+![Step17](youtube:2Pz-NeOZCgM)
+
 ## Work out how many days the current date is past the winter solstice (21/Dec)
 
 Here are some examples:
@@ -39,5 +41,3 @@ In the example in the video, I actually reduce the required rotation even furthe
 - Although September 3rd is 256 days forwards of the winter solstice, it is also 97 days before the next one.
 - So instead of rotating the gear at position 4 clockwise by almost 19 turns, I actually rotate it in the opposite direction (anticlockwise) by 7.2 turns (97 x 24 / 12 / 3 / 3 / 3).
 - The cams end up in the same position as if i had rotated the 19 turns clockwise.
-
-![Step17](youtube:2Pz-NeOZCgM)
