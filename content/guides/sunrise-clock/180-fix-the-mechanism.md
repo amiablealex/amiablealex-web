@@ -14,6 +14,6 @@ In this step we set the hour hand to the correct time, add the idler gear, and a
 - Manual adjustment: Hold the clock upright. Due to gravity, the hands will rest in their natural position. If the hour hand is not quite right, adjust it by gripping the brass shaft with pliers and changing the position of the hand.
 - Put in the battery straight away - the mechanism should start ticking. Everything is now in place.
 
-![step18 tape](step18-tape.png)
+![step18 tape](Step18-tape.png)
 
 ![result](result.png)
