@@ -22,6 +22,7 @@ If there is one thing that I've got out of making this guide, it's the realisati
 
 If you've already printed v1, this guide is for that. If you haven't started, it may be worth waiting.
 
+![result](result.png)
 
 ## Printed parts
 
@@ -58,7 +59,9 @@ If you've already printed v1, this guide is for that. If you haven't started, it
 
 ## Tools
 
-- small hammer
+- Small hammer
 - 1.5mm drill bit
-- coping saw
+- Coping saw
 - Wire cutters
+- Pliers
+- Double-sided tape
