@@ -4,13 +4,12 @@
 {% block content %}
 <section class="hero reveal">
   <h1 class="hero-wordmark">amiable<span class="wordmark-accent">alex</span></h1>
-  <p class="hero-tagline">{{ site.tagline }}</p>
+  {# <p class="hero-tagline">{{ site.tagline }}</p> #}
   <span class="hero-squiggle">{{ squiggle(190) }}</span>
 
   {# [ Write one or two sentences in your own voice: who you are and what you
      build. Keep it surname-free — this is your professional-public layer. ] #}
-  <p class="hero-intro">Engineer in the UK who enjoys creating things: web apps, data
-    visualisation, 3d printing, electronics, home automation.</p>
+  <p class="hero-intro">Engineer who enjoys creating things: web apps, 3d printing, electronics, home automation.</p>
 
   <div class="hero-cta">
     <a class="btn btn-primary" href="{{ url_for('projects') }}">My projects {{ icon('arrow-right', 16) }}</a>
