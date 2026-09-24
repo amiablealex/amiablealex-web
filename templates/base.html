@@ -30,11 +30,11 @@
       <a href="{{ url_for('explainers') }}" {% if request.endpoint in ['explainers','explainer_detail'] %}aria-current="page"{% endif %}>Explainers</a>
       <a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}aria-current="page"{% endif %}>About</a>
       <a href="{{ url_for('contact') }}" {% if request.endpoint == 'contact' %}aria-current="page"{% endif %}>Contact</a>
+    </nav>
       <span class="nav-social">
         <a href="{{ site.github }}" aria-label="GitHub" target="_blank" rel="noopener">{{ icon('brand-github') }}</a>
         <a href="{{ site.linkedin }}" aria-label="LinkedIn" target="_blank" rel="noopener">{{ icon('brand-linkedin') }}</a>
       </span>
-    </nav>
   </header>
 
   <main id="main" class="container">
