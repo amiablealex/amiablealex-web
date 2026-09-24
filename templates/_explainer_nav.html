@@ -1,0 +1,19 @@
+{#- Spliced in before </body>. Sequential links within the topic, so a set that
+    builds on itself reads in order without the reader going back to the index. -#}
+<nav class="ex-next" aria-label="More explainers">
+  <div class="ex-next-inner">
+    {% if prev_item %}
+    <a class="ex-next-link" href="{{ url_for('explainer_detail', slug=prev_item.slug) }}">
+      <span class="ex-next-label">Previous</span>
+      <span class="ex-next-title">{{ prev_item.title }}</span>
+    </a>
+    {% endif %}
+    {% if next_item %}
+    <a class="ex-next-link ex-next-fwd" href="{{ url_for('explainer_detail', slug=next_item.slug) }}">
+      <span class="ex-next-label">Next</span>
+      <span class="ex-next-title">{{ next_item.title }}</span>
+    </a>
+    {% endif %}
+  </div>
+  <p class="ex-next-all"><a href="{{ url_for('explainers') }}">All explainers</a></p>
+</nav>

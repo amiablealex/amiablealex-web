@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, squiggle %}
+
+{% block title %}Explainers · {{ site.name }}{% endblock %}
+{% block description %}{# [ one line about the explainers, for link previews ] #}Interactive explanations, built in the browser from the geometry up.{% endblock %}
+
+{% block content %}
+<section class="section reveal">
+  <div class="section-head">
+    <h1>Explainers</h1>
+    <span class="section-note">{{ squiggle(110) }}</span>
+  </div>
+
+  {# [ Write a sentence or two in your own voice: what these are and why you
+     make them. Keep it short — the topic summaries do the describing. ] #}
+  <p class="section-lead">Small interactive pages for things I wanted to
+    understand properly. Everything is computed in the browser from the
+    geometry — no data files, nothing sent anywhere.</p>
+
+  {% for group in groups %}
+  <section class="ex-topic reveal">
+    <h2 class="ex-topic-title">{{ group.name }}</h2>
+    {% if group.summary %}<p class="ex-topic-summary">{{ group.summary }}</p>{% endif %}
+
+    <ul class="ex-list">
+      {% for e in group.explainers %}
+      <li>
+        <a class="ex-item" href="{{ url_for('explainer_detail', slug=e.slug) }}">
+          {% if group.declared %}<span class="ex-num">{{ loop.index }}</span>{% endif %}
+          <span class="ex-text">
+            <span class="ex-title">{{ e.title }}</span>
+            {% if e.summary %}<span class="ex-summary">{{ e.summary }}</span>{% endif %}
+          </span>
+          <span class="ex-go">{{ icon('arrow-right', 16) }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% else %}
+  <p class="empty-note">[ No explainers yet. Drop a self-contained
+    <code>.html</code> file and a matching <code>.md</code> into
+    <code>content/explainers/</code> — see EXPLAINERS.md. ]</p>
+  {% endfor %}
+</section>
+{% endblock %}

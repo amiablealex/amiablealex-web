@@ -617,3 +617,39 @@ html, body { overflow-x: hidden; }
 @media print {
   .guide-notice { background: none; }
 }
+/* ---- Explainers index ---------------------------------------------------- */
+.ex-topic { margin-top: 42px; }
+.ex-topic:first-of-type { margin-top: 32px; }
+.ex-topic-title {
+  font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; margin: 0;
+}
+.ex-topic-summary {
+  color: var(--ink-soft); max-width: 40rem; margin: 6px 0 0; font-size: 0.95rem;
+}
+.ex-list { list-style: none; margin: 16px 0 0; padding: 0; }
+.ex-list li { border-top: 1px solid var(--line); }
+.ex-list li:last-child { border-bottom: 1px solid var(--line); }
+
+.ex-item {
+  display: flex; align-items: baseline; gap: 14px;
+  padding: 16px 4px; color: inherit; text-decoration: none;
+}
+.ex-item:hover { background: rgba(60, 55, 45, 0.02); }
+.ex-num {
+  flex: none; width: 1.4em;
+  font-family: var(--hand); font-size: 1.35rem; line-height: 1;
+  color: var(--teal); text-align: center;
+}
+.ex-text { flex: 1 1 auto; min-width: 0; }
+.ex-title { display: block; font-weight: 600; }
+.ex-item:hover .ex-title { color: var(--teal-ink); }
+.ex-summary {
+  display: block; margin-top: 3px;
+  font-size: 0.9rem; line-height: 1.5; color: var(--ink-faint);
+}
+.ex-go { flex: none; color: var(--ink-faint); align-self: center; }
+.ex-item:hover .ex-go { color: var(--teal); }
+
+@media (max-width: 640px) {
+  .ex-item { gap: 10px; }
+}

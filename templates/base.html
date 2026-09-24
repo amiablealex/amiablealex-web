@@ -27,6 +27,7 @@
     <a class="wordmark" href="{{ url_for('home') }}">amiable<span class="wordmark-accent">alex</span></a>
     <nav class="site-nav" aria-label="Primary">
       <a href="{{ url_for('projects') }}" {% if request.endpoint in ['projects','project_detail'] %}aria-current="page"{% endif %}>Projects</a>
+      <a href="{{ url_for('explainers') }}" {% if request.endpoint in ['explainers','explainer_detail'] %}aria-current="page"{% endif %}>Explainers</a>
       <a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}aria-current="page"{% endif %}>About</a>
       <a href="{{ url_for('contact') }}" {% if request.endpoint == 'contact' %}aria-current="page"{% endif %}>Contact</a>
       <span class="nav-social">

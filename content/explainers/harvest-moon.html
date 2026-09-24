@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The harvest moon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20); --sun-glow: rgba(235, 162, 27, .30);
+  --moon: #5C7085; --moon-ink: #41566B; --moon-lit: #F2F6FA; --moon-dark: #BFCAD5;
+  --moon-fill: rgba(92, 112, 133, .16); --moon-glow: rgba(92, 112, 133, .18);
+  --sky: rgba(104, 146, 184, .13); --night: rgba(60, 78, 104, .13);
+  --ground: rgba(98, 112, 64, .16); --horizon: #4B5731; --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+    --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+    --moon-fill: rgba(168, 187, 208, .13); --moon-glow: rgba(168, 187, 208, .18);
+    --sky: rgba(120, 164, 210, .12); --night: rgba(120, 150, 200, .10);
+    --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C; --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+  --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+  --moon-fill: rgba(168, 187, 208, .13); --moon-glow: rgba(168, 187, 208, .18);
+  --sky: rgba(120, 164, 210, .12); --night: rgba(120, 150, 200, .10);
+  --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C; --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.6rem, 9vw, 3.6rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#seasons { aspect-ratio: 5 / 3; }
+#east { aspect-ratio: 4 / 3; }
+#arc { aspect-ratio: 6 / 5; }
+#delay { aspect-ratio: 5 / 2; }
+#ladder { aspect-ratio: 5 / 4; }
+@media (min-width: 640px) {
+  #seasons { aspect-ratio: 16 / 6; }
+  #east { aspect-ratio: 16 / 9; }
+  #arc { aspect-ratio: 16 / 9; }
+  #delay { aspect-ratio: 16 / 5; }
+  #ladder { aspect-ratio: 16 / 8; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--moon-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--moon); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--moon); border-color: var(--moon); color: var(--bg); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--moon); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--moon); box-shadow: inset 0 0 0 1px var(--moon); }
+:focus-visible { outline: 2px solid var(--moon); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--moon-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>The harvest moon</h1>
+    <p class="lede">Around the September full moon, moonrise creeps later by a quarter of an hour a night instead of the usual fifty minutes, and the harvest light holds for a week. It comes from the same place as the moon's height through the year: where the moon sits on the ecliptic, which is the sun's longitude plus the phase.</p>
+  </header>
+
+  <figure>
+    <h2>Where this moon rides</h2>
+    <p class="hint">The seasons curve. The sun sits at today's date; the moon sits wherever its phase puts it, and inherits that spot's declination.</p>
+    <canvas id="seasons" role="img" aria-label="The moon's position on the declination curve"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Later than last night</dt><dd id="rDelay">–</dd></div>
+    <div><dt>Moonrise / moonset</dt><dd id="rRise">–</dd></div>
+    <div><dt>Moon's declination</dt><dd id="rDec">–</dd></div>
+    <div><dt>Highest tonight</dt><dd id="rHigh">–</dd></div>
+    <div><dt>Above the horizon</dt><dd id="rUp">–</dd></div>
+    <div><dt>Ecliptic meets horizon at</dt><dd id="rAng">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Controls">
+    <div class="play">
+      <button class="btn" id="playNights" aria-pressed="false">Play nights</button>
+      <button class="btn" id="playYear" aria-pressed="false">Play year</button>
+    </div>
+
+    <div class="ctl">
+      <label for="phase">Phase <output id="phaseOut" for="phase"></output></label>
+      <input type="range" id="phase" min="0" max="359" step="1">
+      <div class="chips" role="group" aria-label="Phase presets">
+        <button class="chip" data-phase="0">New</button>
+        <button class="chip" data-phase="90">First quarter</button>
+        <button class="chip" data-phase="180">Full</button>
+        <button class="chip" data-phase="270">Last quarter</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="date">Date <output id="dateOut" for="date"></output></label>
+      <input type="range" id="date" min="0" max="364" step="1">
+      <div class="chips" role="group" aria-label="Date presets">
+        <button class="chip" data-day="today">Today</button>
+        <button class="chip" data-day="78">March equinox</button>
+        <button class="chip" data-day="171">June solstice</button>
+        <button class="chip" data-day="265">September equinox</button>
+        <button class="chip" data-day="354">December solstice</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="lat">Latitude <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="-90" max="90" step="0.1">
+      <div class="chips" role="group" aria-label="Latitude presets">
+        <button class="chip" data-lat="0">Equator</button>
+        <button class="chip" data-lat="53">UK 53° N</button>
+        <button class="chip" data-lat="65">65° N</button>
+        <button class="chip" data-lat="-33.9">Sydney 34° S</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>Looking east at moonrise</h2>
+    <p class="hint">Tonight's moon on the horizon, with the next three nights strung along the ecliptic behind it. Moons drawn larger than life.</p>
+    <canvas id="east" role="img" aria-label="The eastern horizon at moonrise with the ecliptic"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Tonight's arc</h2>
+    <p class="hint">Altitude through the day, with the sun's arc faint behind and the night shaded.</p>
+    <canvas id="arc" role="img" aria-label="The moon's altitude through the day"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Eight nights running</h2>
+    <p class="hint">Moonrise on each of the next eight nights, on a fixed nine-hour window.</p>
+    <canvas id="ladder" role="img" aria-label="Moonrise times on eight successive nights"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>The nightly delay through the year</h2>
+    <p class="hint">Tap or drag to pick a date. The curve is for the phase you've chosen.</p>
+    <canvas id="delay" role="img" aria-label="Nightly moonrise delay through the year"></canvas>
+  </figure>
+
+  <section class="notes">
+    <h2>One rule behind all of it</h2>
+    <p>The moon travels the same road as the sun, the ecliptic, but about thirteen times faster: it laps the whole circuit in a month rather than a year. Its phase is simply how far round that road it sits from the sun. New moon shares the sun's longitude, full moon is exactly opposite, the quarters are ninety degrees either side. So the moon's declination, and with it the height of its arc, is the declination of the point the sun will reach, or last reached, a quarter, half or three quarters of a year away.</p>
+    <p>That single rule gives you the whole table. A full moon in December sits where the sun sits in June, so it climbs to 60° at 53° N and stays up for nearly seventeen hours. A full moon in June copies the December sun and barely clears 13°. New moon always copies today's sun, which is why the December new moon is the shallowest of them all. At an equinox the full and new moons are mid-arc, and it's the quarter moons that take the extremes: in September the last quarter rides high and the first quarter scrapes the horizon, and in March they swap.</p>
+
+    <h2>Why the harvest moon bunches up</h2>
+    <p>Each night the moon has moved about 13° further east along the ecliptic, so the sky has to turn that much further to lift it, which normally costs around fifty minutes. Two things cut the bill in September. The first is the angle: near the equinox points the ecliptic lies shallow against the eastern horizon in the evening, so those 13° run mostly sideways along the horizon rather than down beneath it. Little vertical drop means little extra rotation. The second is that the moon's declination is climbing fast there, several degrees a night, and a moon further north rises earlier for anyone in the north, which claws back more time still.</p>
+    <p>Both terms scale with latitude, which is why this is a northern-harvest story rather than a tropical one. At the equator the delay sits near forty-five minutes all year. At 53° N the September full moon comes in around a quarter of an hour. Push the slider to 65° N and it reaches zero, and beyond that the moon rises <em>earlier</em> each night. Set the phase to new and the whole pattern slides to March, because what matters is where the moon is on the ecliptic, not what it's lit like. The southern hemisphere gets its harvest moon in March for the same reason, six months out of step.</p>
+    <p>The angle of the ecliptic against the horizon is the same measurement as the last piece in this set, applied to a different line: there it was the sun's daily circle cutting the horizon, here it's the moon's monthly road.</p>
+    <p class="small">The rest of the set: the <a href="https://claude.ai/artifact/5rKL5R5N7UPPRodequH8pX">sliding horizon</a>, the <a href="https://claude.ai/artifact/MNEiRPCz6MHWR6p1qHsyLN">sun's real arc</a>, and <a href="https://claude.ai/artifact/WLsjATUkVCYH1yDrvtpYuP">crossing the horizon</a>.</p>
+
+    <h2>Small print</h2>
+    <p class="small">The moon here is idealised: it runs exactly along the ecliptic at a steady 13.18° a day, so the phase advances 12.19° a day and a lunation takes 29.53 days. The real moon's orbit is tilted 5.1°, which lifts or lowers its declination by up to that much and swings on an 18.6-year cycle, so real harvest moons are a little better or worse than these figures; its orbit is also elliptical, so it runs fast and slow through the month. Rise and set are geometric, for the centre of the moon, with no refraction and no parallax, both of which push real moonrise a few minutes earlier. Times are local solar time. The phase drawing assumes a northern-hemisphere view; from the south it appears flipped. Dates follow the 2026 calendar for the sun's position, and any phase can be set on any date, which in reality only happens on the dates it happens.</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const DEG = Math.PI / 180;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const EPS = 23.44 * DEG;
+  const SYN = 12.190749;      // phase degrees per day
+  const MOON_RATE = 13.176;   // ecliptic degrees per day
+
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const MDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const MSTART = [];
+  MDAYS.reduce((acc, n, i) => (MSTART[i] = acc, acc + n), 0);
+  const now = new Date();
+  const TODAY = clamp(MSTART[now.getMonth()] + now.getDate() - 1, 0, 364);
+
+  const state = { d: TODAY, phase: 180, lat: 53, playNights: false, playYear: false };
+
+  // ---------- astronomy ----------
+  function sunLon(d) {
+    const n = 9497 + d;
+    const L = 280.460 + 0.9856474 * n;
+    const g = (357.528 + 0.9856003 * n) * DEG;
+    return ((L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) % 360 + 360) % 360 * DEG;
+  }
+  const declOf = l => Math.asin(Math.sin(EPS) * Math.sin(l));
+  const raOf = l => ((Math.atan2(Math.cos(EPS) * Math.sin(l), Math.cos(l)) / DEG) % 360 + 360) % 360;
+  function altaz(lat, dec, Hdeg) {
+    const p = lat * DEG, H = Hdeg * DEG;
+    const N = Math.cos(p) * Math.sin(dec) - Math.sin(p) * Math.cos(dec) * Math.cos(H);
+    const E = -Math.cos(dec) * Math.sin(H);
+    const U = Math.sin(p) * Math.sin(dec) + Math.cos(p) * Math.cos(dec) * Math.cos(H);
+    return { alt: Math.asin(clamp(U, -1, 1)) / DEG, az: (Math.atan2(E, N) / DEG + 360) % 360 };
+  }
+  function body(d, P, lat) {
+    const ls = sunLon(d), lm = ls + P * DEG;
+    const dec = declOf(lm), ras = raOf(ls), ram = raOf(lm);
+    const dRA = ((ram - ras) % 360 + 360) % 360;
+    const x = -Math.tan(clamp(lat, -89.9, 89.9) * DEG) * Math.tan(dec);
+    const H0 = Math.abs(x) <= 1 ? Math.acos(x) / DEG : null;
+    return {
+      ls, lm, dec, ras, ram, dRA, H0,
+      rise: H0 === null ? null : (((12 + (dRA - H0) / 15) % 24) + 24) % 24,
+      set: H0 === null ? null : (((12 + (dRA + H0) / 15) % 24) + 24) % 24,
+      up: H0 === null ? (x < -1 ? 24 : 0) : 2 * H0 / 15,
+      high: 90 - Math.abs(clamp(lat, -89.9, 89.9) - dec / DEG)
+    };
+  }
+  const hourAngle = (t, ras, ram) => (t - 12) * 15 + ras - ram;   // degrees
+  const moonAlt = (m, lat, t) => altaz(lat, m.dec, hourAngle(t, m.ras, m.ram)).alt;
+  function nightDelay(d, P, lat) {
+    const a = body(d, P, lat).rise, b = body(d + 1, P + SYN, lat).rise;
+    if (a === null || b === null) return null;
+    return (((b - a + 36) % 24) - 12) * 60;
+  }
+  // angle the ecliptic makes with the horizon where the moon rises
+  function eclipticAngle(d, P, lat) {
+    const m = body(d, P, lat);
+    if (m.rise === null) return null;
+    const step = 0.4 * DEG;
+    const at = lam => {
+      const p = altaz(lat, declOf(lam), hourAngle(m.rise, m.ras, raOf(lam)));
+      return p;
+    };
+    const a = at(m.lm - step), b = at(m.lm + step);
+    const dAlt = b.alt - a.alt;
+    let dAz = ((b.az - a.az + 540) % 360) - 180;
+    return Math.abs(Math.atan2(dAlt, dAz) / DEG) > 90
+      ? 180 - Math.abs(Math.atan2(dAlt, dAz) / DEG)
+      : Math.abs(Math.atan2(dAlt, dAz) / DEG);
+  }
+  // the date on which the sun occupies the moon's spot on the ecliptic
+  function sunDateFor(lam) {
+    let best = 0, bd = 9e9;
+    for (let d = 0; d < 365; d += 1) {
+      const diff = Math.abs(((sunLon(d) - lam) / DEG + 540) % 360 - 180);
+      if (diff < bd) { bd = diff; best = d; }
+    }
+    for (let d = best - 1; d <= best + 1; d += 0.05) {
+      const diff = Math.abs(((sunLon(d) - lam) / DEG + 540) % 360 - 180);
+      if (diff < bd) { bd = diff; best = d; }
+    }
+    return (best % 365 + 365) % 365;
+  }
+
+  // ---------- formatting ----------
+  const pad = n => String(n).padStart(2, '0');
+  function fmtClock(h) {
+    h = ((h % 24) + 24) % 24;
+    let H = Math.floor(h), M = Math.round((h - H) * 60);
+    if (M === 60) { M = 0; H = (H + 1) % 24; }
+    return pad(H) + ':' + pad(M);
+  }
+  function fmtDur(h) {
+    let H = Math.floor(h), M = Math.round((h - H) * 60);
+    if (M === 60) { H++; M = 0; }
+    return `${H} h ${pad(M)} m`;
+  }
+  const fmtDeg = (v, dp) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(dp === undefined ? 1 : dp) + '°';
+  const fmtLat = l => Math.abs(l) < 0.05 ? '0° (equator)' : `${Math.abs(l).toFixed(1)}° ${l > 0 ? 'N' : 'S'}`;
+  function fmtDate(d, short) {
+    const dd = Math.floor(((d % 365) + 365) % 365);
+    let i = 11;
+    while (MSTART[i] > dd) i--;
+    return `${dd - MSTART[i] + 1} ${short ? MONTHS[i].slice(0, 3) : MONTHS[i]}`;
+  }
+  function phaseName(P) {
+    const p = ((P % 360) + 360) % 360;
+    if (p < 7 || p > 353) return 'new';
+    if (Math.abs(p - 90) < 7) return 'first quarter';
+    if (Math.abs(p - 180) < 7) return 'full';
+    if (Math.abs(p - 270) < 7) return 'last quarter';
+    if (p < 90) return 'waxing crescent';
+    if (p < 180) return 'waxing gibbous';
+    if (p < 270) return 'waning gibbous';
+    return 'waning crescent';
+  }
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'moon', 'moon-ink', 'moon-lit', 'moon-dark', 'moon-fill', 'moon-glow', 'sky', 'night', 'ground', 'horizon', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { seasons: $('seasons'), east: $('east'), arc: $('arc'), ladder: $('ladder'), delay: $('delay') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo !== false) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.bg;
+      ctx.strokeText(str, x, y);
+      if (o.halo === 'sky') { ctx.strokeStyle = C.sky; ctx.strokeText(str, x, y); }
+      if (o.halo === 'ground') { ctx.strokeStyle = C.ground; ctx.strokeText(str, x, y); }
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+
+  // moon glyph with the right phase, lit on the right when waxing
+  function moonGlyph(ctx, x, y, r, P) {
+    const p = ((P % 360) + 360) % 360;
+    const waxing = p <= 180;
+    const k = Math.abs(Math.cos(p * DEG));
+    const gib = p > 90 && p < 270;
+    ctx.save();
+    ctx.translate(x, y);
+    if (!waxing) ctx.scale(-1, 1);
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 2 * Math.PI);
+    ctx.fillStyle = C['moon-dark']; ctx.fill();
+    if (p > 3 && p < 357) {
+      ctx.beginPath();
+      ctx.arc(0, 0, r, Math.PI / 2, -Math.PI / 2, true);
+      ctx.ellipse(0, 0, Math.max(r * k, 0.01), r, 0, -Math.PI / 2, Math.PI / 2, gib);
+      ctx.closePath();
+      ctx.fillStyle = C['moon-lit']; ctx.fill();
+    }
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.strokeStyle = C.moon; ctx.lineWidth = 1.25; ctx.stroke();
+  }
+
+  // ---------- 1. the seasons curve ----------
+  function drawSeasons() {
+    const { ctx, w, h } = cv.seasons;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const x0 = 34, x1 = w - 10, y0 = 16, y1 = h - 22;
+    const X = d => x0 + (((d % 365) + 365) % 365) / 365 * (x1 - x0);
+    const Y = dec => y0 + (26 - dec) / 52 * (y1 - y0);
+    const font = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+
+    ctx.lineWidth = 1;
+    [-23.4, 0, 23.4].forEach(v => {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(v), x1, Y(v));
+      text(ctx, fmtDeg(v, 0), x0 - 6, Y(v), { font, color: C.muted, align: 'right', base: 'middle', halo: false });
+    });
+    MSTART.forEach((s, i) => text(ctx, MONTHS[i][0], X(s + MDAYS[i] / 2), h - 6, { font, color: C.muted, align: 'center', halo: false }));
+
+    const pts = [];
+    for (let d = 0; d <= 365; d++) pts.push([X(d), Y(declOf(sunLon(d)) / DEG)]);
+    poly(ctx, pts); ctx.lineWidth = 2; ctx.strokeStyle = C.faint; ctx.stroke();
+
+    // the four phases today, current one emphasised
+    const ls = sunLon(state.d);
+    [0, 90, 180, 270].forEach(p => {
+      const lam = ls + p * DEG, dd = sunDateFor(lam);
+      const x = X(dd), y = Y(declOf(lam) / DEG);
+      if (Math.abs(((p - state.phase + 540) % 360) - 180) < 174) {
+        ctx.strokeStyle = C.ghost; ctx.lineWidth = 1.25;
+        line(ctx, x, y - 6, x, y + 6);
+      }
+    });
+
+    // the sun today
+    const sx = X(state.d), sy = Y(declOf(ls) / DEG);
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(sx, sy, 6.5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    text(ctx, 'sun', sx, sy - 12, { font: handS, color: C['sun-ink'], align: 'center' });
+
+    // the moon
+    const lam = ls + state.phase * DEG, md = sunDateFor(lam);
+    const mx = X(md), my = Y(declOf(lam) / DEG);
+    ctx.save();
+    ctx.setLineDash([3, 4]); ctx.lineWidth = 1; ctx.strokeStyle = C.ghost;
+    line(ctx, mx, my, mx, Y(-26));
+    ctx.restore();
+    moonGlyph(ctx, mx, my, 9, state.phase);
+    const side = mx > w * .7 ? 'right' : 'left';
+    text(ctx, `moon: ${phaseName(state.phase)}`, mx + (side === 'left' ? 14 : -14), my - 10,
+      { font: handS, color: C['moon-ink'], align: side === 'left' ? 'left' : 'right' });
+  }
+
+  // ---------- 2. looking east at moonrise ----------
+  function drawEast() {
+    const { ctx, w, h } = cv.east;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const x0 = 8, x1 = w - 8, y0 = 10, y1 = h - 10;
+    const TOP = 8, BOT = -27;
+    const perDeg = (y1 - y0) / (TOP - BOT);
+    const PY = a => y0 + (TOP - a) * perDeg;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const handB = `600 ${small ? 19 : 21}px ${HAND}`;
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+
+    const m = body(state.d, state.phase, state.lat);
+    ctx.fillStyle = C.sky; ctx.fillRect(x0, y0, x1 - x0, PY(0) - y0);
+    ctx.fillStyle = C.ground; ctx.fillRect(x0, PY(0), x1 - x0, y1 - PY(0));
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25;
+    line(ctx, x0, PY(0), x1, PY(0));
+
+    if (m.rise === null) {
+      text(ctx, m.H0 === null && m.up === 24 ? 'the moon never sets today' : 'the moon never rises today',
+        (x0 + x1) / 2, PY(-4), { font: handB, color: C.muted, align: 'center', base: 'middle', halo: false });
+      return;
+    }
+
+    const az0 = altaz(state.lat, m.dec, -m.H0).az;
+    const dAz = az => ((az - az0 + 540) % 360) - 180;
+
+    // next three nights at the same clock time
+    const nights = [];
+    for (let k = 1; k <= 3; k++) {
+      const b = body(state.d + k, state.phase + SYN * k, state.lat);
+      const p = altaz(state.lat, b.dec, hourAngle(m.rise, b.ras, b.ram));
+      let cum = 0, ok = true;
+      for (let j = 0; j < k; j++) {
+        const dl = nightDelay(state.d + j, state.phase + SYN * j, state.lat);
+        if (dl === null) { ok = false; break; }
+        cum += dl;
+      }
+      nights.push({ alt: p.alt, dAz: dAz(p.az), cum, ok });
+    }
+    const lean = nights.length && nights[0].dAz < 0 ? -1 : 1;
+    const need = Math.max(...nights.map(n => Math.abs(n.dAz))) * perDeg + 26;
+    const cxm = lean > 0 ? Math.max(x0 + 24, x1 - 20 - need) : Math.min(x1 - 24, x0 + 20 + need);
+    const PX = deg => cxm + deg * perDeg;
+
+    // the ecliptic through the moon's rising point
+    const ec = [];
+    for (let s = -25; s <= 75; s += 1) {
+      const lam = m.lm + s * DEG;
+      const p = altaz(state.lat, declOf(lam), hourAngle(m.rise, m.ras, raOf(lam)));
+      ec.push([PX(dAz(p.az)), PY(p.alt)]);
+    }
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x0, y0, x1 - x0, y1 - y0); ctx.clip();
+    poly(ctx, ec); ctx.lineWidth = 2; ctx.strokeStyle = C.ghost; ctx.setLineDash([6, 5]); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // the moons
+    nights.forEach(n => {
+      const x = PX(n.dAz), y = PY(n.alt);
+      moonGlyph(ctx, x, y, small ? 9 : 11, state.phase);
+      if (n.ok && x > x0 + 6 && x < x1 - 6 && y < y1 - 22) {
+        ctx.font = handS;
+        const str = `+${Math.round(n.cum)} min`;
+        const half = ctx.measureText(str).width / 2;
+        text(ctx, str, clamp(x, x0 + 4 + half, x1 - 4 - half), y + (small ? 20 : 24),
+          { font: handS, color: C.muted, align: 'center', halo: 'ground' });
+      }
+    });
+    moonGlyph(ctx, PX(0), PY(0), small ? 11 : 13, state.phase);
+    ctx.restore();
+
+    // the ecliptic's angle to the horizon
+    const ang = eclipticAngle(state.d, state.phase, state.lat);
+    if (ang !== null) {
+      const rad = Math.min(46, perDeg * 6);
+      const dir = lean > 0 ? 1 : -1;
+      ctx.save();
+      ctx.strokeStyle = C['moon-ink']; ctx.lineWidth = 1.25;
+      ctx.beginPath();
+      if (dir > 0) ctx.arc(PX(0), PY(0), rad, 0, ang * DEG);
+      else ctx.arc(PX(0), PY(0), rad, Math.PI - ang * DEG, Math.PI);
+      ctx.stroke();
+      ctx.restore();
+      const mid = dir > 0 ? ang * DEG / 2 : Math.PI - ang * DEG / 2;
+      text(ctx, fmtDeg(ang, 0), PX(0) + Math.cos(mid) * (rad + 16), PY(0) + Math.sin(mid) * (rad + 16),
+        { font: handB, color: C['moon-ink'], align: 'center', base: 'middle', halo: 'ground' });
+    }
+    text(ctx, 'the ecliptic', x1 - 4, y0 + 16, { font: uiFont, color: C.muted, align: 'right', halo: 'sky' });
+    text(ctx, `moonrise ${fmtClock(m.rise)}`, x0 + 4, PY(0) - 8, { font: handS, color: C.horizon, halo: 'sky' });
+  }
+
+  // ---------- 3. tonight's arc ----------
+  function drawArc() {
+    const { ctx, w, h } = cv.arc;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const x0 = 34, x1 = w - 10, y0 = 14, y1 = h - 26;
+    const X = t => x0 + t / 24 * (x1 - x0);
+    const Y = a => y0 + (90 - a) / 180 * (y1 - y0);
+    const font = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+
+    const m = body(state.d, state.phase, state.lat);
+    const s = body(state.d, 0, state.lat); // the sun shares the new moon's longitude
+
+    // night shading, from the sun's own rise and set
+    ctx.fillStyle = C.sky; ctx.fillRect(x0, y0, x1 - x0, Y(0) - y0);
+    if (s.H0 !== null) {
+      ctx.fillStyle = C.night;
+      ctx.fillRect(x0, y0, X(s.rise) - x0, Y(0) - y0);
+      ctx.fillRect(X(s.set), y0, x1 - X(s.set), Y(0) - y0);
+    } else if (s.up === 0) { ctx.fillStyle = C.night; ctx.fillRect(x0, y0, x1 - x0, Y(0) - y0); }
+    ctx.fillStyle = C.ground; ctx.fillRect(x0, Y(0), x1 - x0, y1 - Y(0));
+
+    ctx.lineWidth = 1;
+    [-60, -30, 30, 60].forEach(a => { ctx.strokeStyle = C.rule; line(ctx, x0, Y(a), x1, Y(a)); });
+    [6, 12, 18].forEach(t => { ctx.strokeStyle = C.rule; line(ctx, X(t), y0, X(t), y1); });
+    [90, 60, 30, 0, -30, -60, -90].forEach(a =>
+      text(ctx, fmtDeg(a, 0), x0 - 6, Y(a), { font, color: C.muted, align: 'right', base: 'middle', halo: false }));
+    [[0, '00:00', 'left'], [6, '06:00', 'center'], [12, '12:00', 'center'], [18, '18:00', 'center'], [24, '24:00', 'right']]
+      .forEach(([t, str, a]) => text(ctx, str, X(t), h - 8, { font, color: C.muted, align: a, halo: false }));
+
+    const curve = b => {
+      const out = [];
+      for (let i = 0; i <= 192; i++) {
+        const t = 24 * i / 192;
+        out.push([X(t), Y(altaz(state.lat, b.dec, hourAngle(t, b.ras, b.ram)).alt)]);
+      }
+      return out;
+    };
+    // the sun, faint
+    ctx.save(); ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5; ctx.strokeStyle = C.sun; ctx.globalAlpha = .65;
+    poly(ctx, curve(s)); ctx.stroke(); ctx.restore();
+
+    // the moon, with its daylight-side area filled
+    const mc = curve(m);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x0, y0, x1 - x0, Y(0) - y0); ctx.clip();
+    poly(ctx, mc); ctx.lineTo(X(24), Y(0)); ctx.lineTo(X(0), Y(0)); ctx.closePath();
+    ctx.fillStyle = C['moon-fill']; ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25; line(ctx, x0, Y(0), x1, Y(0));
+    poly(ctx, mc); ctx.lineWidth = 1.5; ctx.strokeStyle = C.faint; ctx.stroke();
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x0 - 8, y0 - 8, x1 - x0 + 16, Y(0) - y0 + 8); ctx.clip();
+    poly(ctx, mc); ctx.lineWidth = 3.25; ctx.strokeStyle = C.moon; ctx.stroke();
+    ctx.restore();
+
+    // the moon at its highest
+    const tHigh = ((m.dRA / 15) + 12) % 24;
+    const yHigh = Y(altaz(state.lat, m.dec, hourAngle(tHigh, m.ras, m.ram)).alt);
+    moonGlyph(ctx, X(tHigh), yHigh, small ? 11 : 13, state.phase);
+
+    if (m.rise !== null) {
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+      [m.rise, m.set].forEach(t => line(ctx, X(t) - 4, Y(0) + 7, X(t) + 4, Y(0) - 7));
+      text(ctx, `rise ${fmtClock(m.rise)}`, X(m.rise), Y(0) + 22, { font: handS, color: C.muted, align: 'center', halo: 'ground' });
+      text(ctx, `set ${fmtClock(m.set)}`, X(m.set), Y(0) + 22, { font: handS, color: C.muted, align: 'center', halo: 'ground' });
+    } else {
+      text(ctx, m.up === 24 ? 'up all day and night' : 'never above the horizon', X(12), Y(-40),
+        { font: handS, color: C.muted, align: 'center', halo: 'ground' });
+    }
+    text(ctx, 'sun', X(12), Y(s.high) - 10, { font: handS, color: C['sun-ink'], align: 'center', halo: 'sky' });
+  }
+
+  // ---------- 4. eight nights running ----------
+  function drawLadder() {
+    const { ctx, w, h } = cv.ladder;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const N = 8;
+    const x0 = small ? 56 : 66, x1 = w - 12, y0 = 22, y1 = h - 18;
+    const font = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const SPAN = 9;
+
+    const rows = [];
+    let prev = null;
+    for (let k = 0; k < N; k++) {
+      const b = body(state.d + k, state.phase + SYN * k, state.lat);
+      let t = b.rise;
+      if (t !== null && prev !== null) { while (t < prev) t += 24; }
+      if (t !== null) prev = t;
+      rows.push({ d: state.d + k, P: state.phase + SYN * k, t, clock: b.rise });
+    }
+    const first = rows.find(r => r.t !== null);
+    const T0 = (first ? first.t : 18) - 0.5;
+    const X = t => x0 + (t - T0) / SPAN * (x1 - x0);
+    const Y = k => y0 + (k + .5) / N * (y1 - y0);
+
+    for (let t = Math.ceil(T0); t <= T0 + SPAN; t++) {
+      if ((t - Math.ceil(T0)) % 2) continue;
+      ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+      line(ctx, X(t), y0, X(t), y1);
+      text(ctx, fmtClock(t), X(t), h - 5, { font, color: C.muted, align: 'center', halo: false });
+    }
+
+    const drawn = rows.filter(r => r.t !== null && X(r.t) <= x1);
+    if (drawn.length > 1) {
+      ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+      poly(ctx, drawn.map(r => [X(r.t), Y(rows.indexOf(r))]));
+      ctx.stroke(); ctx.restore();
+    }
+    rows.forEach((r, k) => {
+      text(ctx, fmtDate(r.d, true), x0 - 8, Y(k), { font, color: C.muted, align: 'right', base: 'middle', halo: false });
+      if (r.t === null) {
+        text(ctx, 'no rise', x0 + 8, Y(k), { font, color: C.muted, base: 'middle', halo: false });
+        return;
+      }
+      if (X(r.t) > x1) {
+        text(ctx, `${fmtClock(r.clock)} →`, x1 - 2, Y(k), { font, color: C.muted, align: 'right', base: 'middle', halo: false });
+        return;
+      }
+      moonGlyph(ctx, X(r.t), Y(k), small ? 8 : 9, r.P);
+      text(ctx, fmtClock(r.clock), X(r.t) + (small ? 12 : 14), Y(k) + 1, { font, color: C.ink, base: 'middle', halo: false });
+    });
+    text(ctx, 'moonrise', x0, y0 - 8, { font: handS, color: C['moon-ink'], halo: false });
+  }
+
+  // ---------- 5. the delay through the year ----------
+  const DELAY_PAD = { L: 40, R: 10, T: 14, B: 22 };
+  function drawDelay() {
+    const { ctx, w, h } = cv.delay;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const x0 = DELAY_PAD.L, x1 = w - DELAY_PAD.R, y0 = DELAY_PAD.T, y1 = h - DELAY_PAD.B;
+    const X = d => x0 + d / 365 * (x1 - x0);
+    const LO = -30, HI = 110;
+    const Y = m => y1 - (m - LO) / (HI - LO) * (y1 - y0);
+    const font = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+
+    ctx.fillStyle = C.ground; ctx.fillRect(x0, Y(0), x1 - x0, y1 - Y(0));
+    ctx.lineWidth = 1;
+    [0, 30, 60, 90].forEach(v => {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(v), x1, Y(v));
+      text(ctx, String(v), x0 - 6, Y(v), { font, color: C.muted, align: 'right', base: 'middle', halo: false });
+    });
+    text(ctx, 'minutes later', x1 - 4, y0 + 12, { font, color: C.muted, align: 'right', halo: false });
+    MSTART.forEach((s, i) => text(ctx, MONTHS[i][0], X(s + MDAYS[i] / 2), h - 6, { font, color: C.muted, align: 'center', halo: false }));
+
+    let run = [], lowest = 9e9;
+    const flush = () => { if (run.length > 1) { poly(ctx, run); ctx.lineWidth = 2.5; ctx.strokeStyle = C.moon; ctx.lineJoin = 'round'; ctx.stroke(); } run = []; };
+    for (let d = 0; d <= 365; d++) {
+      const v = nightDelay(d, state.phase, state.lat);
+      if (v === null) flush(); else { lowest = Math.min(lowest, v); run.push([X(d), Y(clamp(v, LO, HI))]); }
+    }
+    flush();
+
+    const cur = nightDelay(state.d, state.phase, state.lat);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(state.d), y0, X(state.d), y1);
+    if (cur !== null) {
+      ctx.fillStyle = C['moon-lit'];
+      ctx.beginPath(); ctx.arc(X(state.d), Y(clamp(cur, LO, HI)), 5.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.moon; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    if (lowest < 0) text(ctx, 'below this line it rises earlier', x1 - 4, Y(0) + 16,
+      { font, color: C.muted, align: 'right', halo: 'ground' });
+    text(ctx, `${phaseName(state.phase)} moons`, x0 + 6, y0 + 14, { font: handS, color: C['moon-ink'], halo: false });
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { date: $('date'), phase: $('phase'), lat: $('lat') };
+  const chipsLat = [...document.querySelectorAll('[data-lat]')];
+  const chipsPhase = [...document.querySelectorAll('[data-phase]')];
+  const chipsDay = [...document.querySelectorAll('[data-day]')];
+  const dayPreset = v => v === 'today' ? TODAY : Number(v);
+
+  function updateText() {
+    const m = body(state.d, state.phase, state.lat);
+    const delay = nightDelay(state.d, state.phase, state.lat);
+    const ang = eclipticAngle(state.d, state.phase, state.lat);
+    $('rDelay').textContent = delay === null ? '—' : (delay < 0 ? `${Math.round(-delay)} min earlier` : `${Math.round(delay)} min`);
+    $('rRise').textContent = m.rise === null ? (m.up === 24 ? 'never sets' : 'never rises') : `${fmtClock(m.rise)} / ${fmtClock(m.set)}`;
+    $('rDec').textContent = fmtDeg(m.dec / DEG);
+    $('rHigh').textContent = fmtDeg(m.high);
+    $('rUp').textContent = m.up === 0 ? 'not at all' : fmtDur(m.up);
+    $('rAng').textContent = ang === null ? '—' : fmtDeg(ang, 0);
+    $('phaseOut').textContent = `${phaseName(state.phase)}, ${Math.round(state.phase)}°`;
+    $('dateOut').textContent = fmtDate(state.d);
+    $('latOut').textContent = fmtLat(state.lat);
+    const md = sunDateFor(m.lm);
+    $('rSum').textContent = `A ${phaseName(state.phase)} moon on ${fmtDate(state.d)} rides where the sun rides on ${fmtDate(md)}.`;
+    const where = `a ${phaseName(state.phase)} moon on ${fmtDate(state.d)} at ${fmtLat(state.lat)}`;
+    els.seasons.setAttribute('aria-label', `Seasons curve: ${where} sits at declination ${fmtDeg(m.dec / DEG)}.`);
+    els.east.setAttribute('aria-label', `The eastern horizon at moonrise for ${where}; the ecliptic meets the horizon at ${ang === null ? 'no crossing' : fmtDeg(ang, 0)}.`);
+    els.arc.setAttribute('aria-label', `Altitude through the day for ${where}, highest ${fmtDeg(m.high)}.`);
+    els.ladder.setAttribute('aria-label', `Moonrise on eight successive nights from ${fmtDate(state.d)}.`);
+    els.delay.setAttribute('aria-label', `Nightly moonrise delay through the year for ${phaseName(state.phase)} moons at ${fmtLat(state.lat)}.`);
+  }
+
+  function syncInputs() {
+    if (Number(inputs.date.value) !== Math.floor(state.d)) inputs.date.value = Math.floor(state.d);
+    if (Number(inputs.phase.value) !== Math.round(state.phase)) inputs.phase.value = Math.round(state.phase);
+    if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    chipsLat.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - Number(b.dataset.lat)) < 0.05));
+    chipsPhase.forEach(b => b.setAttribute('aria-pressed', Math.abs((((state.phase - Number(b.dataset.phase)) % 360) + 540) % 360 - 180) < 3));
+    chipsDay.forEach(b => b.setAttribute('aria-pressed', Math.floor(state.d) === dayPreset(b.dataset.day)));
+  }
+
+  let raf = 0, last = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const playing = state.playNights || state.playYear;
+    const dt = playing && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.playNights) { state.d = (state.d + dt * 2) % 365; state.phase = (state.phase + dt * 2 * SYN) % 360; }
+    if (state.playYear) state.d = (state.d + dt * 20) % 365;
+    last = playing ? ts : 0;
+    syncInputs(); updateText();
+    drawSeasons(); drawEast(); drawArc(); drawLadder(); drawDelay();
+    if (playing) render();
+  }
+  function setPlay(key, on) {
+    if (state[key] === on) return;
+    state[key] = on;
+    const b = $(key);
+    b.setAttribute('aria-pressed', on);
+    b.textContent = (on ? 'Pause ' : 'Play ') + (key === 'playNights' ? 'nights' : 'year');
+    if (on) setPlay(key === 'playNights' ? 'playYear' : 'playNights', false);
+    render();
+  }
+  $('playNights').addEventListener('click', () => setPlay('playNights', !state.playNights));
+  $('playYear').addEventListener('click', () => setPlay('playYear', !state.playYear));
+
+  inputs.date.addEventListener('input', e => { setPlay('playNights', false); setPlay('playYear', false); state.d = Number(e.target.value); render(); });
+  inputs.phase.addEventListener('input', e => { setPlay('playNights', false); state.phase = Number(e.target.value); render(); });
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
+  chipsLat.forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); render(); }));
+  chipsPhase.forEach(b => b.addEventListener('click', () => { setPlay('playNights', false); state.phase = Number(b.dataset.phase); render(); }));
+  chipsDay.forEach(b => b.addEventListener('click', () => { setPlay('playNights', false); setPlay('playYear', false); state.d = dayPreset(b.dataset.day); render(); }));
+
+  (el => {
+    let start = null, active = false;
+    const at = e => {
+      const r = el.getBoundingClientRect();
+      state.d = clamp((e.clientX - r.left - DELAY_PAD.L) / (r.width - DELAY_PAD.L - DELAY_PAD.R), 0, 1) * 364.99;
+      render();
+    };
+    const stop = () => { setPlay('playNights', false); setPlay('playYear', false); };
+    el.addEventListener('pointerdown', e => {
+      start = { x: e.clientX, y: e.clientY };
+      active = e.pointerType === 'mouse';
+      if (active) { stop(); try { el.setPointerCapture(e.pointerId); } catch (_) {} at(e); }
+    });
+    el.addEventListener('pointermove', e => {
+      if (!start) return;
+      if (!active) {
+        const dx = e.clientX - start.x, dy = e.clientY - start.y;
+        if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+          active = true; stop();
+          try { el.setPointerCapture(e.pointerId); } catch (_) {}
+        } else return;
+      }
+      at(e);
+    });
+    el.addEventListener('pointerup', e => { if (start && !active) { stop(); at(e); } start = null; active = false; });
+    el.addEventListener('pointercancel', () => { start = null; active = false; });
+  })(els.delay);
+
+  readColors();
+  const ro = new ResizeObserver(() => {
+    Object.values(cv).forEach(fit);
+    drawSeasons(); drawEast(); drawArc(); drawLadder(); drawDelay();
+  });
+  Object.values(els).forEach(el => ro.observe(el));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>

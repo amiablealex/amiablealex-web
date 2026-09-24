@@ -1,0 +1,13 @@
+{#- Spliced in before </head> of an explainer. Link-preview tags the file has no
+    reason to carry itself, plus the stylesheet that self-hosts its fonts and
+    styles the injected chrome. -#}
+<meta name="description" content="{{ explainer.summary }}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="{{ site.name }}">
+<meta property="og:title" content="{{ explainer.title }}">
+<meta property="og:description" content="{{ explainer.summary }}">
+<meta property="og:url" content="{{ site.url }}{{ request.path }}">
+<meta property="og:image" content="{{ site.url }}{{ url_for('static', filename='img/og-image.png') }}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="{{ static_url('favicon.svg') }}" type="image/svg+xml">
+<link rel="stylesheet" href="{{ static_url('css/explainer.css') }}">

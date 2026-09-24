@@ -1,0 +1,14 @@
+{#- Spliced in directly after <body> of an explainer. Deliberately small: the
+    page below it is the thing, this is just a way back. -#}
+<div class="ex-chrome">
+  <div class="ex-chrome-inner">
+    <a class="ex-chrome-back" href="{{ url_for('explainers') }}">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/>
+      </svg>
+      Explainers
+    </a>
+    <a class="ex-chrome-mark" href="{{ url_for('home') }}">amiable<span>alex</span></a>
+  </div>
+</div>

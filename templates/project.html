@@ -17,13 +17,18 @@
     <h1 class="project-title">{{ project.title }}</h1>
     {% if project.summary %}<p class="project-summary">{{ project.summary }}</p>{% endif %}
 
-    {% if project.links or has_guide %}
+    {% if project.links or has_guide or related_explainers %}
     <div class="project-links">
       {% if has_guide %}
       <a class="btn btn-primary" href="{{ url_for('project_guide', slug=project.slug) }}">
         Assembly guide {{ icon('arrow-right', 16) }}
       </a>
       {% endif %}
+      {% for e in related_explainers %}
+      <a class="btn btn-secondary" href="{{ url_for('explainer_detail', slug=e.slug) }}">
+        {{ e.title }} {{ icon('arrow-right', 16) }}
+      </a>
+      {% endfor %}
       {% for link in project.links %}
       <a class="btn btn-secondary" href="{{ link.url }}" target="_blank" rel="noopener">
         {{ icon(link.icon or 'external-link', 16) }} {{ link.label }}

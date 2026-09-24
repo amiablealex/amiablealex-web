@@ -19,12 +19,18 @@ amiablealex/
 │   ├── kitsniff.md
 │   ├── f1-predictions.md
 │   └── sunrise-clock.md
+├── content/guides/         # multi-step assembly guides — see GUIDES.md
+├── content/explainers/     # self-contained interactive pages — see EXPLAINERS.md
 ├── templates/              # Jinja templates
 │   ├── base.html  index.html  projects.html  project.html
+│   ├── explainers.html  _explainer_head.html  _explainer_chrome.html
+│   ├── _explainer_nav.html
 │   ├── about.html  contact.html  404.html  _macros.html
 └── static/
     ├── css/style.css       # all styling
-    ├── fonts/              # self-hosted Hanken Grotesk + Caveat (woff2)
+    ├── css/explainer.css   # explainer pages only (fonts + injected chrome)
+    ├── fonts/              # self-hosted Hanken Grotesk, Caveat,
+    │                       #   Atkinson Hyperlegible (woff2)
     ├── favicon.svg
     └── img/
         ├── og-image.png    # link-preview image (replace any time)
@@ -82,6 +88,14 @@ Search the project for `[` to find everything that's yours to write.
 `blue`, `lavender`, `mauve`, `gray`.
 **Link icons (`icon:`):** `external-link`, `brand-github`, `brand-linkedin`,
 `printer`, `file-text`, `mail`, `arrow-right`, `arrow-left`.
+
+---
+
+## Adding an explainer
+
+An interactive page authored elsewhere, dropped in whole. Two files in
+`content/explainers/` — the `.html` and a `.md` of metadata beside it — and it
+appears on `/explainers`, grouped by topic. Full details in **EXPLAINERS.md**.
 
 ---
 
@@ -208,7 +222,8 @@ sudo systemctl restart amiablealex
 ## Notes
 
 - **Fonts are bundled** (`static/fonts/`) and served locally — no Google Fonts
-  request at runtime.
+  request at runtime. This holds for explainers too: the wrapper strips their
+  Google Fonts `<link>` and `explainer.css` declares the same families locally.
 - **No browser storage / no database** — content lives entirely in the
   markdown files, which is also your backup (it's all in git).
 - **Mobile**: the navigation never hides — it wraps below the wordmark on

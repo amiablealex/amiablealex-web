@@ -9,6 +9,9 @@ there is no database and no code to touch. See README.md.
 Multi-step assembly guides live in content/guides/<slug>/ (one .md file per
 step). See GUIDES.md.
 
+Interactive explainers live in content/explainers/ as a self-contained .html
+file plus a .md file of metadata beside it. See EXPLAINERS.md.
+
 Run locally:      flask --app app run --debug
 Run with gunicorn: gunicorn app:app --bind 127.0.0.1:8005
 """
@@ -43,6 +46,10 @@ SITE = {
 BASE_DIR = Path(__file__).resolve().parent
 PROJECTS_DIR = BASE_DIR / "content" / "projects"
 GUIDES_DIR = BASE_DIR / "content" / "guides"
+EXPLAINERS_DIR = BASE_DIR / "content" / "explainers"
+
+# Heading used on /explainers for anything without a `topic:`. [ your wording ]
+EXPLAINERS_UNGROUPED = "One-offs"
 
 # Where guide media lives. Bare image filenames in a guide's markdown resolve
 # against IMG_BASE/<guide-slug>/, and video: shortcodes against VIDEO_BASE.
@@ -258,6 +265,146 @@ def _guide_or_404(slug):
     return project, guide
 
 
+# ---------------------------------------------------------------------------
+# Explainer loading
+#
+# content/explainers/
+#   _topics.md              optional — topic order and topic summaries
+#   sliding-horizon.md      metadata only (frontmatter, no body)
+#   sliding-horizon.html    the self-contained interactive page
+#
+# The .html file is authored elsewhere and dropped in unmodified — it keeps its
+# own <head>, styles and scripts. Nothing edits it; the site header, link-preview
+# tags and self-hosted fonts are spliced in at request time by wrap_explainer().
+# Living under content/ rather than static/ means nginx can't serve the raw file
+# straight past Flask, so there's exactly one URL for each explainer.
+# ---------------------------------------------------------------------------
+def load_explainers():
+    """Every explainer with both a .md and a matching .html, ordered within
+    topic by `order:` (lower first), then by title."""
+    items = []
+    if not EXPLAINERS_DIR.exists():
+        return items
+
+    for path in sorted(EXPLAINERS_DIR.glob("*.md")):
+        if path.name.startswith("_"):
+            continue
+        meta = frontmatter.load(path).metadata
+        slug = str(meta.get("slug") or path.stem)
+        # Metadata without a page yet is skipped rather than 500-ing.
+        if not (EXPLAINERS_DIR / f"{slug}.html").exists():
+            continue
+        items.append(
+            {
+                "slug": slug,
+                "title": meta.get("title", slug),
+                "topic": str(meta.get("topic") or ""),
+                "order": meta.get("order"),
+                "summary": meta.get("summary", ""),
+                # Slugs of projects that should show a link to this explainer.
+                "projects": meta.get("projects") or [],
+            }
+        )
+
+    items.sort(key=lambda e: (
+        e["order"] if e["order"] is not None else float("inf"),
+        e["title"],
+    ))
+    return items
+
+
+def load_topics():
+    """The declared topics from _topics.md, in the order they're listed."""
+    path = EXPLAINERS_DIR / "_topics.md"
+    if not path.exists():
+        return []
+    topics = frontmatter.load(path).metadata.get("topics") or []
+    return [t for t in topics if isinstance(t, dict) and t.get("name")]
+
+
+def grouped_explainers():
+    """Explainers bucketed by topic: declared topics first in their declared
+    order, then any undeclared topic alphabetically, then the untopiced."""
+    declared = load_topics()
+    position = {t["name"]: i for i, t in enumerate(declared)}
+    summary_for = {t["name"]: t.get("summary", "") for t in declared}
+
+    buckets = {}
+    for item in load_explainers():
+        buckets.setdefault(item["topic"], []).append(item)
+
+    names = sorted(
+        (n for n in buckets if n),
+        key=lambda n: (position.get(n, len(position)), n),
+    )
+
+    groups = [
+        {
+            "name": name,
+            "summary": summary_for.get(name, ""),
+            "declared": name in position,
+            "explainers": buckets[name],
+        }
+        for name in names
+    ]
+    if "" in buckets:
+        groups.append(
+            {
+                "name": EXPLAINERS_UNGROUPED,
+                "summary": "",
+                "declared": False,
+                "explainers": buckets[""],
+            }
+        )
+    return groups
+
+
+def explainers_for_project(slug):
+    return [e for e in load_explainers() if slug in e["projects"]]
+
+
+# ---------------------------------------------------------------------------
+# Explainer page wrapping
+#
+# Three splices into the file as authored, none of which touch it on disk:
+#   1. data-theme="light" on <html>  — pins the site's light palette, leaving
+#      the file's own dark mode intact when it's opened standalone
+#   2. before </head>  — link-preview tags, favicon, and explainer.css, which
+#      self-hosts the fonts the file would otherwise pull from Google
+#   3. after <body> and before </body>  — the back link and the topic nav
+#
+# The injected chrome styles itself from the explainer's own CSS variables, so
+# any file defining --ink, --muted, --rule and --sun-ink is compatible as-is.
+# ---------------------------------------------------------------------------
+_WEBFONT_LINK_RE = re.compile(
+    r"[ \t]*<link\b[^>]*fonts\.(?:googleapis|gstatic)\.com[^>]*>\s*", re.I
+)
+_HTML_TAG_RE = re.compile(r"<html\b", re.I)
+_BODY_OPEN_RE = re.compile(r"<body\b[^>]*>", re.I)
+
+
+def wrap_explainer(explainer, prev_item=None, next_item=None):
+    path = EXPLAINERS_DIR / f"{explainer['slug']}.html"
+    html = path.read_text(encoding="utf-8")
+
+    html = _WEBFONT_LINK_RE.sub("", html)
+    html = _HTML_TAG_RE.sub('<html data-theme="light"', html, count=1)
+
+    head = render_template("_explainer_head.html", explainer=explainer)
+    top = render_template("_explainer_chrome.html", explainer=explainer)
+    foot = render_template(
+        "_explainer_nav.html",
+        explainer=explainer,
+        prev_item=prev_item,
+        next_item=next_item,
+    )
+
+    html = html.replace("</head>", f"{head}\n</head>", 1)
+    html = _BODY_OPEN_RE.sub(lambda m: f"{m.group(0)}\n{top}", html, count=1)
+    html = html.replace("</body>", f"{foot}\n</body>", 1)
+    return html
+
+
 @app.context_processor
 def inject_globals():
     return {"site": SITE, "current_year": datetime.now().year}
@@ -311,6 +458,7 @@ def project_detail(slug):
         body_html=body_html,
         toc_html=toc_html,
         has_guide=has_guide,
+        related_explainers=explainers_for_project(slug),
     )
 
 
@@ -344,6 +492,24 @@ def project_guide_all(slug):
     return render_template(
         "guide_all.html", project=project, guide=guide, rendered=rendered
     )
+
+
+@app.route("/explainers")
+def explainers():
+    return render_template("explainers.html", groups=grouped_explainers())
+
+
+@app.route("/explainers/<slug>")
+def explainer_detail(slug):
+    for group in grouped_explainers():
+        for i, item in enumerate(group["explainers"]):
+            if item["slug"] == slug:
+                return wrap_explainer(
+                    item,
+                    prev_item=group["explainers"][i - 1] if i > 0 else None,
+                    next_item=group["explainers"][i + 1] if i + 1 < len(group["explainers"]) else None,
+                )
+    abort(404)
 
 
 @app.route("/about")

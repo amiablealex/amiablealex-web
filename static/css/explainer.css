@@ -1,0 +1,132 @@
+/* ===========================================================================
+   amiablealex.com  —  explainer pages
+   Loaded ONLY on /explainers/<slug>, spliced into the head of a self-contained
+   explainer file. Two jobs:
+
+     1. Self-host the fonts the file asks for by name, so the Google Fonts
+        <link> can be stripped and the page still renders exactly as authored.
+     2. Style the injected back link and topic nav.
+
+   Everything here is scoped to .ex-chrome / .ex-next so nothing leaks into the
+   explainer's own styles. Colours come from the explainer's own custom
+   properties, with fallbacks, so any file that defines --ink, --muted, --rule
+   and --sun-ink gets chrome that matches it — light or dark.
+   =========================================================================== */
+
+/* ---- Fonts (self-hosted; family names match what the explainers ask for) -- */
+@font-face {
+  font-family: 'Atkinson Hyperlegible'; font-style: normal; font-weight: 400;
+  font-display: swap; src: url('../fonts/AtkinsonHyperlegible-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible'; font-style: normal; font-weight: 700;
+  font-display: swap; src: url('../fonts/AtkinsonHyperlegible-Bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible'; font-style: italic; font-weight: 400;
+  font-display: swap; src: url('../fonts/AtkinsonHyperlegible-Italic.woff2') format('woff2');
+}
+/* Caveat is already in static/fonts for the main site; redeclared because
+   style.css is not loaded on these pages. */
+@font-face {
+  font-family: 'Caveat'; font-style: normal; font-weight: 500;
+  font-display: swap; src: url('../fonts/Caveat-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Caveat'; font-style: normal; font-weight: 600;
+  font-display: swap; src: url('../fonts/Caveat-SemiBold.woff2') format('woff2');
+}
+
+/* ---- Back link (injected after <body>) ----------------------------------- */
+.ex-chrome {
+  border-bottom: 1px solid var(--rule, rgba(60, 55, 45, 0.12));
+}
+.ex-chrome-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ex-chrome a { text-decoration: none; }
+.ex-chrome-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.92rem;
+  color: var(--muted, #6B6862);
+  transition: color .15s ease;
+}
+.ex-chrome-back:hover,
+.ex-chrome-back:focus-visible { color: var(--sun-ink, var(--ink, #2B2B2B)); }
+.ex-chrome-back svg { flex: none; }
+.ex-chrome-mark {
+  font-family: 'Caveat', 'Segoe Script', cursive;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--ink, #2B2B2B);
+}
+.ex-chrome-mark span { color: var(--sun-ink, var(--muted, #6B6862)); }
+
+/* ---- Topic nav (injected before </body>) --------------------------------- */
+.ex-next {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 18px 48px;
+}
+.ex-next-inner {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .ex-next-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* A lone "next" sits in the right-hand column, as it reads. */
+  .ex-next-fwd:only-child { grid-column: 2; }
+}
+.ex-next-link {
+  display: block;
+  padding: 14px 16px;
+  border: 1px solid var(--rule, rgba(60, 55, 45, 0.12));
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.ex-next-link:hover,
+.ex-next-link:focus-visible {
+  border-color: var(--sun, var(--muted, #6B6862));
+  transform: translateY(-1px);
+}
+.ex-next-fwd { text-align: right; }
+.ex-next-label {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, #6B6862);
+  margin-bottom: 3px;
+}
+.ex-next-title {
+  display: block;
+  font-weight: 700;
+  color: var(--ink, #2B2B2B);
+}
+.ex-next-all {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 0.92rem;
+}
+.ex-next-all a {
+  color: var(--muted, #6B6862);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--rule, rgba(60, 55, 45, 0.12));
+}
+.ex-next-all a:hover { color: var(--sun-ink, var(--ink, #2B2B2B)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ex-next-link:hover, .ex-next-link:focus-visible { transform: none; }
+}

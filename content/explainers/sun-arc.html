@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The sun's real arc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3;
+  --surface: #E1E7EA;
+  --ink: #1C2932;
+  --muted: #55636C;
+  --rule: #C4CED4;
+  --sun: #B87200;
+  --sun-ink: #8A5600;
+  --sun-bright: #EBA21B;
+  --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .22);
+  --sun-glow: rgba(235, 162, 27, .32);
+  --sky: rgba(104, 146, 184, .13);
+  --ground: rgba(98, 112, 64, .16);
+  --horizon: #4B5731;
+  --wave-night: #9AA6AE;
+  --ghost: #7A8892;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923;
+    --surface: #18232F;
+    --ink: #E1E7EB;
+    --muted: #95A3AD;
+    --rule: #2B3946;
+    --sun: #F2B544;
+    --sun-ink: #F6C467;
+    --sun-bright: #F7C35A;
+    --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .18);
+    --sun-glow: rgba(242, 181, 68, .28);
+    --sky: rgba(120, 164, 210, .12);
+    --ground: rgba(122, 142, 82, .15);
+    --horizon: #A9B97C;
+    --wave-night: #4E5D69;
+    --ghost: #72838F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923;
+  --surface: #18232F;
+  --ink: #E1E7EB;
+  --muted: #95A3AD;
+  --rule: #2B3946;
+  --sun: #F2B544;
+  --sun-ink: #F6C467;
+  --sun-bright: #F7C35A;
+  --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .18);
+  --sun-glow: rgba(242, 181, 68, .28);
+  --sky: rgba(120, 164, 210, .12);
+  --ground: rgba(122, 142, 82, .15);
+  --horizon: #A9B97C;
+  --wave-night: #4E5D69;
+  --ghost: #72838F;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600;
+  font-size: clamp(2.6rem, 9vw, 3.6rem);
+  line-height: .95;
+  margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#dome { aspect-ratio: 3 / 2; cursor: grab; }
+#dome:active { cursor: grabbing; }
+#alt { aspect-ratio: 6 / 5; cursor: ew-resize; }
+@media (min-width: 640px) {
+  #dome { aspect-ratio: 2 / 1; }
+  #alt { aspect-ratio: 16 / 9; }
+}
+.readout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+  margin: 12px 0 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1.5px solid var(--sun);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit;
+  font-size: .86rem;
+  min-height: 34px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.second { margin-top: 26px; }
+.notes { margin-top: 30px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>The sun's real arc</h1>
+    <p class="lede">Same physics, opposite frame. Here the horizon is nailed down and the sun's path is what moves: it swells and flattens with the season, the latitude and the tilt. Drag sideways on the dome to walk around it.</p>
+  </header>
+
+  <figure>
+    <canvas id="dome" role="img" aria-label="Sky dome showing the sun's path"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Daylight</dt><dd id="rLen">–</dd></div>
+    <div><dt>Sunrise / sunset</dt><dd id="rRise">–</dd></div>
+    <div><dt>Rises / sets at</dt><dd id="rAz">–</dd></div>
+    <div><dt>Sun's altitude now</dt><dd id="rAlt">–</dd></div>
+    <div><dt>Sun's bearing now</dt><dd id="rBear">–</dd></div>
+    <div><dt>Highest sun today</dt><dd id="rNoon">–</dd></div>
+  </dl>
+
+  <section class="controls" aria-label="Controls">
+    <div class="play">
+      <button class="btn" id="playDay" aria-pressed="false">Play day</button>
+      <button class="btn" id="playYear" aria-pressed="false">Play year</button>
+    </div>
+
+    <div class="ctl">
+      <label for="time">Time of day <output id="timeOut" for="time"></output></label>
+      <input type="range" id="time" min="0" max="24" step="0.05">
+    </div>
+
+    <div class="ctl">
+      <label for="date">Date <output id="dateOut" for="date"></output></label>
+      <input type="range" id="date" min="0" max="364" step="1">
+      <div class="chips" role="group" aria-label="Date presets">
+        <button class="chip" data-day="today">Today</button>
+        <button class="chip" data-day="78">March equinox</button>
+        <button class="chip" data-day="171">June solstice</button>
+        <button class="chip" data-day="265">September equinox</button>
+        <button class="chip" data-day="354">December solstice</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="lat">Latitude <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="-90" max="90" step="0.1">
+      <div class="chips" role="group" aria-label="Latitude presets">
+        <button class="chip" data-lat="0">Equator</button>
+        <button class="chip" data-lat="53">UK 53° N</button>
+        <button class="chip" data-lat="arctic">Arctic Circle</button>
+        <button class="chip" data-lat="90">North Pole</button>
+        <button class="chip" data-lat="-33.9">Sydney 34° S</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="tilt">Axial tilt <output id="tiltOut" for="tilt"></output></label>
+      <input type="range" id="tilt" min="0" max="90" step="0.1">
+      <div class="chips" role="group" aria-label="Tilt presets">
+        <button class="chip" data-tilt="0">No tilt</button>
+        <button class="chip" data-tilt="23.44">Earth 23.4°</button>
+        <button class="chip" data-tilt="45">45°</button>
+        <button class="chip" data-tilt="82">Uranus 82°</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="elev">Viewing height <output id="elevOut" for="elev"></output></label>
+      <input type="range" id="elev" min="3" max="70" step="1">
+    </div>
+  </section>
+
+  <figure class="second">
+    <h2>Altitude through the day</h2>
+    <p class="hint">Height in real degrees above the horizon. Drag to move the sun.</p>
+    <canvas id="alt" role="img" aria-label="Sun altitude through the day"></canvas>
+  </figure>
+
+  <section class="notes">
+    <h2>What this frame shows</h2>
+    <p>The horizon is fixed at zero degrees, so the arc has to do the moving. Its height at noon is 90° minus the gap between your latitude and the sun's declination, and its width across the sky is the day length. Where your fixed-wave version kept one shape and slid a line through it, this one keeps the line and reshapes the wave, and the two agree exactly on every sunrise and sunset.</p>
+    <p>The dome adds the thing neither flat chart can show: bearing. At an equinox the sun rises due east anywhere on Earth. In a UK June it rises far in the north-east, cuts a long shallow arc across the south and sets in the north-west, which is why summer evenings stretch out. Near the equator the arc stands almost upright, so the sun drops through the horizon quickly and dusk is brief. Push the latitude to the pole and the arc tips over until it is nearly parallel with the horizon, circling all the way round without touching it.</p>
+
+    <h2>Things to try</h2>
+    <p>Play the year at 53° N and watch the arc inflate and deflate while the sunrise point slides along the horizon. Drag the viewing height down to 4° to stand almost on the ground, which is closest to what you actually see. Then set the latitude to 90° and the arc becomes a flat ring, rising and falling over the year rather than over the day.</p>
+
+    <h2>Small print</h2>
+    <p class="small">Bearings run clockwise from north, so 90° is due east. Times are local solar time, with noon when the sun is highest. Sunrise and sunset use the centre of the sun and ignore atmospheric refraction, so real days run a few minutes longer at each end. Dates follow the 2026 calendar and include Earth's slightly elliptical orbit; other tilts keep Earth's orbit. The dome is drawn from outside, as a model rather than a view from your garden, so the sun's arc is never hidden behind you. Your first version, with the fixed wave and the sliding horizon, is <a href="https://claude.ai/artifact/5rKL5R5N7UPPRodequH8pX">still here</a>.</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const DEG = Math.PI / 180;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const MDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const MSTART = [];
+  MDAYS.reduce((acc, n, i) => (MSTART[i] = acc, acc + n), 0);
+
+  const now = new Date();
+  const TODAY = clamp(MSTART[now.getMonth()] + now.getDate() - 1, 0, 364);
+
+  const state = { t: 10, d: TODAY, lat: 53, tilt: 23.44, view: 208, elev: 20, playDay: false, playYear: false };
+
+  // ---------- astronomy ----------
+  function eclLon(d) {
+    const n = 9497 + d;
+    const L = 280.460 + 0.9856474 * n;
+    const g = (357.528 + 0.9856003 * n) * DEG;
+    return (L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * DEG;
+  }
+  function decl(d, tilt) {
+    const s = Math.sin(clamp(tilt, 0, 90) * DEG) * Math.sin(eclLon(d));
+    return clamp(Math.asin(s), -89.99 * DEG, 89.99 * DEG);
+  }
+  const horizonOf = (lat, dec) => -Math.tan(clamp(lat, -89.99, 89.99) * DEG) * Math.tan(dec);
+  const daylight = hy => hy >= 1 ? 0 : hy <= -1 ? 24 : 24 * Math.acos(hy) / Math.PI;
+  // unit vector to the sun: north, east, up
+  function sunVec(lat, dec, t) {
+    const p = lat * DEG, H = (t - 12) * 15 * DEG;
+    return [
+      Math.cos(p) * Math.sin(dec) - Math.sin(p) * Math.cos(dec) * Math.cos(H),
+      -Math.cos(dec) * Math.sin(H),
+      Math.sin(p) * Math.sin(dec) + Math.cos(p) * Math.cos(dec) * Math.cos(H)
+    ];
+  }
+  const altOf = v => Math.asin(clamp(v[2], -1, 1)) / DEG;
+  const azOf = v => (Math.atan2(v[1], v[0]) / DEG + 360) % 360;
+
+  // ---------- formatting ----------
+  const pad = n => String(n).padStart(2, '0');
+  function fmtClock(h) {
+    h = ((h % 24) + 24) % 24;
+    let H = Math.floor(h), M = Math.round((h - H) * 60);
+    if (M === 60) { M = 0; H = (H + 1) % 24; }
+    return pad(H) + ':' + pad(M);
+  }
+  function fmtDur(h) {
+    let H = Math.floor(h), M = Math.round((h - H) * 60);
+    if (M === 60) { H++; M = 0; }
+    return `${H} h ${pad(M)} m`;
+  }
+  function fmtSigned(v, dp) {
+    const r = Number(v.toFixed(dp));
+    return (r < 0 ? '−' : r > 0 ? '+' : '') + Math.abs(r).toFixed(dp);
+  }
+  const fmtLat = l => Math.abs(l) < 0.05 ? '0° (equator)' : `${Math.abs(l).toFixed(1)}° ${l > 0 ? 'N' : 'S'}`;
+  const POINTS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  const compass = a => POINTS[Math.round(((a % 360) + 360) % 360 / 22.5) % 16];
+  const fmtBearing = a => `${Math.round(((a % 360) + 360) % 360)}° ${compass(a)}`;
+  function fmtDate(d, short) {
+    const dd = Math.floor(d);
+    let i = 11;
+    while (MSTART[i] > dd) i--;
+    return `${dd - MSTART[i] + 1} ${short ? MONTHS[i].slice(0, 3) : MONTHS[i]}`;
+  }
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'sun-glow', 'sky', 'ground', 'horizon', 'wave-night', 'ghost'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+
+  const domeEl = $('dome'), altEl = $('alt');
+  const cv = {
+    dome: { el: domeEl, ctx: domeEl.getContext('2d'), w: 0, h: 0 },
+    alt: { el: altEl, ctx: altEl.getContext('2d'), w: 0, h: 0 }
+  };
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo !== false) {
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = C.bg;
+      ctx.strokeText(str, x, y);
+      if (o.halo === 'sky') { ctx.strokeStyle = C.sky; ctx.strokeText(str, x, y); }
+      if (o.halo === 'ground') { ctx.strokeStyle = C.ground; ctx.strokeText(str, x, y); }
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+
+  // ---------- sky dome ----------
+  function drawDome() {
+    const { ctx, w, h } = cv.dome;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const th = state.view * DEG, ps = state.elev * DEG;
+    const R = Math.max(30, Math.min((w - 58) / 2, (h - 64) / (1 + Math.sin(ps))));
+    const cx = w / 2, cy = Math.max(20, (h - 30 - R * (1 + Math.sin(ps))) / 2) + R;
+    const P = v => {
+      const x = v[0] * Math.sin(th) - v[1] * Math.cos(th);
+      const f = v[0] * Math.cos(th) + v[1] * Math.sin(th);
+      return [cx + R * x, cy - R * (v[2] * Math.cos(ps) - f * Math.sin(ps)), f * Math.cos(ps) + v[2] * Math.sin(ps)];
+    };
+    const ring = (n, fn) => { const a = []; for (let i = 0; i <= n; i++) a.push(P(fn(i / n))); return a; };
+
+    // dome silhouette: sky
+    ctx.beginPath();
+    for (let i = 0; i <= 72; i++) {
+      const a = Math.PI * i / 72, px = cx + R * Math.cos(a), py = cy - R * Math.sin(a);
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    for (let i = 0; i <= 72; i++) {
+      const u = Math.PI - Math.PI * i / 72;
+      ctx.lineTo(cx + R * Math.cos(u), cy + R * Math.sin(ps) * Math.sin(u));
+    }
+    ctx.closePath();
+    ctx.fillStyle = C.sky; ctx.fill();
+
+    // ground disc
+    const horizonRing = ring(96, u => [Math.cos(2 * Math.PI * u), Math.sin(2 * Math.PI * u), 0]);
+    poly(ctx, horizonRing); ctx.closePath();
+    ctx.fillStyle = C.bg; ctx.fill();
+    ctx.fillStyle = C.ground; ctx.fill();
+    const rim = (keep, width, alpha) => {
+      ctx.save();
+      ctx.strokeStyle = C.horizon; ctx.lineWidth = width; ctx.globalAlpha = alpha; ctx.lineCap = 'round';
+      const n = horizonRing.length - 1;
+      let s0 = 0;
+      while (s0 < n && keep(horizonRing[s0])) s0++;
+      let run = [];
+      const flush = () => { if (run.length > 1) { poly(ctx, run); ctx.stroke(); } run = []; };
+      for (let k = 0; k <= n; k++) {
+        const p = horizonRing[(s0 + k) % n];
+        if (keep(p)) run.push([p[0], p[1]]);
+        else { if (run.length) run.push([p[0], p[1]]); flush(); }
+      }
+      flush();
+      ctx.restore();
+    };
+    rim(p => p[2] <= 0, 1.25, .55);
+    rim(p => p[2] > 0, 2.25, 1);
+    ctx.fillStyle = C.muted;
+    ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, 2 * Math.PI); ctx.fill();
+
+    // faint wireframe: altitude rings at 30 and 60 degrees, plus the two main meridians
+    ctx.save();
+    ctx.globalAlpha = .42; ctx.setLineDash([2, 4]); ctx.lineWidth = 1; ctx.strokeStyle = C.ghost;
+    [30, 60].forEach(a => {
+      const ca = Math.cos(a * DEG), sa = Math.sin(a * DEG);
+      poly(ctx, ring(72, u => { const l = 2 * Math.PI * u; return [ca * Math.cos(l), ca * Math.sin(l), sa]; }));
+      ctx.stroke();
+    });
+    [0, Math.PI / 2].forEach(b => {
+      poly(ctx, ring(36, u => { const m = Math.PI * u; return [Math.cos(m) * Math.cos(b), Math.cos(m) * Math.sin(b), Math.sin(m)]; }));
+      ctx.stroke();
+    });
+    ctx.restore();
+
+    // cardinal points
+    const cardFont = `${small ? 12 : 13}px ${UI}`;
+    [['N', [1, 0, 0]], ['E', [0, 1, 0]], ['S', [-1, 0, 0]], ['W', [0, -1, 0]]].forEach(([nm, v]) => {
+      const p = P(v);
+      const dx = p[0] - cx, dy = p[1] - cy, len = Math.hypot(dx, dy) || 1;
+      ctx.globalAlpha = p[2] < 0 ? .5 : 1;
+      text(ctx, nm, p[0] + dx / len * 13, p[1] + dy / len * 13, { font: cardFont, color: C.muted, align: 'center', base: 'middle', halo: false });
+      ctx.globalAlpha = 1;
+    });
+
+    // arcs
+    const dec = decl(state.d, state.tilt);
+    const arcOf = dc => {
+      const a = [];
+      for (let i = 0; i <= 180; i++) {
+        const v = sunVec(state.lat, dc, 24 * i / 180);
+        const pr = P(v);
+        a.push({ x: pr[0], y: pr[1], near: pr[2] > 0, up: v[2] > 0 });
+      }
+      return a;
+    };
+    const strokeArc = (pts, keep, style) => {
+      ctx.save();
+      ctx.setLineDash(style.dash || []);
+      ctx.lineWidth = style.width;
+      ctx.strokeStyle = style.color;
+      ctx.globalAlpha = style.alpha || 1;
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      let run = [];
+      const flush = () => { if (run.length > 1) { poly(ctx, run); ctx.stroke(); } run = []; };
+      pts.forEach((p, i) => {
+        if (keep(p, i)) run.push([p.x, p.y]);
+        else { if (run.length) run.push([p.x, p.y]); flush(); }
+      });
+      flush();
+      ctx.restore();
+    };
+
+    const eps = Math.min(state.tilt, 89.99) * DEG;
+    const today = arcOf(dec);
+    // below the horizon, barely there
+    strokeArc(today, p => !p.up, { color: C.ghost, width: 1.25, dash: [2, 4], alpha: .4 });
+    // the solstice arcs
+    if (state.tilt > 0.05) [eps, -eps].forEach(dc => strokeArc(arcOf(dc), p => p.up, { color: C.ghost, width: 1.4, dash: [5, 5] }));
+    // today: the near half of the arc is drawn heavier than the far half
+    strokeArc(today, p => p.up && !p.near, { color: C.sun, width: 2.4, alpha: .5 });
+    strokeArc(today, p => p.up && p.near, { color: C.sun, width: 3.4 });
+
+    // the sun, with a line down to its bearing on the ground
+    const sv = sunVec(state.lat, dec, state.t);
+    const sp = P(sv), gp = P([sv[0], sv[1], 0]);
+    ctx.save();
+    ctx.setLineDash([2, 3]); ctx.lineWidth = 1; ctx.strokeStyle = C.ghost;
+    line(ctx, sp[0], sp[1], gp[0], gp[1]);
+    ctx.restore();
+    ctx.fillStyle = C.ghost;
+    ctx.beginPath(); ctx.arc(gp[0], gp[1], 2.5, 0, 2 * Math.PI); ctx.fill();
+    if (sv[2] > 0) {
+      ctx.fillStyle = C['sun-glow'];
+      ctx.beginPath(); ctx.arc(sp[0], sp[1], 14, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = C['sun-bright'];
+      ctx.beginPath(); ctx.arc(sp[0], sp[1], 7.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    } else {
+      ctx.fillStyle = C.bg;
+      ctx.beginPath(); ctx.arc(sp[0], sp[1], 6.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.ghost; ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    // caption
+    const hy = horizonOf(state.lat, dec), dl = daylight(hy);
+    const cap = hy >= 1 ? 'the arc never breaks the horizon' : hy <= -1 ? 'the arc never touches the horizon' : `${fmtDur(dl)} above the horizon`;
+    text(ctx, cap, w / 2, h - 8, { font: `600 ${small ? 19 : 21}px ${HAND}`, color: hy >= 1 ? C.muted : C['sun-ink'], align: 'center', halo: false });
+  }
+
+  // ---------- altitude chart ----------
+  const ALT_PAD = { L: 34, R: 10, T: 14, B: 28 };
+  function drawAlt() {
+    const { ctx, w, h } = cv.alt;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const x0 = ALT_PAD.L, x1 = w - ALT_PAD.R, y0 = ALT_PAD.T, y1 = h - ALT_PAD.B;
+    const X = t => x0 + t / 24 * (x1 - x0);
+    const Y = a => y0 + (90 - a) / 180 * (y1 - y0);
+    const dec = decl(state.d, state.tilt);
+    const curve = dc => { const a = []; for (let i = 0; i <= 180; i++) { const t = 24 * i / 180; a.push([X(t), Y(altOf(sunVec(state.lat, dc, t))), altOf(sunVec(state.lat, dc, t))]); } return a; };
+
+    // sky above the horizon, ground below
+    ctx.fillStyle = C.sky; ctx.fillRect(x0, y0, x1 - x0, Y(0) - y0);
+    ctx.fillStyle = C.ground; ctx.fillRect(x0, Y(0), x1 - x0, y1 - Y(0));
+
+    // grid
+    const axisFont = `${small ? 11 : 12}px ${UI}`;
+    ctx.lineWidth = 1;
+    [-60, -30, 30, 60].forEach(a => { ctx.strokeStyle = C.rule; line(ctx, x0, Y(a), x1, Y(a)); });
+    [6, 12, 18].forEach(t => { ctx.strokeStyle = C.rule; line(ctx, X(t), y0, X(t), y1); });
+    [90, 60, 30, 0, -30, -60, -90].forEach(a =>
+      text(ctx, (a < 0 ? '−' : '') + Math.abs(a) + '°', x0 - 6, Y(a), { font: axisFont, color: C.muted, align: 'right', base: 'middle', halo: false }));
+    [[0, '00:00', 'left'], [6, '06:00', 'center'], [12, '12:00', 'center'], [18, '18:00', 'center'], [24, '24:00', 'right']]
+      .forEach(([t, s, a]) => text(ctx, s, X(t), h - 8, { font: axisFont, color: C.muted, align: a, halo: false }));
+
+    // today's daylight area
+    const today = curve(dec);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x0, y0, x1 - x0, Y(0) - y0); ctx.clip();
+    poly(ctx, today); ctx.lineTo(X(24), Y(0)); ctx.lineTo(X(0), Y(0)); ctx.closePath();
+    ctx.fillStyle = C['sun-fill']; ctx.fill();
+    ctx.restore();
+
+    // ghost curves for the solstices
+    const eps = Math.min(state.tilt, 89.99) * DEG;
+    const ghostFont = `500 ${small ? 17 : 19}px ${HAND}`;
+    const labels = [];
+    if (state.tilt > 0.05) {
+      [[eps, 'June'], [-eps, 'December']].forEach(([dc, nm]) => {
+        const c = curve(dc);
+        ctx.save(); ctx.setLineDash([5, 5]); ctx.lineWidth = 1.4; ctx.strokeStyle = C.ghost;
+        poly(ctx, c); ctx.stroke(); ctx.restore();
+        labels.push([nm, Y(altOf(sunVec(state.lat, dc, 12)))]);
+      });
+    }
+    { // equinox
+      const c = curve(0);
+      ctx.save(); ctx.setLineDash([5, 5]); ctx.lineWidth = 1.4; ctx.strokeStyle = C.ghost;
+      poly(ctx, c); ctx.stroke(); ctx.restore();
+      labels.push([state.tilt > 0.05 ? 'equinox' : 'every day', Y(altOf(sunVec(state.lat, 0, 12)))]);
+    }
+
+    // horizon
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25; line(ctx, x0, Y(0), x1, Y(0));
+
+    // today's curve: bold above the horizon, thin below
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    poly(ctx, today); ctx.lineWidth = 1.5; ctx.strokeStyle = C['wave-night']; ctx.stroke();
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x0 - 10, y0 - 10, x1 - x0 + 20, Y(0) - y0 + 10); ctx.clip();
+    poly(ctx, today); ctx.lineWidth = 3.25; ctx.strokeStyle = C.sun; ctx.stroke();
+    ctx.restore();
+
+    // labels at each noon peak, nudged apart
+    const placed = [];
+    labels.forEach(([nm, py]) => {
+      let ly = py - 8;
+      if (ly < y0 + 14) ly = py + 20;
+      if (placed.some(p => Math.abs(p - ly) < 15)) return;
+      placed.push(ly);
+      text(ctx, nm, X(12) + 8, ly, { font: ghostFont, color: C.ghost, halo: ly > Y(0) ? 'ground' : 'sky' });
+    });
+
+    // noon reading for today
+    const noonA = altOf(sunVec(state.lat, dec, 12));
+    if (Math.abs(noonA) < 88) {
+      const ny = Y(noonA) - 10 < y0 + 14 ? Y(noonA) + 22 : Y(noonA) - 10;
+      text(ctx, `${fmtSigned(noonA, 1)}° at noon`, X(12) - 8, ny, { font: `600 ${small ? 19 : 21}px ${HAND}`, color: C['sun-ink'], align: 'right', halo: ny > Y(0) ? 'ground' : 'sky' });
+    }
+
+    // the sun
+    const a = altOf(sunVec(state.lat, dec, state.t));
+    const sx = X(state.t), sy = Y(a);
+    ctx.save(); ctx.setLineDash([2, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+    line(ctx, sx, y0, sx, y1); ctx.restore();
+    if (a > 0) {
+      ctx.fillStyle = C['sun-glow']; ctx.beginPath(); ctx.arc(sx, sy, 14, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = C['sun-bright']; ctx.beginPath(); ctx.arc(sx, sy, 7.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    } else {
+      ctx.fillStyle = C.bg; ctx.beginPath(); ctx.arc(sx, sy, 6.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.ghost; ctx.lineWidth = 2; ctx.stroke();
+    }
+  }
+
+  // ---------- text, inputs ----------
+  const inputs = { time: $('time'), date: $('date'), lat: $('lat'), tilt: $('tilt'), elev: $('elev') };
+  const chipsLat = [...document.querySelectorAll('[data-lat]')];
+  const chipsTilt = [...document.querySelectorAll('[data-tilt]')];
+  const chipsDay = [...document.querySelectorAll('[data-day]')];
+  const latPreset = v => v === 'arctic' ? 90 - state.tilt : Number(v);
+  const dayPreset = v => v === 'today' ? TODAY : Number(v);
+
+  function updateText() {
+    const dec = decl(state.d, state.tilt), hy = horizonOf(state.lat, dec), dl = daylight(hy);
+    const v = sunVec(state.lat, dec, state.t);
+    $('rLen').textContent = dl <= 0 ? 'none' : dl >= 24 ? '24 h' : fmtDur(dl);
+    $('rRise').textContent = hy >= 1 ? 'sun stays down' : hy <= -1 ? 'sun stays up' : `${fmtClock(12 - dl / 2)} / ${fmtClock(12 + dl / 2)}`;
+    if (Math.abs(hy) < 1) {
+      const az = azOf(sunVec(state.lat, dec, 12 - dl / 2));
+      $('rAz').textContent = `${fmtBearing(az)} / ${fmtBearing(360 - az)}`;
+    } else $('rAz').textContent = '—';
+    $('rAlt').textContent = fmtSigned(altOf(v), 1) + '°';
+    $('rBear').textContent = fmtBearing(azOf(v));
+    $('rNoon').textContent = fmtSigned(altOf(sunVec(state.lat, dec, 12)), 1) + '°';
+    $('timeOut').textContent = fmtClock(state.t) + ' solar time';
+    $('dateOut').textContent = fmtDate(state.d);
+    $('latOut').textContent = fmtLat(state.lat);
+    $('tiltOut').textContent = state.tilt.toFixed(1) + '°';
+    $('elevOut').textContent = state.elev + '° above the horizon';
+    const status = hy >= 1 ? 'polar night' : hy <= -1 ? 'midnight sun' : `${fmtDur(dl)} of daylight`;
+    const where = `on ${fmtDate(state.d)} at ${fmtLat(state.lat)} with ${state.tilt.toFixed(1)}° tilt`;
+    domeEl.setAttribute('aria-label', `Sky dome ${where}: ${status}, sun now at ${fmtSigned(altOf(v), 1)}° altitude, bearing ${fmtBearing(azOf(v))}.`);
+    altEl.setAttribute('aria-label', `Sun altitude through the day ${where}: highest ${fmtSigned(altOf(sunVec(state.lat, dec, 12)), 1)}°, ${status}.`);
+  }
+
+  function syncInputs() {
+    if (Number(inputs.time.value) !== state.t) inputs.time.value = state.t;
+    if (Number(inputs.date.value) !== Math.floor(state.d)) inputs.date.value = Math.floor(state.d);
+    if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    if (Number(inputs.tilt.value) !== state.tilt) inputs.tilt.value = state.tilt;
+    if (Number(inputs.elev.value) !== state.elev) inputs.elev.value = state.elev;
+    chipsLat.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - latPreset(b.dataset.lat)) < 0.05));
+    chipsTilt.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.tilt - Number(b.dataset.tilt)) < 0.05));
+    chipsDay.forEach(b => b.setAttribute('aria-pressed', Math.floor(state.d) === dayPreset(b.dataset.day)));
+  }
+
+  // ---------- animation ----------
+  let raf = 0, last = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const playing = state.playDay || state.playYear;
+    const dt = playing && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.playDay) state.t = (state.t + dt * 3) % 24;
+    if (state.playYear) state.d = (state.d + dt * 24) % 365;
+    last = playing ? ts : 0;
+    syncInputs(); updateText(); drawDome(); drawAlt();
+    if (playing) render();
+  }
+  function setPlay(kind, on) {
+    const key = 'play' + kind;
+    if (state[key] === on) return;
+    state[key] = on;
+    const b = $(key);
+    b.setAttribute('aria-pressed', on);
+    b.textContent = (on ? 'Pause ' : 'Play ') + kind.toLowerCase();
+    render();
+  }
+  $('playDay').addEventListener('click', () => setPlay('Day', !state.playDay));
+  $('playYear').addEventListener('click', () => setPlay('Year', !state.playYear));
+
+  inputs.time.addEventListener('input', e => { setPlay('Day', false); state.t = Number(e.target.value); render(); });
+  inputs.date.addEventListener('input', e => { setPlay('Year', false); state.d = Number(e.target.value); render(); });
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
+  inputs.tilt.addEventListener('input', e => { state.tilt = Number(e.target.value); render(); });
+  inputs.elev.addEventListener('input', e => { state.elev = Number(e.target.value); render(); });
+  chipsLat.forEach(b => b.addEventListener('click', () => { state.lat = latPreset(b.dataset.lat); render(); }));
+  chipsTilt.forEach(b => b.addEventListener('click', () => { state.tilt = Number(b.dataset.tilt); render(); }));
+  chipsDay.forEach(b => b.addEventListener('click', () => { setPlay('Year', false); state.d = dayPreset(b.dataset.day); render(); }));
+
+  // pointer: mouse acts at once, touch waits for a tap or a sideways drag so the page still scrolls
+  function drag(el, onTap, onMove, stop) {
+    let start = null, active = false, lastX = 0;
+    el.addEventListener('pointerdown', e => {
+      start = { x: e.clientX, y: e.clientY };
+      lastX = e.clientX;
+      active = e.pointerType === 'mouse';
+      if (active) { stop(); try { el.setPointerCapture(e.pointerId); } catch (_) {} if (onTap) onTap(e); }
+    });
+    el.addEventListener('pointermove', e => {
+      if (!start) return;
+      if (!active) {
+        const dx = e.clientX - start.x, dy = e.clientY - start.y;
+        if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+          active = true; stop();
+          try { el.setPointerCapture(e.pointerId); } catch (_) {}
+        } else return;
+      }
+      onMove(e, e.clientX - lastX);
+      lastX = e.clientX;
+    });
+    el.addEventListener('pointerup', e => {
+      if (start && !active && onTap) { stop(); onTap(e); }
+      start = null; active = false;
+    });
+    el.addEventListener('pointercancel', () => { start = null; active = false; });
+  }
+  const atTime = e => {
+    const r = altEl.getBoundingClientRect();
+    state.t = clamp((e.clientX - r.left - ALT_PAD.L) / (r.width - ALT_PAD.L - ALT_PAD.R), 0, 1) * 24;
+    render();
+  };
+  drag(altEl, atTime, atTime, () => setPlay('Day', false));
+  drag(domeEl, null, (e, dx) => {
+    const r = domeEl.getBoundingClientRect();
+    state.view = (state.view - dx / r.width * 220 + 360) % 360;
+    render();
+  }, () => {});
+
+  // ---------- setup ----------
+  readColors();
+  const ro = new ResizeObserver(() => { fit(cv.dome); fit(cv.alt); drawDome(); drawAlt(); });
+  ro.observe(domeEl); ro.observe(altEl);
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)])
+      .then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
