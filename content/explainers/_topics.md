@@ -5,6 +5,8 @@
 # appears — it just shows up after the listed ones, with no summary line.
 # List order is display order.
 topics:
-  - name: Sun and moon
-    summary: "Interactive explanations of why daylight, the sun's arc and the moon's rising behave the way they do at a given latitude. Each one runs on its own, but they build on each other in this order."
+  - name: Tilt and the seasons
+    summary: "One story, about axial tilt and the geometry of the seasons. Each one runs on its own, but they build on each other in this order."
+  - name: Light and air
+    summary: "[ a line about this topic, or delete this line ]"
 ---

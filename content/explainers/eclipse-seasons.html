@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eclipse seasons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20); --sun-glow: rgba(235, 162, 27, .30);
+  --moon: #5C7085; --moon-ink: #41566B; --moon-lit: #F2F6FA; --moon-dark: #BFCAD5;
+  --moon-fill: rgba(92, 112, 133, .16);
+  --shadow: rgba(40, 52, 66, .30); --penumbra: rgba(40, 52, 66, .12);
+  --sky: rgba(104, 146, 184, .13); --plane: rgba(92, 112, 133, .10);
+  --ground: rgba(98, 112, 64, .16); --horizon: #4B5731; --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+    --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+    --moon-fill: rgba(168, 187, 208, .13);
+    --shadow: rgba(8, 14, 22, .55); --penumbra: rgba(8, 14, 22, .28);
+    --sky: rgba(120, 164, 210, .12); --plane: rgba(150, 175, 205, .09);
+    --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C; --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+  --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+  --moon-fill: rgba(168, 187, 208, .13);
+  --shadow: rgba(8, 14, 22, .55); --penumbra: rgba(8, 14, 22, .28);
+  --sky: rgba(120, 164, 210, .12); --plane: rgba(150, 175, 205, .09);
+  --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C; --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.6rem, 9vw, 3.6rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#orbit { aspect-ratio: 3 / 2; }
+#lat { aspect-ratio: 5 / 3; }
+#close { aspect-ratio: 3 / 2; }
+#seasons { aspect-ratio: 4 / 5; }
+@media (min-width: 640px) {
+  #orbit { aspect-ratio: 16 / 9; }
+  #lat { aspect-ratio: 16 / 6; }
+  #close { aspect-ratio: 16 / 7; }
+  #seasons { aspect-ratio: 16 / 11; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Eclipse seasons</h1>
+    <p class="lede">There is a new moon every month and a full moon every month, yet eclipses come in pairs twice a year. The moon's orbit is tilted five degrees, so most months its shadow passes above or below us. Only when the line where the two planes cross happens to point at the sun can anything line up.</p>
+  </header>
+
+  <figure>
+    <h2>Two planes, one line</h2>
+    <p class="hint">Looking down on the ecliptic. The tilted ring is the moon's orbit; it cuts the flat plane at two nodes, and the shaded wedges are where the sun has to be.</p>
+    <canvas id="orbit" role="img" aria-label="The moon's tilted orbit, its nodes and the sun's direction"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>At this syzygy</dt><dd id="rResult">–</dd></div>
+    <div><dt id="lWhich">Nearest new moon</dt><dd id="rWhen">–</dd></div>
+    <div><dt>Moon passes the sun by</dt><dd id="rLat">–</dd></div>
+    <div><dt>Sun's angle from the node</dt><dd id="rNode">–</dd></div>
+    <div><dt>Next eclipse</dt><dd id="rNext">–</dd></div>
+    <div><dt id="lCount">Eclipses this year</dt><dd id="rCount">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Controls">
+    <div class="play">
+      <button class="btn" id="playYear" aria-pressed="false">Play year</button>
+      <button class="btn" id="playYears" aria-pressed="false">Play years</button>
+      <button class="btn" id="prevEcl">◀ Eclipse</button>
+      <button class="btn" id="nextEcl">Eclipse ▶</button>
+    </div>
+
+    <div class="ctl">
+      <label for="date">Date <output id="dateOut" for="date"></output></label>
+      <input type="range" id="date" min="0" max="364" step="1">
+      <div class="chips" role="group" aria-label="Date presets">
+        <button class="chip" data-day="today">Today</button>
+        <button class="chip" data-day="78">March equinox</button>
+        <button class="chip" data-day="171">June solstice</button>
+        <button class="chip" data-day="265">September equinox</button>
+        <button class="chip" data-day="354">December solstice</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="year">Year <output id="yearOut" for="year"></output></label>
+      <input type="range" id="year" min="0" max="19" step="1">
+      <div class="chips" role="group" aria-label="Year presets">
+        <button class="chip" data-year="0">This year</button>
+        <button class="chip" data-year="9">In 9 years</button>
+        <button class="chip" data-year="18">One saros on</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="inc">Orbit tilt <output id="incOut" for="inc"></output></label>
+      <input type="range" id="inc" min="0" max="15" step="0.05">
+      <div class="chips" role="group" aria-label="Tilt presets">
+        <button class="chip" data-inc="0">Flat 0°</button>
+        <button class="chip" data-inc="5.145">Moon 5.1°</button>
+        <button class="chip" data-inc="10">10°</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="drift">Node drift <output id="driftOut" for="drift"></output></label>
+      <input type="range" id="drift" min="-40" max="40" step="0.1">
+      <div class="chips" role="group" aria-label="Node drift presets">
+        <button class="chip" data-drift="-19.341">Moon −19.3°/yr</button>
+        <button class="chip" data-drift="0">Nodes fixed</button>
+        <button class="chip" data-drift="19.341">Forward +19.3°/yr</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>The moon's latitude, month by month</h2>
+    <p class="hint">How far the moon sits above or below the ecliptic. Dots mark every new and full moon; the band is where the shadows can reach.</p>
+    <canvas id="lat" role="img" aria-label="The moon's ecliptic latitude with new and full moons marked"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>This one, close up</h2>
+    <p class="hint">The geocentric view at the moment of syzygy, drawn to scale in degrees.</p>
+    <canvas id="close" role="img" aria-label="The moon's closest approach to the sun or to Earth's shadow"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Twenty years of seasons</h2>
+    <p class="hint">Each row is a year. Bars are the eclipse seasons; filled dots are solar eclipses, open dots lunar.</p>
+    <canvas id="seasons" role="img" aria-label="Eclipse seasons drifting through the calendar over twenty years"></canvas>
+  </figure>
+
+  <section class="notes">
+    <h2>Why not every month</h2>
+    <p>If the moon's orbit lay flat in the ecliptic, every new moon would be a solar eclipse and every full moon a lunar one: twenty-four or twenty-five a year, most of them total. Set the tilt slider to zero and that is exactly what happens. The five-degree tilt ruins it. Five degrees is ten times the width of the sun, so at a typical new moon the moon's shadow passes a few hundred thousand kilometres above or below Earth and nothing happens at all.</p>
+    <p>The orbit still has to cross the ecliptic somewhere, and being a circle it crosses twice, at two opposite points called the nodes. Only there is the moon in the same plane as the sun and Earth. So an eclipse needs two coincidences at once: the moon must be new or full, and it must be within a few degrees of a node. The first happens twice a month, the second twice a year, and eclipses are what you get where the two agree.</p>
+
+    <h2>Seasons, and why they drift</h2>
+    <p>The line of nodes stays put in space while Earth goes round the sun, so twice a year the sun lines up with it. Each alignment opens a window about a month long, which is why eclipses arrive in pairs or threes: a solar eclipse at the new moon and a lunar one at the full moon a fortnight either side, sometimes with a second solar eclipse at the far edge of the window.</p>
+    <p>If that were the whole story the seasons would sit at the same calendar dates forever. They don't, because the sun and moon tug the orbit around, dragging the line of nodes backwards at about nineteen and a third degrees a year and all the way round in 18.6 years. Earth has to catch a node that is coming to meet it, so it takes only 346.6 days rather than a year: an eclipse year. Each season therefore falls about nineteen days earlier in the calendar than the last, which is the slant you see in the twenty-year chart. Set the node drift to zero and the slant disappears; reverse it and the seasons march the other way.</p>
+    <p>Eighteen years and eleven days later, the moon has completed a whole number of months of all three kinds at once: 223 back to new moon, 242 back to the same node, 239 back to the same distance. So the geometry repeats and the eclipse comes again, a third of the way round the world. That is the saros, and jumping the year slider on by eighteen puts almost the same eclipse eleven days later in the calendar.</p>
+
+    <h2>What this adds to the harvest moon</h2>
+    <p>The <a href="harvest-moon.html">harvest moon page</a> treats the moon as riding exactly on the ecliptic, which is the simplification this page is about. The same five degrees that create eclipse seasons also lift and lower the moon's declination by up to five degrees beyond the sun's range, on the same 18.6-year cycle. When the ascending node sits near the March equinox point, the winter full moon climbs to 28.7° rather than 23.4° and rides higher than any sun ever does. That is a major standstill, and the last one was in 2024 and 2025.</p>
+    <p class="small">The rest of the set: the <a href="sliding-horizon.html">sliding horizon</a>, the <a href="sun-arc.html">sun's real arc</a>, <a href="crossing-the-horizon.html">crossing the horizon</a>, <a href="harvest-moon.html">the harvest moon</a> and <a href="analemma.html">the analemma</a>.</p>
+
+    <h2>Small print</h2>
+    <p class="small">The sun and moon come from mean orbital elements with the main periodic terms, which puts the moments of new and full moon within a few minutes and the moon's latitude within a hundredth of a degree. Over 2026 to 2028 that reproduces the real eclipse record exactly, dates and types alike, though a grazing penumbral eclipse can fall either side of the line. Whether an eclipse is total or annular is decided by comparing the two discs at that moment; where on Earth it is visible, and the difference between a central eclipse and one that only grazes the pole, would need the full geometry of Earth's globe and is not modelled. Changing the tilt or the node drift leaves the rest of the model alone, so those settings answer "what if" rather than describing any real body.</p>
+    <p class="small"><a href="index.html">All seven visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const DEG = Math.PI / 180;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const sind = x => Math.sin(x * DEG), cosd = x => Math.cos(x * DEG);
+  const wrap180 = x => ((x % 360) + 540) % 360 - 180;
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const isLeap = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+  const monthDays = y => [31, isLeap(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const monthStarts = y => { const md = monthDays(y), out = []; md.reduce((a, n, i) => (out[i] = a, a + n), 0); return out; };
+  const yearLen = y => isLeap(y) ? 366 : 365;
+  // days from J2000 to 00:00 UT on 1 January of a year
+  function jan1(y) {
+    const a = Math.floor((14 - 1) / 12), yy = y + 4800 - a, mm = 1 + 12 * a - 3;
+    const JDN = 1 + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
+    return JDN - 0.5 - 2451545.0;
+  }
+  const now = new Date();
+  const BASE_YEAR = now.getUTCFullYear();
+  const TODAY = Math.floor((Date.UTC(BASE_YEAR, now.getUTCMonth(), now.getUTCDate()) - Date.UTC(BASE_YEAR, 0, 1)) / 86400000);
+
+  const state = { d: TODAY, yr: 0, inc: 5.145, drift: -19.341, playYear: false, playYears: false };
+  const absT = () => jan1(BASE_YEAR + state.yr) + state.d;
+
+  // ---------- sun and moon ----------
+  function sky(t) {
+    const T = t / 36525;
+    const Lp = 218.3164477 + 481267.88123421 * T;
+    const D = 297.8501921 + 445267.1114034 * T;
+    const M = 357.5291092 + 35999.0502909 * T;
+    const Mp = 134.9633964 + 477198.8675055 * T;
+    const node = 125.0445479 + state.drift * (t / 365.25);
+    const F = Lp - node;
+    const lonMoon = Lp + 6.289 * sind(Mp) + 1.274 * sind(2 * D - Mp) + 0.658 * sind(2 * D)
+      + 0.214 * sind(2 * Mp) - 0.186 * sind(M) - 0.114 * sind(2 * F);
+    const k = state.inc / 5.128;
+    const lat = k * (5.128 * sind(F) + 0.2806 * sind(Mp + F) + 0.2777 * sind(Mp - F) + 0.1732 * sind(2 * D - F)
+      + 0.0554 * sind(2 * D - Mp + F) + 0.0463 * sind(2 * D - Mp - F) + 0.0326 * sind(2 * D + F)
+      + 0.0172 * sind(2 * Mp + F) + 0.0093 * sind(2 * D + Mp - F) + 0.0088 * sind(2 * Mp - F)
+      + 0.0082 * sind(2 * D - M - F));
+    const lonSun = 280.4665 + 36000.7698 * T + 1.915 * sind(M) + 0.020 * sind(2 * M);
+    const rMoon = 385000.56 - 20905.355 * cosd(Mp) - 3699.111 * cosd(2 * D - Mp) - 2955.968 * cosd(2 * D);
+    const rSun = 1.000140 - 0.016708 * cosd(M);
+    return {
+      t, lonMoon: ((lonMoon % 360) + 360) % 360, lonSun: ((lonSun % 360) + 360) % 360,
+      node: ((node % 360) + 360) % 360, F, lat,
+      sm: Math.atan2(1737.4, rMoon) / DEG,          // moon's apparent radius
+      ss: 0.2666 / rSun,                             // sun's apparent radius
+      pm: Math.asin(6378.14 / rMoon) / DEG           // moon's horizontal parallax
+    };
+  }
+  const elong = (e, target) => wrap180(e.lonMoon - e.lonSun - target);
+
+  function refine(a, b, target) {
+    let va = elong(sky(a), target);
+    for (let i = 0; i < 44; i++) {
+      const m = (a + b) / 2, vm = elong(sky(m), target);
+      if ((va < 0) === (vm < 0)) { a = m; va = vm; } else b = m;
+    }
+    return (a + b) / 2;
+  }
+  function syzygies(t0, t1) {
+    const out = [];
+    let pN = elong(sky(t0), 0), pF = elong(sky(t0), 180);
+    for (let t = t0 + 0.25; t <= t1; t += 0.25) {
+      const e = sky(t), vN = elong(e, 0), vF = elong(e, 180);
+      if (pN < 0 && vN >= 0) out.push(pack(refine(t - 0.25, t, 0), 'new'));
+      if (pF < 0 && vF >= 0) out.push(pack(refine(t - 0.25, t, 180), 'full'));
+      pN = vN; pF = vF;
+    }
+    return out;
+  }
+  function pack(t, kind) {
+    const e = sky(t);
+    return { ...e, kind, type: classify(e, kind) };
+  }
+  function classify(e, kind) {
+    const b = Math.abs(e.lat);
+    if (kind === 'new') {
+      if (b < e.pm * 0.9997) return e.sm > e.ss ? 'total solar' : 'annular solar';
+      if (b < e.ss + e.sm + e.pm) return 'partial solar';
+      return null;
+    }
+    const u = 1.02 * (e.pm + 0.0024 - e.ss), p = 1.02 * (e.pm + 0.0024 + e.ss);
+    if (b < u - e.sm) return 'total lunar';
+    if (b < u + e.sm) return 'partial lunar';
+    if (b < p + e.sm) return 'penumbral lunar';
+    return null;
+  }
+  // every syzygy over the whole span, cached against the two what-if sliders
+  let CACHE = { key: '', list: [] };
+  function allSyzygies() {
+    const key = `${state.inc}|${state.drift}`;
+    if (CACHE.key !== key) {
+      CACHE = { key, list: syzygies(jan1(BASE_YEAR) - 40, jan1(BASE_YEAR + 20) + 40) };
+    }
+    return CACHE.list;
+  }
+  const eclipses = () => allSyzygies().filter(s => s.type);
+  const nearestSyzygy = t => allSyzygies().reduce((a, b) => Math.abs(b.t - t) < Math.abs(a.t - t) ? b : a);
+  // an eclipse season: the sun within this much of a node
+  const seasonLimit = 17.4;
+  const nodeAngle = e => Math.min(Math.abs(wrap180(e.lonSun - e.node)), Math.abs(wrap180(e.lonSun - e.node - 180)));
+
+  // ---------- formatting ----------
+  const pad = n => String(n).padStart(2, '0');
+  function ymd(t) {
+    const ms = (t + 2451545.0 - 2440587.5) * 86400000;
+    const dt = new Date(ms);
+    return { y: dt.getUTCFullYear(), m: dt.getUTCMonth(), d: dt.getUTCDate(), h: dt.getUTCHours(), mi: dt.getUTCMinutes() };
+  }
+  const fmtT = (t, withYear) => { const o = ymd(t); return `${o.d} ${MONTHS[o.m].slice(0, 3)}${withYear ? ' ' + o.y : ''}`; };
+  const fmtTime = t => { const o = ymd(t); return `${pad(o.h)}:${pad(o.mi)}`; };
+  const fmtDeg = (v, dp) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(dp === undefined ? 2 : dp) + '°';
+  function fmtDate(y, d) {
+    const ms = monthStarts(y);
+    let i = 11;
+    while (ms[i] > Math.floor(d)) i--;
+    return `${Math.floor(d) - ms[i] + 1} ${MONTHS[i]}`;
+  }
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'sun-glow',
+    'moon', 'moon-ink', 'moon-lit', 'moon-dark', 'moon-fill', 'shadow', 'penumbra', 'sky', 'plane', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { orbit: $('orbit'), lat: $('lat'), close: $('close'), seasons: $('seasons') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo !== false) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = C.bg;
+      ctx.strokeText(str, x, y);
+      if (o.halo === 'plane') { ctx.strokeStyle = C.plane; ctx.strokeText(str, x, y); }
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+  function runs(ctx, pts, keep, style) {
+    ctx.save();
+    ctx.setLineDash(style.dash || []);
+    ctx.lineWidth = style.width; ctx.strokeStyle = style.color;
+    ctx.globalAlpha = style.alpha === undefined ? 1 : style.alpha;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    let run = [];
+    const flush = () => { if (run.length > 1) { poly(ctx, run); ctx.stroke(); } run = []; };
+    pts.forEach(p => { if (keep(p)) run.push([p[0], p[1]]); else flush(); });
+    flush();
+    ctx.restore();
+  }
+  function moonGlyph(ctx, x, y, r, P) {
+    const p = ((P % 360) + 360) % 360;
+    const waxing = p <= 180, k = Math.abs(cosd(p)), gib = p > 90 && p < 270;
+    ctx.save();
+    ctx.translate(x, y);
+    if (!waxing) ctx.scale(-1, 1);
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 2 * Math.PI);
+    ctx.fillStyle = C['moon-dark']; ctx.fill();
+    if (p > 3 && p < 357) {
+      ctx.beginPath();
+      ctx.arc(0, 0, r, Math.PI / 2, -Math.PI / 2, true);
+      ctx.ellipse(0, 0, Math.max(r * k, 0.01), r, 0, -Math.PI / 2, Math.PI / 2, gib);
+      ctx.closePath();
+      ctx.fillStyle = C['moon-lit']; ctx.fill();
+    }
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.strokeStyle = C.moon; ctx.lineWidth = 1.25; ctx.stroke();
+  }
+
+  // ---------- 1. the two planes ----------
+  function drawOrbit() {
+    const { ctx, w, h } = cv.orbit;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const e = sky(absT());
+    const el = 24 * DEG;                       // viewing elevation above the ecliptic
+    const R = Math.min((w / 2 - 22) / 1.34, (h / 2 - 30) / (1.34 * Math.sin(el) + 0.14));
+    const cx = w / 2, cy = h / 2 + 6;
+    const P = (X, Y, Z) => [cx + R * X, cy + R * (Y * Math.sin(el) - Z * Math.cos(el))];
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const handB = `600 ${small ? 19 : 21}px ${HAND}`;
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const ring = (n, fn) => { const a = []; for (let i = 0; i <= n; i++) a.push(fn(i / n)); return a; };
+
+    // the ecliptic plane
+    const disc = ring(120, u => P(cosd(360 * u), sind(360 * u), 0));
+    poly(ctx, disc); ctx.closePath();
+    ctx.fillStyle = C.plane; ctx.fill();
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1; ctx.stroke();
+
+    // eclipse season wedges, around both ends of the line of nodes
+    [0, 180].forEach(off => {
+      const a0 = e.node + off - seasonLimit, a1 = e.node + off + seasonLimit;
+      ctx.beginPath();
+      ctx.moveTo(...P(0, 0, 0));
+      for (let i = 0; i <= 24; i++) {
+        const a = a0 + (a1 - a0) * i / 24;
+        ctx.lineTo(...P(cosd(a), sind(a), 0));
+      }
+      ctx.closePath();
+      ctx.fillStyle = C['sun-fill']; ctx.fill();
+    });
+
+    // the line of nodes
+    ctx.save();
+    ctx.setLineDash([7, 5]); ctx.lineWidth = 1.5; ctx.strokeStyle = C.moon;
+    const nA = P(cosd(e.node) * 1.12, sind(e.node) * 1.12, 0);
+    const nB = P(-cosd(e.node) * 1.12, -sind(e.node) * 1.12, 0);
+    line(ctx, nA[0], nA[1], nB[0], nB[1]);
+    ctx.restore();
+    const perp = P(cosd(e.node + 90) * 0.26, sind(e.node + 90) * 0.26, 0);
+    const off = [perp[0] - P(0, 0, 0)[0], perp[1] - P(0, 0, 0)[1]];
+    const sign = off[1] > 0 ? -1 : 1;
+    const awayFirst = Math.abs(wrap180(e.node - e.lonSun)) > 90;
+    [nA, nB].forEach((n, i) => text(ctx, (i === 0) === awayFirst ? 'line of nodes' : 'node',
+      n[0] + off[0] * sign, n[1] + off[1] * sign,
+      { font: uiFont, color: C['moon-ink'], align: 'center', base: 'middle', halo: 'plane' }));
+
+    // the moon's orbit: a ring tilted about the line of nodes
+    const inc = state.inc * DEG;
+    const nh = [cosd(e.node), sind(e.node), 0];
+    const mh = [-sind(e.node) * Math.cos(inc), cosd(e.node) * Math.cos(inc), Math.sin(inc)];
+    const orbit = ring(240, u => {
+      const a = 360 * u;
+      const X = cosd(a) * nh[0] + sind(a) * mh[0];
+      const Y = cosd(a) * nh[1] + sind(a) * mh[1];
+      const Z = cosd(a) * nh[2] + sind(a) * mh[2];
+      return [...P(X, Y, Z), Z];
+    });
+    runs(ctx, orbit, p => p[2] >= 0, { color: C.moon, width: 2.5 });
+    runs(ctx, orbit, p => p[2] < 0, { color: C.moon, width: 1.5, dash: [4, 4], alpha: .7 });
+
+    // the nodes themselves
+    [0, 180].forEach((a, i) => {
+      const p = P(cosd(e.node + a), sind(e.node + a), 0);
+      ctx.fillStyle = C.bg;
+      ctx.beginPath(); ctx.arc(p[0], p[1], 4.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.moon; ctx.lineWidth = 2; ctx.stroke();
+    });
+
+    // Earth, the sun's direction and the shadow axis
+    const sEnd = P(cosd(e.lonSun) * 1.3, sind(e.lonSun) * 1.3, 0);
+    const aEnd = P(-cosd(e.lonSun) * 1.18, -sind(e.lonSun) * 1.18, 0);
+    const mid = P(0, 0, 0);
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 2.5;
+    line(ctx, mid[0], mid[1], sEnd[0], sEnd[1]);
+    ctx.save();
+    ctx.setLineDash([3, 4]); ctx.lineWidth = 1.5; ctx.strokeStyle = C.ghost;
+    line(ctx, mid[0], mid[1], aEnd[0], aEnd[1]);
+    ctx.restore();
+    const shOff = off[1] > 0 ? 1 : -1;
+    text(ctx, 'shadow', aEnd[0] + off[0] * shOff * 0.8, aEnd[1] + off[1] * shOff * 0.8,
+      { font: uiFont, color: C.muted, align: 'center', base: 'middle', halo: 'plane' });
+    ctx.fillStyle = C['sun-glow'];
+    ctx.beginPath(); ctx.arc(sEnd[0], sEnd[1], 16, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(sEnd[0], sEnd[1], 8, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = C.ink;
+    ctx.beginPath(); ctx.arc(mid[0], mid[1], 4.5, 0, 2 * Math.PI); ctx.fill();
+    text(ctx, 'Earth', mid[0] + 8, mid[1] + 14, { font: uiFont, color: C.muted, halo: 'plane' });
+
+    // the moon on its ring
+    const F = e.F;
+    const mX = cosd(F) * nh[0] + sind(F) * mh[0];
+    const mY = cosd(F) * nh[1] + sind(F) * mh[1];
+    const mZ = cosd(F) * nh[2] + sind(F) * mh[2];
+    const mp = P(mX, mY, mZ);
+    const foot = P(mX, mY, 0);
+    ctx.save();
+    ctx.setLineDash([2, 3]); ctx.lineWidth = 1; ctx.strokeStyle = C.ghost;
+    line(ctx, mp[0], mp[1], foot[0], foot[1]);
+    ctx.restore();
+    moonGlyph(ctx, mp[0], mp[1], small ? 8 : 9, wrap180(e.lonMoon - e.lonSun) + 180);
+
+    // the angle from the sun to the nearest node
+    const ang = nodeAngle(e);
+    text(ctx, `sun is ${fmtDeg(ang, 0)} from a node`, w / 2, h - 8,
+      { font: handB, color: ang < seasonLimit ? C['sun-ink'] : C.muted, align: 'center', halo: false });
+    if (ang < seasonLimit) text(ctx, 'eclipse season', w / 2, 22, { font: handS, color: C['sun-ink'], align: 'center', halo: false });
+  }
+
+  // ---------- 2. the moon's latitude ----------
+  const LAT_PAD = { L: 38, R: 10, T: 14, B: 24 };
+  function drawLat() {
+    const { ctx, w, h } = cv.lat;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const x0 = LAT_PAD.L, x1 = w - LAT_PAD.R, y0 = LAT_PAD.T, y1 = h - LAT_PAD.B;
+    const font = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const t0 = absT() - 100, t1 = absT() + 300;
+    const X = t => x0 + (t - t0) / (t1 - t0) * (x1 - x0);
+    const span = Math.max(6.2, state.inc * 1.2);
+    const Y = b => y0 + (span - b) / (2 * span) * (y1 - y0);
+
+    // the band where the shadows can reach
+    ctx.fillStyle = C['sun-fill'];
+    ctx.fillRect(x0, Y(1.5), x1 - x0, Y(-1.5) - Y(1.5));
+    ctx.lineWidth = 1;
+    [-5, 0, 5].forEach(b => {
+      if (Math.abs(b) > span) return;
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(b), x1, Y(b));
+      text(ctx, (b > 0 ? '+' : b < 0 ? '−' : '') + Math.abs(b) + '°', x0 - 6, Y(b), { font, color: C.muted, align: 'right', base: 'middle', halo: false });
+    });
+    text(ctx, 'shadows reach', x0 + 4, Y(1.5) - 5, { font, color: C.muted, halo: false });
+
+    // month ticks
+    for (let t = Math.ceil(t0); t <= t1; t++) {
+      const o = ymd(t);
+      if (o.d !== 1) continue;
+      ctx.strokeStyle = C.rule; ctx.globalAlpha = .6;
+      line(ctx, X(t), y0, X(t), y1);
+      ctx.globalAlpha = 1;
+      text(ctx, MONTHS[o.m][0], X(t) + 3, h - 8, { font, color: C.muted, halo: false });
+    }
+
+    const pts = [];
+    for (let t = t0; t <= t1; t += 0.25) pts.push([X(t), Y(clamp(sky(t).lat, -span, span))]);
+    poly(ctx, pts); ctx.lineWidth = 1.75; ctx.strokeStyle = C.moon; ctx.stroke();
+
+    allSyzygies().forEach(s => {
+      if (s.t < t0 || s.t > t1) return;
+      const x = X(s.t), y = Y(clamp(s.lat, -span, span));
+      if (s.type) {
+        ctx.fillStyle = C['sun-glow'];
+        ctx.beginPath(); ctx.arc(x, y, 11, 0, 2 * Math.PI); ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(x, y, 4.5, 0, 2 * Math.PI);
+      ctx.fillStyle = s.kind === 'new' ? C['moon-dark'] : C['moon-lit'];
+      ctx.fill();
+      ctx.strokeStyle = s.type ? C.sun : C.moon; ctx.lineWidth = s.type ? 2 : 1.25;
+      ctx.stroke();
+    });
+
+    // the syzygy in focus
+    const near = nearestSyzygy(absT());
+    if (near.t >= t0 && near.t <= t1) {
+      const x = X(near.t);
+      ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+      line(ctx, x, y0, x, y1); ctx.restore();
+      if (near.type) text(ctx, near.type, x, Math.max(y0 + 16, Y(near.lat) - 16),
+        { font: handS, color: C['sun-ink'], align: 'center' });
+    }
+  }
+
+  // ---------- 3. the close-up ----------
+  function drawClose() {
+    const { ctx, w, h } = cv.close;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const s = nearestSyzygy(absT());
+    const solar = s.kind === 'new';
+    const SPAN = 1.85;                            // degrees from centre to the top edge
+    const per = Math.min((w - 36) / (2 * 3.3), (h - 56) / (2 * SPAN));
+    const cx = w / 2, cy = h / 2 - 2;
+    const PX = deg => cx + deg * per, PY = deg => cy - deg * per;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const handB = `600 ${small ? 20 : 22}px ${HAND}`;
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(4, 4, w - 8, h - 8); ctx.clip();
+
+    if (solar) {
+      // the limits: where some part of Earth sees something
+      [[s.ss + s.sm + s.pm, 'partial somewhere'], [s.pm * 0.9997, 'central somewhere']].forEach(([r, label]) => {
+        ctx.save();
+        ctx.setLineDash([5, 5]); ctx.lineWidth = 1.25; ctx.strokeStyle = C.ghost;
+        ctx.beginPath(); ctx.arc(cx, cy, r * per, 0, 2 * Math.PI); ctx.stroke();
+        ctx.restore();
+        const up = label[0] === 'p' ? -1 : 1;
+        text(ctx, label, cx - r * per * 0.72, cy + up * r * per * 0.72 + (up > 0 ? 10 : 0),
+          { font: uiFont, color: C.muted, align: 'right', halo: 'plane' });
+      });
+      ctx.fillStyle = C['sun-glow'];
+      ctx.beginPath(); ctx.arc(cx, cy, s.ss * per + 6, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = C['sun-bright'];
+      ctx.beginPath(); ctx.arc(cx, cy, s.ss * per, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+      text(ctx, 'the sun', cx, cy + s.ss * per + 16, { font: uiFont, color: C['sun-ink'], align: 'center', halo: false });
+    } else {
+      const u = 1.02 * (s.pm + 0.0024 - s.ss), p = 1.02 * (s.pm + 0.0024 + s.ss);
+      ctx.fillStyle = C.penumbra;
+      ctx.beginPath(); ctx.arc(cx, cy, p * per, 0, 2 * Math.PI); ctx.fill();
+      ctx.fillStyle = C.shadow;
+      ctx.beginPath(); ctx.arc(cx, cy, u * per, 0, 2 * Math.PI); ctx.fill();
+      text(ctx, 'umbra', cx, cy + 5, { font: uiFont, color: C.bg, align: 'center', halo: false });
+      text(ctx, 'penumbra', cx, PY(-p) - 8, { font: uiFont, color: C.muted, align: 'center', halo: false });
+    }
+
+    // the moon's track: slope taken from how fast its latitude changes against its motion past the sun
+    const dtl = 0.25;
+    const a = sky(s.t - dtl), b = sky(s.t + dtl);
+    const dlon = wrap180((b.lonMoon - b.lonSun) - (a.lonMoon - a.lonSun));
+    const slope = dlon === 0 ? 0 : (b.lat - a.lat) / dlon;
+    const y = s.lat, EDGE = 3.2;
+    ctx.save();
+    ctx.setLineDash([6, 5]); ctx.lineWidth = 1.5; ctx.strokeStyle = C.moon;
+    line(ctx, PX(-EDGE), PY(y - EDGE * slope), PX(EDGE), PY(y + EDGE * slope));
+    ctx.restore();
+    [-2.1, 2.1].forEach(o2 => moonGlyph(ctx, PX(o2), PY(y + o2 * slope), s.sm * per, solar ? 0 : 180));
+    if (solar) {                                   // in front of the sun, the moon is a silhouette
+      ctx.beginPath(); ctx.arc(PX(0), PY(y), s.sm * per, 0, 2 * Math.PI);
+      ctx.fillStyle = C['moon-dark']; ctx.fill();
+      ctx.strokeStyle = C.moon; ctx.lineWidth = 1.25; ctx.stroke();
+    } else moonGlyph(ctx, PX(0), PY(y), s.sm * per, 180);
+
+    // the miss distance
+    ctx.save();
+    ctx.setLineDash([2, 3]); ctx.lineWidth = 1.25; ctx.strokeStyle = C.ink;
+    line(ctx, cx, cy, PX(0), PY(y));
+    ctx.restore();
+    const lab = fmtDeg(Math.abs(s.lat)) + (Math.abs(y) > SPAN ? ' — off this view' : '');
+    const ly = clamp(PY(y / 2), cy - (h / 2 - 26), cy + (h / 2 - 26));
+    const lx = cx + Math.max(14, (solar ? s.ss + s.sm : s.sm) * per + 10);
+    text(ctx, lab, lx, ly + (y >= 0 ? -4 : 12), { font: handS, color: C.ink });
+    ctx.restore();
+
+    text(ctx, s.type || (solar ? 'no eclipse: the moon passes clear' : 'no eclipse: the moon misses the shadow'),
+      w / 2, h - 10, { font: handB, color: s.type ? C['sun-ink'] : C.muted, align: 'center', halo: false });
+    text(ctx, `${fmtT(s.t, true)} ${fmtTime(s.t)}`, 8, 18, { font: uiFont, color: C.muted, halo: false });
+  }
+
+  // ---------- 4. twenty years ----------
+  const DRIFT_PAD = { L: 40, R: 10, T: 16, B: 22 };
+  function drawDrift() {
+    const { ctx, w, h } = cv.seasons;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const N = 20;
+    const x0 = DRIFT_PAD.L, x1 = w - DRIFT_PAD.R, y0 = DRIFT_PAD.T, y1 = h - DRIFT_PAD.B;
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const rowH = (y1 - y0) / N;
+    const X = (y, t) => x0 + (t - jan1(y)) / yearLen(y) * (x1 - x0);
+    const Y = i => y0 + (i + 0.5) * rowH;
+
+    for (let m = 0; m < 12; m += 2) {
+      const frac = monthStarts(BASE_YEAR)[m] / 365;
+      ctx.strokeStyle = C.rule; ctx.globalAlpha = .6;
+      line(ctx, x0 + frac * (x1 - x0), y0, x0 + frac * (x1 - x0), y1);
+      ctx.globalAlpha = 1;
+      text(ctx, MONTHS[m].slice(0, 3), x0 + frac * (x1 - x0) + 3, h - 8, { font, color: C.muted, halo: false });
+    }
+
+    for (let i = 0; i < N; i++) {
+      const y = BASE_YEAR + i;
+      text(ctx, String(y), x0 - 6, Y(i), { font, color: i === state.yr ? C.ink : C.muted, align: 'right', base: 'middle', halo: false });
+      // the season bars: the sun within the limit of a node
+      let start = null;
+      for (let t = jan1(y); t < jan1(y + 1); t += 0.5) {
+        const inSeason = nodeAngle(sky(t)) < seasonLimit;
+        if (inSeason && start === null) start = t;
+        if ((!inSeason || t + 0.5 >= jan1(y + 1)) && start !== null) {
+          ctx.fillStyle = C['sun-fill'];
+          ctx.fillRect(X(y, start), Y(i) - rowH * 0.3, Math.max(2, X(y, t) - X(y, start)), rowH * 0.6);
+          start = null;
+        }
+      }
+    }
+    eclipses().forEach(s => {
+      const o = ymd(s.t), i = o.y - BASE_YEAR;
+      if (i < 0 || i >= N) return;
+      const x = X(o.y, s.t), yy = Y(i);
+      const solar = s.kind === 'new';
+      ctx.beginPath(); ctx.arc(x, yy, 4, 0, 2 * Math.PI);
+      ctx.fillStyle = solar ? C['sun-bright'] : C.bg;
+      ctx.fill();
+      ctx.strokeStyle = solar ? C.sun : C.moon; ctx.lineWidth = 1.5; ctx.stroke();
+    });
+
+    // where we are
+    const t = absT(), o = ymd(t);
+    if (o.y - BASE_YEAR >= 0 && o.y - BASE_YEAR < N) {
+      const x = X(o.y, t), yy = Y(o.y - BASE_YEAR);
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+      line(ctx, x, yy - rowH * 0.48, x, yy + rowH * 0.48);
+    }
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { date: $('date'), year: $('year'), inc: $('inc'), drift: $('drift') };
+  const chipsDay = [...document.querySelectorAll('[data-day]')];
+  const chipsYear = [...document.querySelectorAll('[data-year]')];
+  const chipsInc = [...document.querySelectorAll('[data-inc]')];
+  const chipsDrift = [...document.querySelectorAll('[data-drift]')];
+  const dayPreset = v => v === 'today' ? TODAY : Number(v);
+
+  function updateText() {
+    const t = absT(), e = sky(t), s = nearestSyzygy(t);
+    const yearNow = BASE_YEAR + state.yr;
+    $('rResult').textContent = s.type || 'no eclipse';
+    $('lWhich').textContent = s.kind === 'new' ? 'Nearest new moon' : 'Nearest full moon';
+    $('rWhen').textContent = `${fmtT(s.t, true)}, ${fmtTime(s.t)}`;
+    $('rLat').textContent = fmtDeg(Math.abs(s.lat));
+    $('rNode').textContent = fmtDeg(nodeAngle(e), 1);
+    const next = eclipses().find(x => x.t > t);
+    $('rNext').textContent = next ? `${fmtT(next.t, true)}, ${next.type.split(' ')[0]}` : '—';
+    const inYear = eclipses().filter(x => ymd(x.t).y === yearNow);
+    const sol = inYear.filter(x => x.kind === 'new').length, lun = inYear.length - sol;
+    $('rCount').textContent = `${sol} solar, ${lun} lunar`;
+    $('lCount').textContent = `Eclipses in ${yearNow}`;
+    const ang = nodeAngle(e);
+    $('rSum').textContent = ang < seasonLimit
+      ? `The sun is ${fmtDeg(ang, 1)} from a node, so this is an eclipse season: the shadows can reach.`
+      : `The sun is ${fmtDeg(ang, 1)} from a node, far outside the ${fmtDeg(seasonLimit, 0)} window, so this month's new and full moons both miss.`;
+    $('dateOut').textContent = fmtDate(yearNow, state.d);
+    $('yearOut').textContent = String(yearNow);
+    $('incOut').textContent = state.inc.toFixed(2) + '°';
+    $('driftOut').textContent = state.drift.toFixed(1) + '°/year';
+    els.orbit.setAttribute('aria-label', `The moon's orbit and nodes on ${fmtDate(yearNow, state.d)} ${yearNow}: the sun is ${fmtDeg(ang, 1)} from a node.`);
+    els.lat.setAttribute('aria-label', `The moon's ecliptic latitude around ${fmtDate(yearNow, state.d)} ${yearNow}.`);
+    els.close.setAttribute('aria-label', `${s.kind === 'new' ? 'New' : 'Full'} moon on ${fmtT(s.t, true)}: ${s.type || 'no eclipse'}, missing by ${fmtDeg(Math.abs(s.lat))}.`);
+    els.seasons.setAttribute('aria-label', `Eclipse seasons from ${BASE_YEAR} to ${BASE_YEAR + 19}.`);
+  }
+
+  function syncInputs() {
+    inputs.date.max = yearLen(BASE_YEAR + state.yr) - 1;
+    if (Number(inputs.date.value) !== Math.floor(state.d)) inputs.date.value = Math.floor(state.d);
+    if (Number(inputs.year.value) !== state.yr) inputs.year.value = state.yr;
+    if (Number(inputs.inc.value) !== state.inc) inputs.inc.value = state.inc;
+    if (Number(inputs.drift.value) !== state.drift) inputs.drift.value = state.drift;
+    chipsDay.forEach(b => b.setAttribute('aria-pressed', Math.floor(state.d) === dayPreset(b.dataset.day)));
+    chipsYear.forEach(b => b.setAttribute('aria-pressed', state.yr === Number(b.dataset.year)));
+    chipsInc.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.inc - Number(b.dataset.inc)) < 0.01));
+    chipsDrift.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.drift - Number(b.dataset.drift)) < 0.05));
+  }
+
+  let raf = 0, last = 0, yrAcc = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const playing = state.playYear || state.playYears;
+    const dt = playing && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.playYear) {
+      state.d += dt * 24;
+      while (state.d >= yearLen(BASE_YEAR + state.yr)) { state.d -= yearLen(BASE_YEAR + state.yr); state.yr = (state.yr + 1) % 20; }
+    }
+    if (state.playYears) {
+      yrAcc += dt * 1.1;
+      if (yrAcc >= 20) yrAcc -= 20;
+      state.yr = Math.floor(yrAcc);
+    }
+    last = playing ? ts : 0;
+    syncInputs(); updateText();
+    drawOrbit(); drawLat(); drawClose(); drawDrift();
+    if (playing) render();
+  }
+  function setPlay(key, on) {
+    if (state[key] === on) return;
+    state[key] = on;
+    const b = $(key);
+    b.setAttribute('aria-pressed', on);
+    b.textContent = (on ? 'Pause ' : 'Play ') + (key === 'playYear' ? 'year' : 'years');
+    if (on) setPlay(key === 'playYear' ? 'playYears' : 'playYear', false);
+    render();
+  }
+  const stopAll = () => { setPlay('playYear', false); setPlay('playYears', false); };
+  $('playYear').addEventListener('click', () => setPlay('playYear', !state.playYear));
+  $('playYears').addEventListener('click', () => { yrAcc = state.yr; setPlay('playYears', !state.playYears); });
+  function goTo(t) {
+    const o = ymd(t + 0.5);
+    const yr = clamp(o.y - BASE_YEAR, 0, 19);
+    state.yr = yr;
+    state.d = clamp(Math.floor(t + 0.5 - jan1(BASE_YEAR + yr)), 0, yearLen(BASE_YEAR + yr) - 1);
+    render();
+  }
+  $('nextEcl').addEventListener('click', () => {
+    stopAll();
+    const list = eclipses(), t = absT() + 1.5;
+    const nxt = list.find(x => x.t > t);
+    if (nxt) goTo(nxt.t);
+  });
+  $('prevEcl').addEventListener('click', () => {
+    stopAll();
+    const list = eclipses(), t = absT() - 1.5;
+    for (let i = list.length - 1; i >= 0; i--) if (list[i].t < t) { goTo(list[i].t); return; }
+  });
+
+  inputs.date.addEventListener('input', e => { stopAll(); state.d = Number(e.target.value); render(); });
+  inputs.year.addEventListener('input', e => { stopAll(); state.yr = Number(e.target.value); render(); });
+  inputs.inc.addEventListener('input', e => { state.inc = Number(e.target.value); render(); });
+  inputs.drift.addEventListener('input', e => { state.drift = Number(e.target.value); render(); });
+  chipsDay.forEach(b => b.addEventListener('click', () => { stopAll(); state.d = dayPreset(b.dataset.day); render(); }));
+  chipsYear.forEach(b => b.addEventListener('click', () => { stopAll(); state.yr = Number(b.dataset.year); render(); }));
+  chipsInc.forEach(b => b.addEventListener('click', () => { state.inc = Number(b.dataset.inc); render(); }));
+  chipsDrift.forEach(b => b.addEventListener('click', () => { state.drift = Number(b.dataset.drift); render(); }));
+
+  readColors();
+  const ro = new ResizeObserver(() => {
+    Object.values(cv).forEach(fit);
+    drawOrbit(); drawLat(); drawClose(); drawDrift();
+  });
+  Object.values(els).forEach(el => ro.observe(el));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>

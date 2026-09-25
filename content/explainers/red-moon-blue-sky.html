@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The red moon and the blue sky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20);
+  --air: rgba(104, 146, 184, .18); --air-edge: #6E8CA8;
+  --ground: rgba(98, 112, 64, .16); --horizon: #4B5731; --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16);
+    --air: rgba(120, 164, 210, .16); --air-edge: #8FAECB;
+    --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C; --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16);
+  --air: rgba(120, 164, 210, .16); --air-edge: #8FAECB;
+  --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C; --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.6rem, 9vw, 3.6rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#scene { aspect-ratio: 4 / 3; }
+#air { aspect-ratio: 3 / 2; }
+#spec { aspect-ratio: 5 / 4; }
+#bend { aspect-ratio: 3 / 2; }
+@media (min-width: 640px) {
+  #scene { aspect-ratio: 16 / 9; }
+  #air { aspect-ratio: 16 / 7; }
+  #spec { aspect-ratio: 16 / 8; }
+  #bend { aspect-ratio: 16 / 7; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>The red moon and the blue sky</h1>
+    <p class="lede">A moon on the horizon is deep orange; an hour later it is white. Nothing about the moon changed. Air scatters short wavelengths far more strongly than long ones, so a low beam arrives stripped of its blue — and that stripped-out blue, arriving from every other direction at once, is the sky. Same process, two halves of one answer.</p>
+  </header>
+
+  <figure>
+    <h2>The same moon, at two heights</h2>
+    <p class="hint">Sky and moon are both coloured from the transmitted spectrum, not picked by hand.</p>
+    <canvas id="scene" role="img" aria-label="The moon at the chosen altitude, coloured by atmospheric scattering"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Air the beam crosses</dt><dd id="rAir">–</dd></div>
+    <div><dt>Blue light surviving</dt><dd id="rBlue">–</dd></div>
+    <div><dt>Red light surviving</dt><dd id="rRed">–</dd></div>
+    <div><dt>Dimmed by</dt><dd id="rDim">–</dd></div>
+    <div><dt>Apparent colour</dt><dd id="rHue">–</dd></div>
+    <div><dt>Lifted by refraction</dt><dd id="rRef">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Controls">
+    <div class="play">
+      <button class="btn" id="playRise" aria-pressed="false">Play moonrise</button>
+    </div>
+
+    <div class="ctl">
+      <label for="alt">Height above the horizon <output id="altOut" for="alt"></output></label>
+      <input type="range" id="alt" min="0" max="90" step="0.25">
+      <div class="chips" role="group" aria-label="Height presets">
+        <button class="chip" data-alt="0">On the horizon</button>
+        <button class="chip" data-alt="5">5° up</button>
+        <button class="chip" data-alt="30">30° up</button>
+        <button class="chip" data-alt="90">Overhead</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="thick">How much air <output id="thickOut" for="thick"></output></label>
+      <input type="range" id="thick" min="0" max="3" step="0.01">
+      <div class="chips" role="group" aria-label="Atmosphere presets">
+        <button class="chip" data-thick="0">No air</button>
+        <button class="chip" data-thick="0.65">Mountain top</button>
+        <button class="chip" data-thick="1">Sea level</button>
+        <button class="chip" data-thick="1.8">Hazy</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="power">Scattering's colour bias <output id="powerOut" for="power"></output></label>
+      <input type="range" id="power" min="0" max="6" step="0.05">
+      <div class="chips" role="group" aria-label="Scattering presets">
+        <button class="chip" data-power="0">Colour-blind 0</button>
+        <button class="chip" data-power="2">Halfway 2</button>
+        <button class="chip" data-power="4">Air 4</button>
+        <button class="chip" data-power="6">Fiercer 6</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>The long way in</h2>
+    <p class="hint">Why low means more air. The shell is drawn far thicker than it is; the number is the real one.</p>
+    <canvas id="air" role="img" aria-label="The beam's path through the atmosphere at this height"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>What the air takes out, and where it goes</h2>
+    <p class="hint">Transmission across the visible spectrum, with the two halves of the answer side by side.</p>
+    <canvas id="spec" role="img" aria-label="Transmission against wavelength, with the beam and sky colours"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Bending is a different effect</h2>
+    <p class="hint">What refraction actually does to a low moon, at true scale against the half-degree disc.</p>
+    <canvas id="bend" role="img" aria-label="Refraction lifting and flattening the moon's disc"></canvas>
+  </figure>
+
+  <section class="notes">
+    <h2>One process, two results</h2>
+    <p>Air molecules are far smaller than the wavelength of light, and a molecule caught in a passing wave re-radiates it in all directions. How strongly depends viciously on wavelength: the scattered power goes as one over the fourth power, so blue at 450 nanometres is scattered about five and a half times as readily as red at 700. Nothing is absorbed. The light is simply redirected, out of the beam you were looking along and into every other direction.</p>
+    <p>That single fact answers both questions at once. Look straight at the moon and you see what survived the trip: with the moon overhead the beam crosses one atmosphere's worth of air and loses about a fifth of its blue, which you would never notice. On the horizon it crosses thirty-eight times as much, and less than a thousandth of the blue gets through against a sixth of the red. Look anywhere else and you see the other half of the same transaction: sunlight passing overhead, scattering sideways into your eye, arriving blue. The moon is red because the sky is blue. Set the colour bias slider to zero and both effects die together — a grey sky and a white moon at every height — which is the cleanest proof that they are one phenomenon.</p>
+    <p>Two details the model shows but the slogan hides. Near the horizon the sky itself turns pale rather than deep blue, because along that long a path even the reds are scattered eventually and the scattering saturates. And the sky is blue rather than violet partly because the sun emits less violet, and mostly because our eyes are far less sensitive to it.</p>
+
+    <h2>What refraction does instead</h2>
+    <p>The atmosphere does bend light, and it bends it more the lower you look, but bending moves an image rather than colouring it. A moon apparently sitting on the horizon has been lifted about half a degree, which is more than its own width: geometrically it has already set. The lower limb is lifted more than the upper, which is why a rising moon looks squashed, noticeably wider than it is tall. And because the bending is very slightly stronger for blue than for red, the disc carries a thin blue-green fringe on top and a red one below, a minute of arc or so. Stack the right conditions and that upper fringe is the green flash. None of this explains the colour of the disc as a whole, which is settled before the light ever gets bent.</p>
+    <p>The moon also looks enormous when it rises, and that is not the atmosphere at all. Photograph it low and high with the same lens and the two discs measure the same, to within the couple of percent that Earth's own radius accounts for. The moon illusion happens in the visual system, not in the air.</p>
+
+    <h2>Small print</h2>
+    <p class="small">Colours are computed rather than chosen: a 5778 K solar spectrum is attenuated by exp(−τ·m), sampled every 5 nm, run through the CIE 1931 colour matching functions and converted to sRGB. The air mass m uses the standard Kasten and Young formula, which gives 38 at the horizon rather than the 1/cos that would give infinity. Optical depth follows a power law in wavelength, pinned to the sea-level Rayleigh value at 550 nm, which matches the exact Rayleigh expression to within a percent across the visible and lets the exponent become a slider. Swatches are normalised to full brightness so you can see the hue; the real dimming is reported separately, and at the horizon it is several magnitudes. The sky colour is single scattering only, with no ozone, no aerosol and no multiple scattering, so it is a touch too saturated overhead. Refraction uses Bennett's formula, and the dispersion is the real one, about four percent between 400 and 700 nm.</p>
+    <p class="small">The seasons set: the <a href="sliding-horizon.html">sliding horizon</a>, the <a href="sun-arc.html">sun's real arc</a>, <a href="crossing-the-horizon.html">crossing the horizon</a>, <a href="harvest-moon.html">the harvest moon</a>, <a href="analemma.html">the analemma</a> and <a href="eclipse-seasons.html">eclipse seasons</a>.</p>
+    <p class="small"><a href="index.html">All seven visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180;
+
+  const state = { alt: 2, thick: 1, power: 4, playRise: false };
+
+  // ---------- the physics ----------
+  // air mass, Kasten & Young (1989)
+  function airmass(altDeg) {
+    const z = 90 - clamp(altDeg, -1, 90);
+    return 1 / (Math.cos(z * DEG) + 0.50572 * Math.pow(96.07995 - z, -1.6364));
+  }
+  // optical depth: sea-level Rayleigh pinned at 550 nm, with the exponent as a control
+  const TAU550 = 0.0973;
+  const tau = nm => state.thick * TAU550 * Math.pow(550 / nm, state.power);
+  const trans = (nm, m) => Math.exp(-tau(nm) * m);
+  function planck(nm, T) {
+    const l = nm * 1e-9;
+    return 1 / (Math.pow(l, 5) * (Math.exp(1.4388e-2 / (l * T)) - 1));
+  }
+  // CIE 1931 colour matching, multi-lobe Gaussian fits
+  function cie(nm) {
+    const g = (x, mu, s1, s2) => { const t = (x - mu) * (x < mu ? 1 / s1 : 1 / s2); return Math.exp(-0.5 * t * t); };
+    return [
+      1.056 * g(nm, 599.8, 37.9, 31.0) + 0.362 * g(nm, 442.0, 16.0, 26.7) - 0.065 * g(nm, 501.1, 20.4, 26.2),
+      0.821 * g(nm, 568.8, 46.9, 40.5) + 0.286 * g(nm, 530.9, 16.3, 31.1),
+      1.217 * g(nm, 437.0, 11.8, 36.0) + 0.681 * g(nm, 459.0, 26.0, 13.8)
+    ];
+  }
+  const LO = 380, HI = 730, STEP = 5;
+  function spectrumToLinear(fn) {
+    let X = 0, Y = 0, Z = 0;
+    for (let nm = LO; nm <= HI; nm += STEP) {
+      const s = planck(nm, 5778) * fn(nm), c = cie(nm);
+      X += s * c[0]; Y += s * c[1]; Z += s * c[2];
+    }
+    return [
+      3.2406 * X - 1.5372 * Y - 0.4986 * Z,
+      -0.9689 * X + 1.8758 * Y + 0.0415 * Z,
+      0.0557 * X - 0.2040 * Y + 1.0570 * Z
+    ];
+  }
+  const WHITE = spectrumToLinear(() => 1);          // the moon with no air at all
+  function toRgb(lin, balance) {
+    const b = balance === false ? [1, 1, 1] : WHITE;
+    let v = lin.map((c, i) => c / b[i]);
+    const mx = Math.max(v[0], v[1], v[2], 1e-9);
+    v = v.map(c => clamp(c / mx, 0, 1));
+    const gam = c => c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+    return v.map(c => Math.round(255 * gam(c)));
+  }
+  const toCss = (lin, balance) => 'rgb(' + toRgb(lin, balance).join(',') + ')';
+  const rgba = (rgb, a) => `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`;
+  const beamRgb = m => toRgb(spectrumToLinear(nm => trans(nm, m)));
+  const beamColour = m => 'rgb(' + beamRgb(m).join(',') + ')';
+  // single scattering: what the beam lost, arriving from elsewhere
+  const skyColour = m => toCss(spectrumToLinear(nm => 1 - trans(nm, m)));
+  function hueName(m) {
+    if (state.thick === 0 || state.power === 0) return 'unchanged';
+    const b = trans(450, m), r = trans(650, m), ratio = r / Math.max(b, 1e-12);
+    if (ratio < 1.5) return 'white';
+    if (ratio < 4) return 'warm white';
+    if (ratio < 20) return 'yellow';
+    if (ratio < 200) return 'orange';
+    if (ratio < 5000) return 'deep orange';
+    return 'blood red';
+  }
+  // refraction in degrees: Bennett from an apparent altitude, Saemundsson from a true one
+  const refraction = h => state.thick * (1 / 60) / Math.tan((h + 7.31 / (h + 4.4)) * DEG);
+  const refractTrue = h => state.thick * (1.02 / 60) / Math.tan((h + 10.3 / (h + 5.11)) * DEG);
+  const appOf = ht => ht + refractTrue(ht);
+  function trueOf(app) {
+    let h = app - refraction(app);
+    for (let i = 0; i < 6; i++) h -= appOf(h) - app;
+    return h;
+  }
+  const MOON_R = 0.259;                              // the moon's apparent radius, degrees
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'air', 'air-edge', 'ground', 'horizon', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { scene: $('scene'), air: $('air'), spec: $('spec'), bend: $('bend') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+
+  // ---------- 1. the scene ----------
+  function drawScene() {
+    const { ctx, w, h } = cv.scene;
+    if (!w) return;
+    const small = w < 480;
+    const gy = h * 0.82;
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handB = `600 ${small ? 20 : 22}px ${HAND}`;
+    ctx.clearRect(0, 0, w, h);
+
+    // the sky: single scattering along each line of sight
+    const grad = ctx.createLinearGradient(0, 0, 0, gy);
+    for (let i = 0; i <= 10; i++) {
+      const elev = 90 - 90 * (i / 10);
+      grad.addColorStop(i / 10, skyColour(airmass(Math.max(elev, 0.3)) * 0.42));
+    }
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, w, gy);
+    ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, h - gy);
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25;
+    line(ctx, 0, gy, w, gy);
+
+    // the moon, at its height on a quarter-circle of sky
+    const R = Math.min(gy - 30, w * 0.42);
+    const cx = w * 0.30;
+    const a = clamp(state.alt, 0, 90) * DEG;
+    const mx = cx + R * Math.cos(a) * 0.92, my = gy - R * Math.sin(a) * 0.92;
+    const m = airmass(state.alt);
+    const rad = Math.max(9, Math.min(w, h) * 0.055);
+    const rgb = beamRgb(m), col = 'rgb(' + rgb.join(',') + ')';
+    const glow = ctx.createRadialGradient(mx, my, rad * 0.9, mx, my, rad * 3.4);
+    glow.addColorStop(0, rgba(rgb, 0.45)); glow.addColorStop(0.45, rgba(rgb, 0.16)); glow.addColorStop(1, rgba(rgb, 0));
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.arc(mx, my, rad * 3.4, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(mx, my, rad, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.ghost; ctx.lineWidth = 1; ctx.globalAlpha = .5; ctx.stroke(); ctx.globalAlpha = 1;
+
+    // the arc it climbs, and the height marker
+    ctx.save();
+    ctx.setLineDash([3, 5]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1; ctx.globalAlpha = .7;
+    ctx.beginPath(); ctx.arc(cx, gy, R * 0.92, -Math.PI / 2, 0); ctx.stroke();
+    ctx.restore();
+    text(ctx, `${state.alt.toFixed(0)}° up`, mx + rad + 10, my + 5, { font: uiFont, color: C.ink, halo: true });
+    text(ctx, hueName(m), 10, h - 12, { font: handB, color: C.ink, halo: true });
+  }
+
+  // ---------- 2. the path through the air ----------
+  function drawAir() {
+    const { ctx, w, h } = cv.air;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const R = Math.max(w * 1.15, 400);              // Earth, drawn very large
+    const T = Math.max(26, h * 0.30);               // atmosphere, drawn very thick
+    const oy = h - 18;                              // the observer sits here
+    const cx = w * 0.5, cy = oy + R;
+
+    // the shell
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, R + T, 0, 2 * Math.PI);
+    ctx.arc(cx, cy, R, 0, 2 * Math.PI, true);
+    ctx.fillStyle = C.air; ctx.fill('evenodd');
+    ctx.restore();
+    ctx.strokeStyle = C['air-edge']; ctx.lineWidth = 1; ctx.globalAlpha = .6;
+    ctx.beginPath(); ctx.arc(cx, cy, R + T, 0, 2 * Math.PI); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
+
+    // a ray arriving at the observer from altitude a: trace back to the top of the shell
+    const hit = aDeg => {
+      const a = aDeg * DEG;
+      const dx = Math.cos(a), dy = -Math.sin(a);     // outward from the observer
+      const ox = cx, oy2 = oy;
+      const fx = ox - cx, fy = oy2 - cy;
+      const b = 2 * (fx * dx + fy * dy), c2 = fx * fx + fy * fy - (R + T) * (R + T);
+      const t = (-b + Math.sqrt(b * b - 4 * c2)) / 2;
+      return [ox + dx * t, oy2 + dy * t, t];
+    };
+    const zen = hit(90), ray = hit(Math.max(state.alt, 0.15));
+    ctx.save();
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1.5;
+    line(ctx, cx, oy, zen[0], zen[1]);
+    ctx.restore();
+    text(ctx, 'overhead: 1×', zen[0] + 6, zen[1] + 14, { font: uiFont, color: C.muted, halo: true });
+
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 3;
+    line(ctx, cx, oy, ray[0], ray[1]);
+    const col = beamColour(airmass(state.alt));
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(ray[0], ray[1], small ? 9 : 11, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.ghost; ctx.lineWidth = 1; ctx.globalAlpha = .6; ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillStyle = C.ink;
+    ctx.beginPath(); ctx.arc(cx, oy, 4, 0, 2 * Math.PI); ctx.fill();
+    text(ctx, 'you', cx + 8, oy - 6, { font: uiFont, color: C.muted, halo: true });
+
+    const m = airmass(state.alt);
+    const mid = [(cx + ray[0]) / 2, (oy + ray[1]) / 2];
+    text(ctx, `${m < 10 ? m.toFixed(1) : m.toFixed(0)}× as much air`, mid[0], mid[1] - 12,
+      { font: handS, color: C['sun-ink'], align: 'center', halo: true });
+  }
+
+  // ---------- 3. the spectrum ----------
+  function drawSpec() {
+    const { ctx, w, h } = cv.spec;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const swH = Math.max(46, h * 0.22);
+    const x0 = 38, x1 = w - 10, y0 = 14, y1 = h - swH - 34;
+    const X = nm => x0 + (nm - LO) / (HI - LO) * (x1 - x0);
+    const Y = t => y1 - t * (y1 - y0);
+    const m = airmass(state.alt);
+
+    // the spectrum itself along the foot of the chart
+    for (let nm = LO; nm < HI; nm += 2) {
+      ctx.fillStyle = toCss(spectrumToLinear(l => (Math.abs(l - nm) < 3 ? 1 : 0)), false);
+      ctx.fillRect(X(nm), y1 + 4, X(nm + 2) - X(nm) + 1, 10);
+    }
+    ctx.lineWidth = 1;
+    [0, 0.5, 1].forEach(t => {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(t), x1, Y(t));
+      text(ctx, Math.round(t * 100) + '%', x0 - 6, Y(t), { font: uiFont, color: C.muted, align: 'right', base: 'middle' });
+    });
+    [400, 500, 600, 700].forEach(nm => text(ctx, nm, X(nm), y1 + 26, { font: uiFont, color: C.muted, align: 'center' }));
+
+    // reference curves at one air mass and at the horizon
+    [[1, 'overhead'], [airmass(0), 'horizon']].forEach(([mm, label]) => {
+      const pts = [];
+      for (let nm = LO; nm <= HI; nm += 5) pts.push([X(nm), Y(trans(nm, mm))]);
+      ctx.save();
+      ctx.setLineDash([4, 4]); ctx.lineWidth = 1.25; ctx.strokeStyle = C.ghost; ctx.globalAlpha = .8;
+      poly(ctx, pts); ctx.stroke();
+      ctx.restore();
+      text(ctx, label, x1 - 4, Y(trans(HI, mm)) - 6, { font: uiFont, color: C.muted, align: 'right' });
+    });
+
+    // this beam
+    const pts = [];
+    for (let nm = LO; nm <= HI; nm += 5) pts.push([X(nm), Y(trans(nm, m))]);
+    poly(ctx, pts);
+    ctx.lineTo(X(HI), Y(0)); ctx.lineTo(X(LO), Y(0)); ctx.closePath();
+    ctx.fillStyle = C['sun-fill']; ctx.fill();
+    poly(ctx, pts); ctx.lineWidth = 3; ctx.strokeStyle = C.sun; ctx.lineJoin = 'round'; ctx.stroke();
+    text(ctx, 'what gets through', X(625), Y(trans(625, m)) - 12,
+      { font: handS, color: C['sun-ink'], align: 'right', halo: true });
+
+    // the two halves
+    const sw = (x, wid, col, label) => {
+      ctx.fillStyle = col;
+      ctx.fillRect(x, h - swH + 6, wid, swH - 28);
+      ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+      ctx.strokeRect(x, h - swH + 6, wid, swH - 28);
+      text(ctx, label, x + wid / 2, h - 8, { font: uiFont, color: C.muted, align: 'center' });
+    };
+    const gap = 10, wid = (x1 - x0 - gap) / 2;
+    sw(x0, wid, beamColour(m), 'the beam that reaches you');
+    sw(x0 + wid + gap, wid, skyColour(airmass(45) * 0.42), 'the light it lost, as sky');
+  }
+
+  // ---------- 4. refraction ----------
+  function drawBend() {
+    const { ctx, w, h } = cv.bend;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const per = Math.min((h - 54) / 2.0, (w - 40) / 3.4);   // pixels per degree
+    const cx = w * 0.42, cy = h * 0.52;
+    const app = clamp(state.alt, 0, 90);
+    const hTrue = trueOf(app);
+    const lift = app - hTrue;
+    // the lower limb is lifted more than the upper, so the disc is squashed
+    const halfH = state.thick === 0 ? MOON_R
+      : Math.max(0.02, (appOf(hTrue + MOON_R) - appOf(hTrue - MOON_R)) / 2);
+
+    // horizon line and the true, unbent position
+    const hy = cy + app * per;
+    ctx.fillStyle = C.ground; ctx.fillRect(0, hy, w, h - hy);
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2;
+    line(ctx, 0, hy, w, hy);
+    text(ctx, 'horizon', w - 8, hy - 8, { font: uiFont, color: C.horizon, align: 'right' });
+
+    const trueY = cy + lift * per;   // the disc as it would sit with no air
+    ctx.save();
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1.25;
+    ctx.beginPath(); ctx.ellipse(cx, trueY, MOON_R * per, MOON_R * per, 0, 0, 2 * Math.PI); ctx.stroke();
+    ctx.restore();
+    text(ctx, 'where it really is', cx - MOON_R * per - 8, trueY + 4, { font: uiFont, color: C.muted, align: 'right' });
+
+    // the apparent disc, with the dispersion fringes
+    const disp = 0.04 * lift * per;
+    ctx.globalAlpha = .55;
+    ctx.fillStyle = 'rgb(90,190,160)';
+    ctx.beginPath(); ctx.ellipse(cx, cy - disp, MOON_R * per, halfH * per, 0, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = 'rgb(210,90,70)';
+    ctx.beginPath(); ctx.ellipse(cx, cy + disp, MOON_R * per, halfH * per, 0, 0, 2 * Math.PI); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = beamColour(airmass(state.alt));
+    ctx.beginPath(); ctx.ellipse(cx, cy, MOON_R * per, halfH * per, 0, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.ghost; ctx.lineWidth = 1; ctx.globalAlpha = .5;
+    ctx.beginPath(); ctx.ellipse(cx, cy, MOON_R * per, halfH * per, 0, 0, 2 * Math.PI); ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // the lift, measured
+    if (lift * per > 6) {
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+      const ax = cx + MOON_R * per + 22;
+      line(ctx, ax, cy, ax, trueY);
+      line(ctx, ax - 5, cy, ax + 5, cy);
+      line(ctx, ax - 5, trueY, ax + 5, trueY);
+      text(ctx, `${(lift * 60).toFixed(1)}′ lift`, ax + 9, (cy + trueY) / 2 + 4, { font: handS, color: C.ink, halo: true });
+    }
+    const squash = 100 * (1 - halfH / MOON_R);
+    text(ctx, squash > 1 ? `squashed by ${squash.toFixed(0)}%` : 'no measurable squash', 10, h - 12,
+      { font: handS, color: C.muted, halo: true });
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { alt: $('alt'), thick: $('thick'), power: $('power') };
+  const chipsAlt = [...document.querySelectorAll('[data-alt]')];
+  const chipsThick = [...document.querySelectorAll('[data-thick]')];
+  const chipsPower = [...document.querySelectorAll('[data-power]')];
+
+  function updateText() {
+    const m = airmass(state.alt);
+    const b = trans(450, m), r = trans(650, m);
+    const pct = v => v >= 0.1 ? (100 * v).toFixed(0) + '%'
+      : v >= 0.0005 ? (100 * v).toFixed(2) + '%'
+        : v <= 0 ? 'none' : '1 part in ' + Math.round(1 / v).toLocaleString('en-GB');
+    $('rAir').textContent = `${m < 10 ? m.toFixed(2) : m.toFixed(0)}× overhead`;
+    $('rBlue').textContent = pct(b);
+    $('rRed').textContent = pct(r);
+    const lin = spectrumToLinear(nm => trans(nm, m));
+    const lin0 = spectrumToLinear(() => 1);
+    const lum = (lin[1] + 1e-12) / (lin0[1] + 1e-12);
+    $('rDim').textContent = state.thick === 0 ? 'not at all' : `${(-2.5 * Math.log10(clamp(lum, 1e-12, 1))).toFixed(1)} magnitudes`;
+    $('rHue').textContent = hueName(m);
+    const appAlt = clamp(state.alt, 0, 90);
+    const lift = appAlt - trueOf(appAlt);
+    const halfH = state.thick === 0 ? MOON_R : (appOf(trueOf(appAlt) + MOON_R) - appOf(trueOf(appAlt) - MOON_R)) / 2;
+    const squash = 100 * (1 - halfH / MOON_R);
+    $('rRef').textContent = `${(lift * 60).toFixed(1)}′${squash > 1 ? `, squashed ${squash.toFixed(0)}%` : ''}`;
+    $('altOut').textContent = state.alt.toFixed(1) + '°';
+    $('thickOut').textContent = state.thick === 0 ? 'none' : state.thick.toFixed(2) + '× sea level';
+    $('powerOut').textContent = '1/λ' + (state.power === 0 ? '⁰ (none)' : `^${state.power.toFixed(1)}`);
+    $('rSum').textContent = state.thick === 0
+      ? 'With no air there is nothing to scatter: the moon is white at every height and the sky is black.'
+      : state.power === 0
+        ? 'With no colour bias the air dims every wavelength equally: a grey sky and a white moon, however low it sits.'
+        : `The beam crosses ${m < 10 ? m.toFixed(1) : m.toFixed(0)} times as much air as it would overhead. ${pct(b)} of its blue survives against ${pct(r)} of its red, and the blue it lost is what you see as sky.`;
+    els.scene.setAttribute('aria-label', `The moon ${state.alt.toFixed(0)}° up looks ${hueName(m)}.`);
+    els.air.setAttribute('aria-label', `The beam crosses ${m.toFixed(1)} times as much air as overhead.`);
+    els.spec.setAttribute('aria-label', `Transmission: ${pct(b)} of blue and ${pct(r)} of red survive.`);
+    els.bend.setAttribute('aria-label', `Refraction lifts the disc by ${(lift * 60).toFixed(1)} arcminutes.`);
+  }
+
+  function syncInputs() {
+    if (Number(inputs.alt.value) !== state.alt) inputs.alt.value = state.alt;
+    if (Number(inputs.thick.value) !== state.thick) inputs.thick.value = state.thick;
+    if (Number(inputs.power.value) !== state.power) inputs.power.value = state.power;
+    chipsAlt.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.alt - Number(b.dataset.alt)) < 0.01));
+    chipsThick.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.thick - Number(b.dataset.thick)) < 0.005));
+    chipsPower.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.power - Number(b.dataset.power)) < 0.025));
+  }
+
+  let raf = 0, last = 0, dir = 1;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const dt = state.playRise && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.playRise) {
+      state.alt = clamp(state.alt + dir * dt * 9, 0, 60);
+      if (state.alt <= 0 || state.alt >= 60) dir = -dir;
+      state.alt = Math.round(state.alt * 4) / 4;
+    }
+    last = state.playRise ? ts : 0;
+    syncInputs(); updateText();
+    drawScene(); drawAir(); drawSpec(); drawBend();
+    if (state.playRise) render();
+  }
+  function setPlay(on) {
+    if (state.playRise === on) return;
+    state.playRise = on;
+    $('playRise').setAttribute('aria-pressed', on);
+    $('playRise').textContent = on ? 'Pause moonrise' : 'Play moonrise';
+    render();
+  }
+  $('playRise').addEventListener('click', () => setPlay(!state.playRise));
+  inputs.alt.addEventListener('input', e => { setPlay(false); state.alt = Number(e.target.value); render(); });
+  inputs.thick.addEventListener('input', e => { state.thick = Number(e.target.value); render(); });
+  inputs.power.addEventListener('input', e => { state.power = Number(e.target.value); render(); });
+  chipsAlt.forEach(b => b.addEventListener('click', () => { setPlay(false); state.alt = Number(b.dataset.alt); render(); }));
+  chipsThick.forEach(b => b.addEventListener('click', () => { state.thick = Number(b.dataset.thick); render(); }));
+  chipsPower.forEach(b => b.addEventListener('click', () => { state.power = Number(b.dataset.power); render(); }));
+
+  readColors();
+  const ro = new ResizeObserver(() => {
+    Object.values(cv).forEach(fit);
+    drawScene(); drawAir(); drawSpec(); drawBend();
+  });
+  Object.values(els).forEach(el => ro.observe(el));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
