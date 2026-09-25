@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20); --sun-glow: rgba(235, 162, 27, .30);
+  --moon: #5C7085; --moon-ink: #41566B; --moon-lit: #F2F6FA; --moon-dark: #BFCAD5;
+  --sea: #2F6E9E; --sea-fill: rgba(47, 110, 158, .18); --land: rgba(98, 112, 64, .22);
+  --pull: #7A5691;
+  --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+    --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+    --sea: #79B2DD; --sea-fill: rgba(121, 178, 221, .16); --land: rgba(122, 142, 82, .20);
+    --pull: #BB9AD6;
+    --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+  --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+  --sea: #79B2DD; --sea-fill: rgba(121, 178, 221, .16); --land: rgba(122, 142, 82, .20);
+  --pull: #BB9AD6;
+  --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.6rem, 9vw, 3.6rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#system { aspect-ratio: 1 / 1; }
+#field { aspect-ratio: 4 / 5; }
+#day { aspect-ratio: 5 / 3; }
+#month { aspect-ratio: 5 / 3; }
+#year { aspect-ratio: 5 / 3; }
+@media (min-width: 640px) {
+  #system { aspect-ratio: 16 / 10; }
+  #field { aspect-ratio: 16 / 6; }
+  #day { aspect-ratio: 16 / 6; }
+  #month { aspect-ratio: 16 / 6; }
+  #year { aspect-ratio: 16 / 6; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl .lab { font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Tides</h1>
+    <p class="lede">Two pullers, one sea. The moon raises a bulge twice its own size on opposite sides of Earth, the sun raises a smaller one of its own, and where those two line up decides whether this week's tides are big or feeble. Then Earth spins through the whole arrangement twice a day.</p>
+  </header>
+
+  <figure>
+    <h2>The moon, the sun and the water</h2>
+    <p class="hint">Looking down on the equator. Move the date to swing the moon round; move the time to spin Earth under the water. Distances and bulges are nothing like to scale.</p>
+    <canvas id="system" role="img" aria-label="Earth with the moon and sun, and the tidal bulges they raise"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Tide under you now</dt><dd id="rNow">–</dd></div>
+    <div><dt>Range today</dt><dd id="rRange">–</dd></div>
+    <div><dt>Next high water</dt><dd id="rNext">–</dd></div>
+    <div><dt>Highs come every</dt><dd id="rGap">–</dd></div>
+    <div><dt>Moon and sun apart by</dt><dd id="rElong">–</dd></div>
+    <div><dt>Moon's distance</dt><dd id="rDist">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Time controls">
+    <div class="play">
+      <button class="btn" id="playDay" aria-pressed="false">Spin the Earth</button>
+      <button class="btn" id="playMonth" aria-pressed="false">Run the month</button>
+      <button class="btn" id="toSpring">Next spring ▶</button>
+      <button class="btn" id="toNeap">Next neap ▶</button>
+    </div>
+    <div class="ctl">
+      <label for="time">Time of day <output id="timeOut" for="time"></output></label>
+      <input type="range" id="time" min="0" max="24" step="0.05">
+    </div>
+    <div class="ctl">
+      <label for="date">Date <output id="dateOut" for="date"></output></label>
+      <input type="range" id="date" min="0" max="364" step="1">
+      <div class="chips" role="group" aria-label="Date presets">
+        <button class="chip" data-day="today">Today</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>But why a bulge on the far side too?</h2>
+    <p class="hint">A subtraction, done in colour. Every arrow is the grey part Earth shares in free fall plus a purple excess, magnified so you can see it. Take the grey away and the purple is what moves water.</p>
+    <canvas id="field" role="img" aria-label="The moon's pull, minus Earth's free fall, equals the tidal stretch"></canvas>
+  </figure>
+
+
+  <figure class="block">
+    <h2>A day under the bulges</h2>
+    <p class="hint">Two days of equilibrium tide where you're standing. The moon runs slow against the clock, so high water drifts later.</p>
+    <canvas id="day" role="img" aria-label="Tide height over two days"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Place controls">
+    <div class="ctl">
+      <label for="lat">Latitude <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="-80" max="80" step="0.5">
+      <div class="chips" role="group" aria-label="Latitude presets">
+        <button class="chip" data-lat="0">Equator</button>
+        <button class="chip" data-lat="30">30° N</button>
+        <button class="chip" data-lat="53">UK 53° N</button>
+        <button class="chip" data-lat="70">70° N</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>A month of spring and neap</h2>
+    <p class="hint">The daily high and low water through one cycle of the phases. The faint pair behind is what the moon would manage on its own.</p>
+    <canvas id="month" role="img" aria-label="Daily tidal range across a month"></canvas>
+  </figure>
+
+
+  <figure class="block">
+    <h2>A year of ranges</h2>
+    <p class="hint">Every day's range for a year. The fortnightly beat is spring and neap; the slower swell is the moon's changing distance.</p>
+    <canvas id="year" role="img" aria-label="Daily tidal range through a year"></canvas>
+  </figure>
+
+  <section class="notes">
+    <h2>Why there are two</h2>
+    <p>Gravity weakens with distance, so the moon pulls the near side of Earth harder than the middle, and the middle harder than the far side. That is the whole story, but the conclusion only becomes obvious once you subtract the right thing.</p>
+    <p>Earth as a body is in free fall towards the moon. Everything in free fall together feels nothing: what an ocean can respond to is only the part of the pull that <em>differs</em> from the pull on Earth as a whole. So take the moon's pull at every point and subtract the pull at Earth's centre. On the near side the pull is stronger than average, and the residual points at the moon. On the far side the pull is weaker than average, and the residual points directly away from the moon. Around the sides the pull is very slightly converging towards the moon, so the residual squeezes inwards. Stretch along one axis, squeeze around the other two, water piles up at both ends. The panel above does that subtraction in front of you, three pictures and two signs: the pull itself is so nearly uniform that it moves nothing, and everything interesting lives in the leftovers. Each arrow there is drawn in two pieces: the grey length every part of Earth shares, and a purple excess magnified about thirty times. On the near side the purple points at the moon, because that water is pulled harder than average. On the far side it points backwards, because that water is pulled less than average and gets left behind. Those purple leftovers, acting for hours across an ocean, are all a tidal bulge is.</p>
+    <p>The remainder really is tiny. The moon's pull on you is about three hundredths of a millimetre per second squared; what's left after subtracting the average is a thousandth of a millimetre per second squared, about a ten-millionth of Earth's own gravity. It could never lift water by itself. What it can do is act sideways, along the surface, hour after hour across an entire ocean, and sideways is a direction gravity does not resist.</p>
+
+    <h2>Is the far bulge centrifugal?</h2>
+    <p>You will often read that the far-side bulge is thrown outwards by Earth's swing around the Earth–Moon barycentre. That is not quite a myth, but it is a detour, and it is usually told wrongly. Done carefully, in the frame revolving with the two bodies, the inertial term is exactly the same size and direction at every point of Earth, because in a revolution without rotation every point traces an identical circle. Subtract that uniform term from the moon's non-uniform pull and you get the two bulges. Which is the same arithmetic as subtracting the pull at Earth's centre, because that is precisely what the uniform term equals.</p>
+    <p>The trouble is what people picture when they hear the word. They imagine something that varies across Earth, or they blame Earth's daily spin, and then they are explaining a real effect with a mechanism that isn't doing the work. Here is the test that settles it: if the moon stopped dead and Earth fell straight towards it, no orbit and no rotation at all, you would get exactly the same two bulges. The stretch comes from the pull being uneven, not from going round anything. Nothing in that three-part picture is orbiting or spinning, and the bulges are there all the same.</p>
+
+    <h2>Why they come 12 hours 25 minutes apart</h2>
+    <p>The two bulges hold still relative to the moon while Earth turns beneath them, so you pass through two of them each rotation. But the moon has moved on. It takes 24 hours 50 minutes for the moon to come back to your meridian rather than 24 hours, so successive high waters are 12 hours 25 minutes apart and everything drifts about 50 minutes later each day. That is the same fifty minutes that makes moonrise creep later each night on <a href="harvest-moon.html">the harvest moon page</a>.</p>
+    <p>Two a day is the usual case, not the rule. The bulge axis points at the moon, and the moon spends most of the month away from the equator, so the two bulges sit one north and one south of the equator. Sweep round a latitude circle and you cut deeply through one and barely graze the other, which gives unequal highs. Push the latitude slider towards 70° with the moon well off the equator and one of the two daily highs nearly disappears: those places get one tide a day, and plenty of real coastlines do exactly that.</p>
+
+    <h2>Spring, neap and the moon's distance</h2>
+    <p>The sun raises its own tides at 46% of the moon's strength. Massive as it is, it is four hundred times further away, and tidal pull falls off as the cube of distance rather than the square. At new and full moon the two line up and the ranges add; at the quarters they fight and the range collapses. The dashed pair on the month chart is what the moon would manage on its own: at new and full the solid lines run outside it, and at the quarters they fall inside, because there the sun is working against the moon rather than with it.</p>
+    <p>The moon's distance matters more than most people expect. It ranges from about 357,000 to 406,000 km, and because the effect goes as the cube, the tide-raising force is about 47% stronger at perigee than at apogee. When a perigee lands on a full or new moon you get the perigean spring tides that coastal forecasters watch for.</p>
+
+    <h2>What this model does not do</h2>
+    <p>Everything here is the equilibrium tide: the shape the ocean would take if it were deep, global and could respond instantly. Real tides are a forced wave sloshing in basins of awkward shape, and that changes almost everything about the numbers. The equilibrium range is about half a metre; the Bay of Fundy reaches sixteen because its basin happens to resonate near twelve hours. High water does not arrive when the moon is overhead but hours later, by an amount fixed for each port. And the tide does not slide around the globe as a bulge at all: it rotates around amphidromic points where the range falls to nothing. What this model gets right is the rhythm — two a day, 12 hours 25 minutes apart, drifting 50 minutes daily, swelling fortnightly with the phases and monthly with the distance. Every real tide table dances to exactly that beat, then applies its own local correction.</p>
+
+    <h2>Small print</h2>
+    <p class="small">The equilibrium height is the standard expression: for each body, the mass ratio to Earth times Earth's radius to the fourth over the distance cubed, times (3cos²ψ − 1)/2, where ψ is the body's angle from your zenith. That angle is the same altitude formula the rest of this set uses, so the tide at any moment depends only on how high the moon and sun stand above your horizon. Moon and sun positions come from mean elements with the main periodic terms, good to a minute or so of time. Amplitudes come out at 0.35 m for the moon and 0.16 m for the sun, giving an equatorial spring range near a metre and a neap range near 0.4 m. Times are local solar time. No ocean, no coastline, no lag.</p>
+    <p class="small"><a href="index.html">All eleven visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const sind = x => Math.sin(x * DEG), cosd = x => Math.cos(x * DEG);
+  const wrap = x => ((x % 360) + 540) % 360 - 180;
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const MDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const MSTART = [];
+  MDAYS.reduce((acc, n, i) => (MSTART[i] = acc, acc + n), 0);
+  const now = new Date();
+  const YEAR = now.getUTCFullYear();
+  const TODAY = clamp(Math.floor((Date.UTC(YEAR, now.getUTCMonth(), now.getUTCDate()) - Date.UTC(YEAR, 0, 1)) / 86400000), 0, 364);
+  const jan1 = y => {
+    const a = 0, yy = y + 4800, mm = 10;
+    const JDN = 1 + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
+    return JDN - 0.5 - 2451545.0;
+  };
+  const T0 = jan1(YEAR);
+
+  const state = { d: TODAY, t: 10, lat: 53, body: 'both', play: false, playM: false };
+
+  // ---------- sun and moon ----------
+  const ME = 5.9722e24, RE = 6371.0, MM = 7.342e22, MS = 1.98847e30;
+  const SKY = new Map();
+  function sky(t) {
+    const key = Math.round(t * 5760);          // fifteen-second resolution
+    const got = SKY.get(key);
+    if (got) return got;
+    const v = skyRaw(t);
+    if (SKY.size > 150000) SKY.clear();
+    SKY.set(key, v);
+    return v;
+  }
+  function skyRaw(t) {
+    const T = t / 36525;
+    const Lp = 218.3164477 + 481267.88123421 * T, D = 297.8501921 + 445267.1114034 * T;
+    const M = 357.5291092 + 35999.0502909 * T, Mp = 134.9633964 + 477198.8675055 * T;
+    const F = 93.2720950 + 483202.0175233 * T;
+    const lonM = Lp + 6.289 * sind(Mp) + 1.274 * sind(2 * D - Mp) + 0.658 * sind(2 * D)
+      + 0.214 * sind(2 * Mp) - 0.186 * sind(M) - 0.114 * sind(2 * F);
+    const latM = 5.128 * sind(F) + 0.2806 * sind(Mp + F) + 0.2777 * sind(Mp - F) + 0.1732 * sind(2 * D - F);
+    const rM = 385000.56 - 20905.355 * cosd(Mp) - 3699.111 * cosd(2 * D - Mp)
+      - 2955.968 * cosd(2 * D) - 569.925 * cosd(2 * Mp);
+    const lonS = 280.4665 + 36000.7698 * T + 1.915 * sind(M) + 0.020 * sind(2 * M);
+    const rS = (1.000140 - 0.016708 * cosd(M) - 0.000139 * cosd(2 * M)) * 1.495978707e8;
+    const eps = 23.4393;
+    const eq = (lon, lat) => {
+      const l = lon * DEG, b = lat * DEG, e = eps * DEG;
+      return {
+        ra: ((Math.atan2(Math.sin(l) * Math.cos(e) - Math.tan(b) * Math.sin(e), Math.cos(l)) / DEG) % 360 + 360) % 360,
+        dec: Math.asin(Math.sin(b) * Math.cos(e) + Math.cos(b) * Math.sin(e) * Math.sin(l)) / DEG
+      };
+    };
+    return { moon: { ...eq(lonM, latM), r: rM }, sun: { ...eq(lonS, 0), r: rS }, phase: wrap(lonM - lonS) };
+  }
+  // equilibrium tide, metres
+  function tide(t, lat, tod, body) {
+    const s = sky(t);
+    const Hs = (tod - 12) * 15, Hm = Hs + wrap(s.sun.ra - s.moon.ra);
+    const term = (dec, H, mass, d) => {
+      const c = sind(lat) * sind(dec) + cosd(lat) * cosd(dec) * cosd(H);
+      return (mass / ME) * Math.pow(RE, 4) / Math.pow(d, 3) * (3 * c * c - 1) / 2 * 1000;
+    };
+    const m = term(s.moon.dec, Hm, MM, s.moon.r);
+    const sn = (body || state.body) === 'moon' ? 0 : term(s.sun.dec, Hs, MS, s.sun.r);
+    return { total: m + sn, moon: m, sun: sn, s };
+  }
+  const dayAt = d => T0 + d;
+  const curve = (d, lat, body, hours, step) => {
+    const out = [];
+    const dh = step || 1 / 12;
+    for (let h = 0; h <= hours; h += dh) {
+      const t = dayAt(d) + h / 24;
+      out.push({ h, v: tide(t, lat, ((h % 24) + 24) % 24, body).total });
+    }
+    return out;
+  };
+  const rangeOn = (d, lat, body) => {
+    const c = curve(d, lat, body, 25, 0.25);    // quarter-hour steps: a millimetre of error
+    let lo = 1e9, hi = -1e9;
+    for (const p of c) { if (p.v < lo) lo = p.v; if (p.v > hi) hi = p.v; }
+    return hi - lo;
+  };
+  // each panel's data is recomputed only when something it depends on changes
+  const memo = (() => {
+    const store = {};
+    return (name, key, make) => {
+      const slot = store[name];
+      if (slot && slot.key === key) return slot.val;
+      const val = make();
+      store[name] = { key, val };
+      return val;
+    };
+  })();
+  const dayData = () => memo('day', `${Math.floor(state.d)}|${state.lat}|${state.body}`,
+    () => curve(Math.floor(state.d), state.lat, state.body, 48));
+  const monthData = () => memo('month', `${Math.floor(state.d)}|${state.lat}`, () => {
+    const from = Math.floor(state.d) - 15, rows = [];
+    for (let k = 0; k <= 30; k++) {
+      const d = from + k;
+      const ext = (body) => {
+        const c = curve(d, state.lat, body, 25, 0.25);
+        let lo = 1e9, hi = -1e9;
+        for (const p of c) { if (p.v < lo) lo = p.v; if (p.v > hi) hi = p.v; }
+        return [hi, lo];
+      };
+      const [hi, lo] = ext('both'), [mhi, mlo] = ext('moon');
+      rows.push({ d, hi, lo, mhi, mlo });
+    }
+    return { from, rows };
+  });
+  const yearData = () => memo('year', `${state.lat}|${state.body}`, () => {
+    const out = [];
+    for (let d = 0; d <= 365; d += 1) out.push({ d, v: rangeOn(d, state.lat, state.body) });
+    return out;
+  });
+  function nextPhase(target, fromD) {
+    for (let d = fromD + 0.5; d < fromD + 32; d += 0.25) {
+      const a = wrap(sky(dayAt(d)).phase - target), b = wrap(sky(dayAt(d + 0.25)).phase - target);
+      if (a < 0 && b >= 0) return d;
+    }
+    return fromD;
+  }
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'sun-glow', 'moon', 'moon-ink', 'moon-lit', 'moon-dark', 'sea', 'sea-fill', 'land', 'pull', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { system: $('system'), field: $('field'), day: $('day'), month: $('month'), year: $('year') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+  function arrow(ctx, x, y, dx, dy, head) {
+    const L = Math.hypot(dx, dy);
+    if (L < 0.4) return;
+    line(ctx, x, y, x + dx, y + dy);
+    const ux = dx / L, uy = dy / L, s = Math.min(head, L * 0.6);
+    ctx.beginPath();
+    ctx.moveTo(x + dx, y + dy);
+    ctx.lineTo(x + dx - ux * s + uy * s * .45, y + dy - uy * s - ux * s * .45);
+    ctx.lineTo(x + dx - ux * s - uy * s * .45, y + dy - uy * s + ux * s * .45);
+    ctx.closePath(); ctx.fill();
+  }
+  function moonGlyph(ctx, x, y, r, P) {
+    const p = ((P % 360) + 360) % 360;
+    const waxing = p <= 180, k = Math.abs(cosd(p)), gib = p > 90 && p < 270;
+    ctx.save();
+    ctx.translate(x, y);
+    if (!waxing) ctx.scale(-1, 1);
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 2 * Math.PI);
+    ctx.fillStyle = C['moon-dark']; ctx.fill();
+    if (p > 3 && p < 357) {
+      ctx.beginPath();
+      ctx.arc(0, 0, r, Math.PI / 2, -Math.PI / 2, true);
+      ctx.ellipse(0, 0, Math.max(r * k, 0.01), r, 0, -Math.PI / 2, Math.PI / 2, gib);
+      ctx.closePath();
+      ctx.fillStyle = C['moon-lit']; ctx.fill();
+    }
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.strokeStyle = C.moon; ctx.lineWidth = 1.1; ctx.stroke();
+  }
+  const fmtClock = h => {
+    h = ((h % 24) + 24) % 24;
+    let H = Math.floor(h), M = Math.round((h - H) * 60);
+    if (M === 60) { M = 0; H = (H + 1) % 24; }
+    return String(H).padStart(2, '0') + ':' + String(M).padStart(2, '0');
+  };
+  function fmtDate(d) {
+    const dd = Math.floor(((d % 365) + 365) % 365);
+    let i = 11;
+    while (MSTART[i] > dd) i--;
+    return `${dd - MSTART[i] + 1} ${MONTHS[i]}`;
+  }
+
+  // ---------- 1. the whole system ----------
+  // an equatorial slice: the sun fixed to the right, the moon at its phase angle,
+  // the water drawn with a fixed exaggeration so spring really does bulge further than neap
+  function drawSystem() {
+    const { ctx, w, h } = cv.system;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const handB = `600 ${small ? 19 : 21}px ${HAND}`;
+    const t = dayAt(state.d) + state.t / 24;
+    const s0 = sky(t);
+    const kM = (MM / ME) * Math.pow(RE, 4) / Math.pow(s0.moon.r, 3) * 1000;   // metres
+    const kS = (MS / ME) * Math.pow(RE, 4) / Math.pow(s0.sun.r, 3) * 1000;
+    const useS = state.body === 'both';
+    const aMoon = s0.phase;                    // degrees from the sun, anticlockwise
+    const aSun = 0;
+    const aObs = (state.t - 12) * 15;          // noon faces the sun
+
+    const R = Math.min(w, h) * (small ? 0.155 : 0.17);
+    const orbit = R * 2.55;
+    const cx = w / 2, cy = h / 2 + (small ? 2 : 4);
+    const BULGE = 0.30;                        // how far the water is exaggerated
+    const REF = kM + kS;
+    const lift = (ang, m, sn) => {
+      const cm = cosd(ang - aMoon), cs = cosd(ang - aSun);
+      return (m ? kM * (3 * cm * cm - 1) / 2 : 0) + (sn ? kS * (3 * cs * cs - 1) / 2 : 0);
+    };
+    const shape = (m, sn) => {
+      const pts = [];
+      for (let a = 0; a <= 360; a += 3) {
+        const r = R * (1 + BULGE * lift(a, m, sn) / REF);
+        pts.push([cx + r * cosd(a), cy - r * sind(a)]);
+      }
+      return pts;
+    };
+
+    // the sun, off at the right edge
+    const sunX = w - (small ? 20 : 26);
+    ctx.fillStyle = C['sun-glow'];
+    ctx.beginPath(); ctx.arc(sunX, cy, small ? 16 : 20, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(sunX, cy, small ? 9 : 11, 0, 2 * Math.PI); ctx.fill();
+    ctx.save();
+    ctx.setLineDash([4, 5]); ctx.strokeStyle = C.sun; ctx.lineWidth = 1; ctx.globalAlpha = .7;
+    line(ctx, cx + R * 1.5, cy, sunX - (small ? 18 : 22), cy);
+    ctx.restore();
+    text(ctx, 'the sun,', sunX + 4, cy - (small ? 30 : 36), { font: uiFont, color: C.muted, align: 'right', halo: true });
+    text(ctx, '390× further off', sunX + 4, cy - (small ? 16 : 22), { font: uiFont, color: C.muted, align: 'right', halo: true });
+
+    // the moon's orbit and the moon
+    ctx.save();
+    ctx.setLineDash([3, 5]); ctx.strokeStyle = C.moon; ctx.lineWidth = 1; ctx.globalAlpha = .55;
+    ctx.beginPath(); ctx.arc(cx, cy, orbit, 0, 2 * Math.PI); ctx.stroke();
+    ctx.restore();
+    const mx = cx + orbit * cosd(aMoon), my = cy - orbit * sind(aMoon);
+    ctx.save();
+    ctx.setLineDash([4, 5]); ctx.strokeStyle = C.moon; ctx.lineWidth = 1; ctx.globalAlpha = .8;
+    line(ctx, cx, cy, mx, my);
+    ctx.restore();
+    moonGlyph(ctx, mx, my, small ? 11 : 13, s0.phase);
+
+    // the two bulges on their own, then the water they actually make
+    if (useS) {
+      ctx.save();
+      ctx.setLineDash([5, 4]); ctx.lineWidth = 1.25; ctx.globalAlpha = .85;
+      poly(ctx, shape(true, false)); ctx.closePath(); ctx.strokeStyle = C.moon; ctx.stroke();
+      poly(ctx, shape(false, true)); ctx.closePath(); ctx.strokeStyle = C.sun; ctx.stroke();
+      ctx.restore();
+    }
+    const water = shape(true, useS);
+    poly(ctx, water); ctx.closePath();
+    ctx.fillStyle = C['sea-fill']; ctx.fill();
+    ctx.strokeStyle = C.sea; ctx.lineWidth = 2; ctx.stroke();
+
+    // Earth, with its night side shaded
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+    ctx.fillStyle = C.land; ctx.fill();
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, R, -Math.PI / 2, Math.PI / 2, false);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(20,30,45,.28)'; ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
+    text(ctx, 'noon', cx + R + 6, cy - 8, { font: uiFont, color: C.muted, halo: true });
+    text(ctx, 'midnight', cx - R - 6, cy - 8, { font: uiFont, color: C.muted, align: 'right', halo: true });
+
+    // the observer, riding round
+    const rObs = R * (1 + BULGE * lift(aObs, true, useS) / REF);
+    const ox = cx + R * cosd(aObs), oy = cy - R * sind(aObs);
+    const wx = cx + rObs * cosd(aObs), wy = cy - rObs * sind(aObs);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+    line(ctx, ox, oy, wx, wy);
+    ctx.fillStyle = C.ink;
+    ctx.beginPath(); ctx.arc(ox, oy, 4.5, 0, 2 * Math.PI); ctx.fill();
+    const hNow = lift(aObs, true, useS);
+    const rising = lift(aObs + 0.4, true, useS) > hNow;
+    const label = hNow > (useS ? kM * 0.55 : kM * 0.5) ? 'high water' : hNow < -0.1 ? 'low water' : rising ? 'rising' : 'falling';
+    ctx.font = handS;
+    const lw = ctx.measureText(label).width;
+    const goRight = Math.abs(wrap(aObs)) < 90 && wx + 16 + lw < w - 6;
+    text(ctx, label, wx + (goRight ? 14 : -14) * Math.sign(cosd(aObs) || 1) * (goRight ? 1 : 1),
+      wy - 14 * sind(aObs) + 4,
+      { font: handS, color: C.ink, align: goRight ? 'left' : 'right', halo: true });
+
+    // how well the two are lined up, and what that buys
+    const elong = Math.abs(wrap(s0.phase));
+    const aligned = elong < 30 || elong > 150;
+    const square = Math.abs(elong - 90) < 30;
+    ctx.textAlign = 'left';
+    text(ctx, aligned ? `lined up: ${kM.toFixed(2)} m + ${kS.toFixed(2)} m of pull`
+      : square ? `at right angles: ${kM.toFixed(2)} m − ${kS.toFixed(2)} m`
+        : `${elong.toFixed(0)}° apart`,
+      10, h - 12, { font: handB, color: aligned ? C['sun-ink'] : square ? C['moon-ink'] : C.muted, halo: true });
+    text(ctx, aligned ? 'spring tides' : square ? 'neap tides' : '', 10, 24,
+      { font: handB, color: aligned ? C['sun-ink'] : C['moon-ink'], halo: true });
+    text(ctx, fmtClock(state.t), w - 10, 24, { font: handS, color: C.muted, align: 'right', halo: true });
+  }
+
+  // ---------- 2. the subtraction that makes two bulges ----------
+  // every arrow is drawn as the part Earth shares (grey) plus the excess (purple, magnified),
+  // so taking the grey away really does leave the purple
+  function drawField() {
+    const { ctx, w, h } = cv.field;
+    if (!w) return;
+    const wide = w > 520;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const s0 = sky(dayAt(state.d) + state.t / 24);
+    const dM = s0.moon.r, G = 6.674e-11;
+    const aAt = km => G * MM / Math.pow(km * 1000, 2);
+    const aC = aAt(dM);
+
+    const cells = 3;
+    const R = wide ? Math.min((w / cells) * 0.30, h * 0.30) : Math.min(w * 0.22, (h / cells) * 0.34);
+    const pos = i => wide ? [w * (i + 0.5) / cells, h * 0.46] : [w * 0.30, h * (i + 0.5) / cells];
+
+    const samples = [[0, 0]];
+    for (let k = 0; k < 8; k++) {
+      const a = k * 45;
+      samples.push([0.62 * cosd(a), 0.62 * sind(a)]);
+      samples.push([1.0 * cosd(a), 1.0 * sind(a)]);
+    }
+    const pullVec = ([px, py]) => {
+      const X = dM - px * RE, Y = -py * RE;
+      const d = Math.hypot(X, Y), a = aAt(d);
+      return [a * X / d, a * Y / d];
+    };
+    const extra = samples.map(p => { const v = pullVec(p); return [v[0] - aC, v[1]]; });
+    const maxExtra = Math.max(...extra.map(v => Math.hypot(v[0], v[1])));
+    const sShare = (R * 0.34) / aC;
+    const sExtra = (R * 0.34) / maxExtra;
+    const mag = sExtra / sShare;
+
+    const titles = ['what the moon pulls', 'what free fall takes away', 'what is left to move water'];
+    const subs = small
+      ? [`grey + purple excess, ×${mag.toFixed(0)}`, 'identical everywhere', 'the purple alone']
+      : [`grey plus a purple excess, ×${mag.toFixed(0)}`, 'the grey, identical everywhere', 'the purple on its own'];
+
+    [0, 1, 2].forEach(i => {
+      const [cx, cy] = pos(i);
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+      ctx.fillStyle = C.land; ctx.fill();
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.1; ctx.stroke();
+
+      // the water, stretched by the leftovers, with its old shape behind it
+      if (i === 2) {
+        const k = 0.30;
+        ctx.save();
+        ctx.setLineDash([4, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
+        ctx.restore();
+        const pts = [];
+        for (let a = 0; a <= 360; a += 4) {
+          pts.push([cx + cosd(a) * (1 + 2 * k) * R, cy - sind(a) * (1 - k) * R]);
+        }
+        poly(ctx, pts); ctx.closePath();
+        ctx.fillStyle = C['sea-fill']; ctx.fill();
+        ctx.strokeStyle = C.sea; ctx.lineWidth = 1.75; ctx.stroke();
+        for (let a = 0; a < 360; a += 30) {
+          ctx.fillStyle = C.sea;
+          ctx.beginPath();
+          ctx.arc(cx + cosd(a) * (1 + 2 * k) * R, cy - sind(a) * (1 - k) * R, 2.6, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      }
+
+      samples.forEach((p, j) => {
+        const px = cx + p[0] * R, py = cy - p[1] * R;
+        const ex = extra[j];
+        if (i < 2) {                                  // the shared part, grey, no head in cell 1
+          ctx.strokeStyle = C.ghost; ctx.fillStyle = C.ghost; ctx.lineWidth = 2;
+          if (i === 1) arrow(ctx, px, py, aC * sShare, 0, 5.5);
+          else line(ctx, px, py, px + aC * sShare, py);
+        }
+        if (i !== 1) {                                // the excess, purple, magnified
+          const bx = i === 0 ? px + aC * sShare : px, by = py;
+          ctx.strokeStyle = C.pull; ctx.fillStyle = C.pull; ctx.lineWidth = 2;
+          arrow(ctx, bx, by, ex[0] * sExtra, -ex[1] * sExtra, 5.5);
+        }
+      });
+
+      if (wide) {
+        text(ctx, titles[i], cx, cy + R + 24, { font: uiFont, color: C.ink, align: 'center', halo: true });
+        text(ctx, subs[i], cx, cy + R + 40, { font: uiFont, color: C.muted, align: 'center', halo: true });
+      } else {
+        const lx = Math.max(w * 0.48, cx + (i === 2 ? 1.62 : 1.18) * R + 10);
+        text(ctx, titles[i], lx, cy - 4, { font: uiFont, color: C.ink, halo: true });
+        text(ctx, subs[i], lx, cy + 14, { font: uiFont, color: C.muted, halo: true });
+      }
+    });
+
+    const sign = (str, x, y) => {
+      ctx.font = `600 ${wide ? 26 : 22}px ${UI}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round'; ctx.lineWidth = 6; ctx.strokeStyle = C.bg;
+      ctx.strokeText(str, x, y);
+      ctx.fillStyle = C.ink;
+      ctx.fillText(str, x, y);
+      ctx.textBaseline = 'alphabetic';
+    };
+    if (wide) { sign('−', w / 3, h * 0.46); sign('=', 2 * w / 3, h * 0.46); }
+    else { sign('−', w * 0.30, h / 3); sign('=', w * 0.30, 2 * h / 3); }
+
+    text(ctx, 'the moon is this way →', w - 8, wide ? 18 : 16,
+      { font: handS, color: C.muted, align: 'right', halo: true });
+  }
+
+  // ---------- 2. a day under the bulges ----------
+  const D_PAD = { L: 44, R: 10, T: 14, B: 24 };
+  function drawDay() {
+    const { ctx, w, h } = cv.day;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = D_PAD.L, x1 = w - D_PAD.R, y0 = D_PAD.T, y1 = h - D_PAD.B;
+    const c = dayData();
+    const lo = Math.min(...c.map(p => p.v)), hi = Math.max(...c.map(p => p.v));
+    const pad = Math.max((hi - lo) * 0.18, 0.05);
+    const X = hh => x0 + hh / 48 * (x1 - x0);
+    const Y = v => y1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)) * (y1 - y0);
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.lineWidth = 1;
+    for (let v = Math.ceil((lo - pad) * 4) / 4; v <= hi + pad; v += 0.25) {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(v), x1, Y(v));
+      text(ctx, `${v > 0 ? '+' : ''}${v.toFixed(2)}`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
+    }
+    for (let hh = 0; hh <= 48; hh += 6) {
+      ctx.strokeStyle = C.rule; ctx.globalAlpha = .7;
+      line(ctx, X(hh), y0, X(hh), y1);
+      ctx.globalAlpha = 1;
+      text(ctx, fmtClock(hh), X(hh), h - 8, { font, color: C.muted, align: 'center' });
+    }
+    // the water
+    poly(ctx, c.map(p => [X(p.h), Y(p.v)]));
+    ctx.lineTo(X(48), y1); ctx.lineTo(X(0), y1); ctx.closePath();
+    ctx.fillStyle = C['sea-fill']; ctx.fill();
+    poly(ctx, c.map(p => [X(p.h), Y(p.v)]));
+    ctx.lineWidth = 2.5; ctx.strokeStyle = C.sea; ctx.lineJoin = 'round'; ctx.stroke();
+
+    // the high waters, and the gap between them
+    const peaks = [];
+    for (let i = 1; i < c.length - 1; i++) if (c[i].v > c[i - 1].v && c[i].v >= c[i + 1].v) peaks.push(c[i]);
+    peaks.forEach(p => {
+      ctx.fillStyle = C.sea;
+      ctx.beginPath(); ctx.arc(X(p.h), Y(p.v), 4, 0, 2 * Math.PI); ctx.fill();
+      text(ctx, fmtClock(p.h), X(p.h), Y(p.v) - 10, { font, color: C.ink, align: 'center', halo: C.surface });
+    });
+    if (peaks.length > 1) {
+      const gap = (peaks[peaks.length - 1].h - peaks[0].h) / (peaks.length - 1);
+      let H = Math.floor(gap), M = Math.round((gap - H) * 60);
+      if (M === 60) { H++; M = 0; }
+      const mid = (peaks[0].h + peaks[1].h) / 2;
+      text(ctx, `${H} h ${String(M).padStart(2, '0')} m apart`, clamp(X(mid), x0 + 60, x1 - 60), y1 - 8,
+        { font: handS, color: C['moon-ink'], align: 'center', halo: C.surface });
+    }
+    // where we are now
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(state.t), y0, X(state.t), y1);
+    const nowV = tide(dayAt(state.d) + state.t / 24, state.lat, state.t, state.body).total;
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(X(state.t), Y(nowV), 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    text(ctx, 'metres above mean', x0 - 5, y0 + 6, { font, color: C.muted, align: 'right' });
+  }
+
+  // ---------- 3. a month ----------
+  const M_PAD = { L: 44, R: 10, T: 22, B: 24 };
+  function drawMonth() {
+    const { ctx, w, h } = cv.month;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = M_PAD.L, x1 = w - M_PAD.R, y0 = M_PAD.T, y1 = h - M_PAD.B;
+    const md = monthData(), from = md.from, N = 30, rows = md.rows;
+    const X = d => x0 + (d - from) / N * (x1 - x0);
+    const hi = Math.max(...rows.map(r => r.hi)), lo = Math.min(...rows.map(r => r.lo));
+    const pad = (hi - lo) * 0.14;
+    const Y = v => y1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)) * (y1 - y0);
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.lineWidth = 1;
+    for (let v = Math.ceil((lo - pad) * 2) / 2; v <= hi + pad; v += 0.5) {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(v), x1, Y(v));
+      text(ctx, `${v > 0 ? '+' : ''}${v.toFixed(1)}`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
+    }
+    poly(ctx, rows.map(r => [X(r.d), Y(r.hi)]));
+    rows.slice().reverse().forEach(r => ctx.lineTo(X(r.d), Y(r.lo)));
+    ctx.closePath();
+    ctx.fillStyle = C['sea-fill']; ctx.fill();
+    ctx.save();
+    ctx.setLineDash([4, 4]); ctx.lineWidth = 1.25; ctx.strokeStyle = C.moon; ctx.globalAlpha = .9;
+    ['mhi', 'mlo'].forEach(k => { poly(ctx, rows.map(r => [X(r.d), Y(r[k])])); ctx.stroke(); });
+    ctx.restore();
+    ['hi', 'lo'].forEach(k => {
+      poly(ctx, rows.map(r => [X(r.d), Y(r[k])]));
+      ctx.lineWidth = 2; ctx.strokeStyle = C.sea; ctx.stroke();
+    });
+
+    // the phases across the top
+    for (let k = 0; k <= N; k++) {
+      const d = from + k, ph = sky(dayAt(d)).phase;
+      const near = [0, 90, 180, -90].some(p => Math.abs(wrap(ph - p)) < 6.2);
+      if (!near) continue;
+      const kind = [0, 90, 180, -90].find(p => Math.abs(wrap(ph - p)) < 6.2);
+      const prev = sky(dayAt(d - 1)).phase;
+      if (Math.abs(wrap(prev - kind)) < Math.abs(wrap(ph - kind))) continue;
+      moonGlyph(ctx, X(d), y0 - 10, 7, ph);
+      text(ctx, (kind === 0 || kind === 180) ? 'spring' : 'neap', X(d), y1 - 6,
+        { font, color: (kind === 0 || kind === 180) ? C['sun-ink'] : C.muted, align: 'center', halo: C.surface });
+    }
+    for (let d = from; d <= from + N; d++) {
+      if (((d % 365) + 365) % 365 % 7 !== 0) continue;
+      text(ctx, fmtDate(d).split(' ')[0] + ' ' + fmtDate(d).split(' ')[1].slice(0, 3),
+        clamp(X(d), x0 + 22, x1 - 22), h - 8, { font, color: C.muted, align: 'center' });
+    }
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(state.d), y0, X(state.d), y1);
+    text(ctx, small ? 'dashed: the moon alone' : 'solid: moon and sun.  dashed: the moon on its own',
+      x0 + 6, y0 + 16, { font: handS, color: C['moon-ink'], halo: C.surface });
+  }
+
+  // ---------- 4. a year ----------
+  const Y_PAD = { L: 40, R: 10, T: 14, B: 22 };
+  function drawYear() {
+    const { ctx, w, h } = cv.year;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = Y_PAD.L, x1 = w - Y_PAD.R, y0 = Y_PAD.T, y1 = h - Y_PAD.B;
+    const X = d => x0 + d / 365 * (x1 - x0);
+    const yd = yearData();
+    const pts = yd.map(p => [X(p.d), p.v, p.d]);
+    let best = { v: -1 };
+    yd.forEach(p => { if (p.v > best.v) best = { v: p.v, d: p.d }; });
+    const hi = Math.max(...pts.map(p => p[1])), lo = Math.min(...pts.map(p => p[1]));
+    const pad = (hi - lo) * 0.16;
+    const Y = v => y1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)) * (y1 - y0);
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.lineWidth = 1;
+    for (let v = Math.ceil((lo - pad) * 4) / 4; v <= hi + pad; v += 0.25) {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(v), x1, Y(v));
+      text(ctx, v.toFixed(2), x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
+    }
+    MSTART.forEach((s, i) => text(ctx, MONTHS[i][0], X(s + MDAYS[i] / 2), h - 7, { font, color: C.muted, align: 'center' }));
+    poly(ctx, pts.map(p => [p[0], Y(p[1])]));
+    ctx.lineWidth = 1.75; ctx.strokeStyle = C.sea; ctx.lineJoin = 'round'; ctx.stroke();
+
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(X(best.d), Y(best.v), 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    const label = `biggest of the year: ${fmtDate(best.d)}, ${best.v.toFixed(2)} m`;
+    ctx.font = handS;
+    const lw = ctx.measureText(label).width;
+    const rightish = X(best.d) > (x0 + x1) / 2;
+    const lx = rightish ? clamp(X(best.d) - 10, x0 + 6 + lw, x1 - 4) : clamp(X(best.d) + 10, x0 + 4, x1 - 6 - lw);
+    text(ctx, label, lx, Math.max(Y(best.v) - 12, y0 + 30),
+      { font: handS, color: C['sun-ink'], align: rightish ? 'right' : 'left', halo: C.surface });
+
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(state.d), y0, X(state.d), y1);
+    text(ctx, 'range, metres', x0 - 5, y0 + 6, { font, color: C.muted, align: 'right' });
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { time: $('time'), date: $('date'), lat: $('lat') };
+  const chipsDay = [...document.querySelectorAll('[data-day]')];
+  const chipsLat = [...document.querySelectorAll('[data-lat]')];
+
+  function updateText() {
+    const t = dayAt(state.d) + state.t / 24;
+    const res = tide(t, state.lat, state.t, state.body);
+    const c = dayData();
+    const peaks = [];
+    for (let i = 1; i < c.length - 1; i++) if (c[i].v > c[i - 1].v && c[i].v >= c[i + 1].v) peaks.push(c[i]);
+    const nxt = peaks.find(p => p.h > state.t);
+    $('rNow').textContent = `${res.total >= 0 ? '+' : '−'}${Math.abs(res.total).toFixed(2)} m`;
+    $('rRange').textContent = `${rangeOn(state.d, state.lat, state.body).toFixed(2)} m`;
+    $('rNext').textContent = nxt ? `${fmtClock(nxt.h)}${nxt.h >= 24 ? ' tomorrow' : ''}` : '—';
+    const fmtGap = g => {
+      let H = Math.floor(g), M = Math.round((g - H) * 60);
+      if (M === 60) { H++; M = 0; }
+      return `${H} h ${String(M).padStart(2, '0')} m`;
+    };
+    $('rGap').textContent = peaks.length > 1
+      ? fmtGap((peaks[peaks.length - 1].h - peaks[0].h) / (peaks.length - 1)) : 'once a day';
+    $('rDist').textContent = `${Math.round(res.s.moon.r).toLocaleString('en-GB')} km`;
+    const el0 = Math.abs(wrap(res.s.phase));
+    $('rElong').textContent = `${el0.toFixed(0)}°${el0 < 25 || el0 > 155 ? ' (lined up)' : Math.abs(el0 - 90) < 25 ? ' (square on)' : ''}`;
+
+    $('timeOut').textContent = fmtClock(state.t) + ' solar time';
+    $('dateOut').textContent = fmtDate(state.d);
+    $('latOut').textContent = Math.abs(state.lat) < 0.5 ? '0° (equator)' : `${Math.abs(state.lat).toFixed(0)}° ${state.lat > 0 ? 'N' : 'S'}`;
+    const ph = Math.abs(wrap(res.s.phase));
+    $('rSum').textContent = ph > 160 || ph < 20
+        ? `Sun and moon are lined up, so their tides add: spring tides, ${rangeOn(state.d, state.lat, state.body).toFixed(2)} m of range today at ${Math.abs(state.lat).toFixed(0)}°.`
+        : Math.abs(ph - 90) < 20
+          ? `Sun and moon are pulling at right angles, so their tides partly cancel: neap tides, ${rangeOn(state.d, state.lat, state.body).toFixed(2)} m of range today.`
+          : `Range today is ${rangeOn(state.d, state.lat, state.body).toFixed(2)} m at ${Math.abs(state.lat).toFixed(0)}°, with the moon ${Math.round(res.s.moon.r).toLocaleString('en-GB')} km away.`;
+    els.system.setAttribute('aria-label', `Earth with the moon ${el0.toFixed(0)} degrees from the sun; the observer is at ${fmtClock(state.t)}.`);
+    els.field.setAttribute('aria-label', "The moon's pull, minus Earth's free fall, leaves a stretch outwards at both ends.");
+    els.day.setAttribute('aria-label', `Tide height over two days at ${state.lat} degrees.`);
+    els.month.setAttribute('aria-label', 'Daily high and low water across a month.');
+    els.year.setAttribute('aria-label', 'Daily tidal range across a year.');
+  }
+
+  function syncInputs() {
+    if (Number(inputs.time.value) !== state.t) inputs.time.value = state.t;
+    if (Number(inputs.date.value) !== Math.floor(state.d)) inputs.date.value = Math.floor(state.d);
+    if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    chipsDay.forEach(b => b.setAttribute('aria-pressed', Math.floor(state.d) === TODAY));
+    chipsLat.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - Number(b.dataset.lat)) < 0.26));
+  }
+
+  let raf = 0, last = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const playing = state.play || state.playM;
+    const dt = (state.play || state.playM) && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.play) {
+      state.t += dt * 4;
+      while (state.t >= 24) { state.t -= 24; state.d = (state.d + 1) % 365; }
+    }
+    if (state.playM) {
+      state.d += dt * 3;
+      if (state.d >= 365) state.d -= 365;
+    }
+    last = (state.play || state.playM) ? ts : 0;
+    syncInputs(); updateText();
+    drawSystem(); drawField(); drawDay(); drawMonth(); drawYear();
+    if (playing) render();
+  }
+  function setPlay(on) {
+    if (state.play === on) return;
+    state.play = on;
+    $('playDay').setAttribute('aria-pressed', on);
+    $('playDay').textContent = on ? 'Pause the spin' : 'Spin the Earth';
+    if (on) setPlayM(false);
+    render();
+  }
+  function setPlayM(on) {
+    if (state.playM === on) return;
+    state.playM = on;
+    $('playMonth').setAttribute('aria-pressed', on);
+    $('playMonth').textContent = on ? 'Pause the month' : 'Run the month';
+    if (on) setPlay(false);
+    render();
+  }
+  $('playDay').addEventListener('click', () => setPlay(!state.play));
+  $('playMonth').addEventListener('click', () => setPlayM(!state.playM));
+  $('toSpring').addEventListener('click', () => {
+    setPlay(false); setPlayM(false);
+    const a = nextPhase(0, state.d), b = nextPhase(180, state.d);
+    state.d = Math.round(Math.min(a, b)) % 365;
+    render();
+  });
+  $('toNeap').addEventListener('click', () => {
+    setPlay(false); setPlayM(false);
+    const a = nextPhase(90, state.d), b = nextPhase(-90, state.d);
+    state.d = Math.round(Math.min(a, b)) % 365;
+    render();
+  });
+  inputs.time.addEventListener('input', e => { setPlay(false); setPlayM(false); state.t = Number(e.target.value); render(); });
+  inputs.date.addEventListener('input', e => { setPlay(false); setPlayM(false); state.d = Number(e.target.value); render(); });
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
+  chipsDay.forEach(b => b.addEventListener('click', () => { setPlay(false); state.d = TODAY; render(); }));
+  chipsLat.forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); render(); }));
+
+  readColors();
+  const ro = new ResizeObserver(() => {
+    Object.values(cv).forEach(fit);
+    drawSystem(); drawField(); drawDay(); drawMonth(); drawYear();
+  });
+  Object.values(els).forEach(el => ro.observe(el));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rainbows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20);
+  --drop: rgba(104, 146, 184, .16); --drop-edge: #6E8CA8;
+  --sky: rgba(104, 146, 184, .13); --ground: rgba(98, 112, 64, .16); --horizon: #4B5731;
+  --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16);
+    --drop: rgba(120, 164, 210, .14); --drop-edge: #8FAECB;
+    --sky: rgba(120, 164, 210, .12); --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C;
+    --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16);
+  --drop: rgba(120, 164, 210, .14); --drop-edge: #8FAECB;
+  --sky: rgba(120, 164, 210, .12); --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C;
+  --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.6rem, 9vw, 3.6rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#sky { aspect-ratio: 4 / 3; }
+#drop { aspect-ratio: 4 / 3; }
+#dev { aspect-ratio: 1 / 1; }
+#when { aspect-ratio: 5 / 3; }
+@media (min-width: 640px) {
+  #sky { aspect-ratio: 16 / 9; }
+  #drop { aspect-ratio: 16 / 9; }
+  #dev { aspect-ratio: 16 / 9; }
+  #when { aspect-ratio: 16 / 6; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Rainbows</h1>
+    <p class="lede">A rainbow isn't in a place. It's an angle: forty-two degrees from the point directly opposite the sun, which is why it moves when you move and why no two people ever see quite the same one. Every colour here is traced through a drop rather than chosen.</p>
+  </header>
+
+  <figure>
+    <h2>Where it lands in the sky</h2>
+    <p class="hint">Drawn to scale around the antisolar point, which sits as far below the horizon as the sun is above it.</p>
+    <canvas id="sky" role="img" aria-label="The primary and secondary bows in the sky"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Primary bow</dt><dd id="rPrim">–</dd></div>
+    <div><dt>Secondary bow</dt><dd id="rSec">–</dd></div>
+    <div><dt>Alexander's dark band</dt><dd id="rBand">–</dd></div>
+    <div><dt>Sun's altitude</dt><dd id="rSun">–</dd></div>
+    <div><dt>Top of the bow</dt><dd id="rTop">–</dd></div>
+    <div><dt>The rainbow ray strikes at</dt><dd id="rRay">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Controls">
+    <div class="play">
+      <button class="btn" id="playDay" aria-pressed="false">Play day</button>
+    </div>
+
+    <div class="ctl">
+      <label for="time">Time of day <output id="timeOut" for="time"></output></label>
+      <input type="range" id="time" min="0" max="24" step="0.05">
+    </div>
+
+    <div class="ctl">
+      <label for="date">Date <output id="dateOut" for="date"></output></label>
+      <input type="range" id="date" min="0" max="364" step="1">
+      <div class="chips" role="group" aria-label="Date presets">
+        <button class="chip" data-day="today">Today</button>
+        <button class="chip" data-day="78">March equinox</button>
+        <button class="chip" data-day="171">June solstice</button>
+        <button class="chip" data-day="354">December solstice</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="index">Refractive index <output id="indexOut" for="index"></output></label>
+      <input type="range" id="index" min="1.15" max="1.65" step="0.001">
+      <div class="chips" role="group" aria-label="Material presets">
+        <button class="chip" data-index="1.309">Ice 1.31</button>
+        <button class="chip" data-index="1.333">Water 1.333</button>
+        <button class="chip" data-index="1.52">Glass 1.52</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>Inside one drop</h2>
+    <p class="hint">Parallel rays arrive across the drop's face. The bold one is where the controls below put it; the faint ones are its neighbours.</p>
+    <canvas id="drop" role="img" aria-label="A ray refracting, reflecting and leaving a spherical drop"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Ray controls">
+    <div class="ctl">
+      <label for="impact">Where the ray hits <output id="impactOut" for="impact"></output></label>
+      <input type="range" id="impact" min="0" max="0.999" step="0.001">
+      <div class="chips" role="group" aria-label="Impact presets">
+        <button class="chip" data-impact="0">Dead centre</button>
+        <button class="chip" data-impact="rainbow">The rainbow ray</button>
+        <button class="chip" data-impact="0.999">Grazing the edge</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <label for="bounces">Internal reflections <output id="bouncesOut" for="bounces"></output></label>
+      <input type="range" id="bounces" min="1" max="4" step="1">
+      <div class="chips" role="group" aria-label="Reflection presets">
+        <button class="chip" data-bounces="1">1: primary</button>
+        <button class="chip" data-bounces="2">2: secondary</button>
+        <button class="chip" data-bounces="3">3: tertiary</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>Where the light piles up</h2>
+    <p class="hint">Exit angle against where the ray struck, for the same two controls. The strip on the right is what that produces in the sky, on the same scale.</p>
+    <canvas id="dev" role="img" aria-label="Exit angle against impact parameter, with the resulting brightness"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>When you could see one</h2>
+    <p class="hint">Shaded where the sun is up but lower than the bow's own radius. Set the place below.</p>
+    <canvas id="when" role="img" aria-label="When a rainbow is geometrically possible through the year"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Place controls">
+    <div class="ctl">
+      <label for="lat">Latitude <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="-90" max="90" step="0.1">
+      <div class="chips" role="group" aria-label="Latitude presets">
+        <button class="chip" data-lat="0">Equator</button>
+        <button class="chip" data-lat="53">UK 53° N</button>
+        <button class="chip" data-lat="66.6">Arctic Circle</button>
+        <button class="chip" data-lat="-33.9">Sydney 34° S</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>One rule: minimum deviation</h2>
+    <p>A raindrop is a sphere, and parallel sunlight strikes every part of its face. Each ray bends on the way in, bounces off the back, bends again on the way out, and leaves having been turned through some total angle. The angle depends on where the ray struck, and the interesting thing is how: as you move the entry point out from the centre the exit angle climbs, slows, stalls and comes back down. There is a maximum, and near it a whole span of entry points leave in almost exactly the same direction.</p>
+    <p>That stall is the rainbow. Light leaving in all other directions is spread thin; light leaving near the turning point is concentrated, because a wide band of the drop's face is funnelled into a narrow range of angles. Watch the fan of rays in the drop panel bunch up as you drag through the rainbow ray, and watch the curve in the next panel go flat. No drop is doing anything special, and no drop is at the rainbow: every drop scatters the same way, and the ones you see lit are simply those sitting at the right angle from your eye.</p>
+    <p>That angle is 42° from the antisolar point for red and about 40.7° for violet, because water bends violet slightly more. Red on the outside. Nothing in that depends on where the drops are, which is why a rainbow is a property of your position rather than of the shower, why it retreats as you walk towards it, and why the person beside you is seeing a different one built from different drops.</p>
+
+    <h2>The second bow, and the dark band between</h2>
+    <p>Some light takes a second bounce inside the drop before leaving. Run that through the same argument and you get another turning point, this time at 50° for red and 53.4° for violet, so the secondary bow is wider, fainter, and its colours are the other way round. Set the reflections control to two and watch the curve flip.</p>
+    <p>Between them sits the best-kept secret in the sky. The primary sends light anywhere from straight back at you out to 42° and no further; the secondary sends light from 50° outwards and no closer. Between 42° and 50° neither bow delivers anything at all, so that ring of sky is genuinely darker than the sky inside the primary or outside the secondary. It's called Alexander's dark band, after the Greek who noticed it eighteen centuries ago, and the deviation panel shows exactly why it's empty.</p>
+    <p>A third bounce gives a third bow, and it lands 43° from the sun rather than from the antisolar point, which is to say behind you in the glare. It was photographed for the first time in 2011.</p>
+
+    <h2>Why you never see one at midday in summer</h2>
+    <p>The antisolar point sits as far below the horizon as the sun is above it, so the top of the bow reaches 42° minus the sun's altitude. Once the sun climbs past 42° the whole primary is underground, and past 50° the secondary goes too. At 53° N the sun clears 42° in the middle of the day from late April to mid-August, which rules out midday rainbows for four months of the year; from the tropics they are a morning and evening business all year round. The flipside is that a sunset rainbow is nearly a full semicircle and stands at its tallest, and from a cliff or an aeroplane you can see the circle close below the horizon.</p>
+
+    <h2>The same trick in ice</h2>
+    <p class="small">Swap the sphere for an ice crystal and the argument survives: a hexagonal column has 60° prism faces, and light passing through them also has a minimum deviation, at 21.7° for red and 22.3° for violet. That is the 22° halo you see ringing the sun through thin cloud, and because the minimum is a minimum rather than a maximum the colours run the other way, red on the inside. The 46° halo is the same crystal used through its 90° corner. That deserves its own page.</p>
+
+    <h2>Small print</h2>
+    <p class="small">Rays are traced with Snell's law and weighted by the Fresnel coefficients for unpolarised light, sampled evenly across the drop's face and histogrammed by exit angle, so the brightness profile and the width of each bow come out of the model rather than being drawn. Water's dispersion is the standard fit, about 1.343 in the violet to 1.330 in the red; the index slider adds an offset to the whole curve. Colours are the resulting spectrum at each angle, run through the CIE 1931 functions into sRGB and normalised for brightness, which is why they look pastel: every angle receives a broad band of wavelengths, and a real rainbow is much less saturated than a painted one. This is geometric optics only, so the supernumerary fringes just inside the primary, which are an interference effect and need drop size and wave theory, are absent. The sun is treated as a point; its half-degree width blurs each bow by that much.</p>
+        <p class="small"><a href="index.html">All eleven visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const MDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const MSTART = [];
+  MDAYS.reduce((acc, n, i) => (MSTART[i] = acc, acc + n), 0);
+  const now = new Date();
+  const TODAY = clamp(MSTART[now.getMonth()] + now.getDate() - 1, 0, 364);
+
+  const state = { impact: 0.861, bounces: 1, index: 1.333, t: 10, d: TODAY, lat: 53, playDay: false };
+
+  // ---------- optics ----------
+  const nBase = l => 1.31279 + 15.762 / l - 4382 / (l * l) + 1.1455e6 / (l * l * l);
+  const nAt = l => nBase(l) + (state.index - 1.333);
+  // exit angle measured from the antisolar point, for a ray at impact parameter b
+  function exitAngle(b, k, n) {
+    const ti = Math.asin(clamp(b, 0, 1)), tr = Math.asin(clamp(Math.sin(ti) / n, -1, 1));
+    let D = (2 * (ti - tr) + k * (Math.PI - 2 * tr)) / DEG;
+    D = ((D % 360) + 360) % 360;
+    if (D > 180) D = 360 - D;
+    return 180 - D;
+  }
+  // the rainbow ray: the impact parameter at minimum deviation
+  function rainbowB(k, n) {
+    const c = (n * n - 1) / (k * k + 2 * k);
+    return c >= 0 && c <= 1 ? Math.sin(Math.acos(Math.sqrt(c))) : 0.999;
+  }
+  const bowAngle = (k, n) => exitAngle(rainbowB(k, n), k, n);
+  // Fresnel reflectance for unpolarised light
+  function fresnel(n1, t1, n2, t2) {
+    const c1 = Math.cos(t1), c2 = Math.cos(t2);
+    const rs = (n1 * c1 - n2 * c2) / (n1 * c1 + n2 * c2);
+    const rp = (n2 * c1 - n1 * c2) / (n2 * c1 + n1 * c2);
+    return (rs * rs + rp * rp) / 2;
+  }
+
+  // ---------- colour ----------
+  function cie(nm) {
+    const g = (x, mu, s1, s2) => { const t = (x - mu) * (x < mu ? 1 / s1 : 1 / s2); return Math.exp(-0.5 * t * t); };
+    return [
+      1.056 * g(nm, 599.8, 37.9, 31.0) + 0.362 * g(nm, 442.0, 16.0, 26.7) - 0.065 * g(nm, 501.1, 20.4, 26.2),
+      0.821 * g(nm, 568.8, 46.9, 40.5) + 0.286 * g(nm, 530.9, 16.3, 31.1),
+      1.217 * g(nm, 437.0, 11.8, 36.0) + 0.681 * g(nm, 459.0, 26.0, 13.8)
+    ];
+  }
+  const planck = (nm, T) => { const l = nm * 1e-9; return 1 / (Math.pow(l, 5) * (Math.exp(1.4388e-2 / (l * T)) - 1)); };
+  const LO = 400, HI = 700, NW = 31;
+  const WL = Array.from({ length: NW }, (_, i) => LO + (HI - LO) * i / (NW - 1));
+  const SRC = WL.map(l => planck(l, 5778));
+  function xyzToRgb(X, Y, Z) {
+    return [3.2406 * X - 1.5372 * Y - 0.4986 * Z, -0.9689 * X + 1.8758 * Y + 0.0415 * Z, 0.0557 * X - 0.2040 * Y + 1.0570 * Z];
+  }
+  function specToRgb(spec) {          // spec: intensity per WL entry
+    let X = 0, Y = 0, Z = 0;
+    for (let i = 0; i < NW; i++) { const c = cie(WL[i]); X += spec[i] * c[0]; Y += spec[i] * c[1]; Z += spec[i] * c[2]; }
+    return xyzToRgb(X, Y, Z);
+  }
+  const WHITE = specToRgb(SRC.slice());
+  function css(lin, gain) {
+    const v = lin.map((c, i) => c / WHITE[i]);
+    const mx = Math.max(v[0], v[1], v[2], 1e-9);
+    const g = c => { const x = clamp(c, 0, 1); return x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055; };
+    return v.map(c => Math.round(255 * g(c / mx * clamp(gain, 0, 1))));
+  }
+
+  // ---------- the scattering table, cached against the index ----------
+  const BIN = 0.2, NB = Math.round(90 / BIN);
+  let TABLE = { key: '', bins: null, peak: 1 };
+  function buildTable() {
+    const key = state.index.toFixed(3);
+    if (TABLE.key === key) return TABLE;
+    const bins = Array.from({ length: NB }, () => new Float64Array(NW));
+    const N = 4000;
+    for (let wi = 0; wi < NW; wi++) {
+      const n = nAt(WL[wi]);
+      for (let k = 1; k <= 2; k++) {
+        for (let i = 0; i < N; i++) {
+          const b = (i + 0.5) / N;
+          const ti = Math.asin(b), tr = Math.asin(clamp(b / n, -1, 1));
+          const rIn = fresnel(1, ti, n, tr), rInt = fresnel(n, tr, 1, ti);
+          const w = (1 - rIn) * Math.pow(rInt, k) * (1 - rInt) * 2 * b / N * SRC[wi];
+          const ang = exitAngle(b, k, n);
+          const bi = Math.floor(ang / BIN);
+          if (bi >= 0 && bi < NB) bins[bi][wi] += w;
+        }
+      }
+    }
+    // the sun is half a degree wide, so every bow is a smear of that width: convolve
+    const half = Math.max(1, Math.round(0.25 / BIN));
+    const kern = [];
+    let ksum = 0;
+    for (let j = -half; j <= half; j++) {
+      const x = j / (half + 0.5);
+      const v = Math.sqrt(Math.max(1 - x * x, 0));       // chord through the solar disc
+      kern.push(v); ksum += v;
+    }
+    const out = Array.from({ length: NB }, () => new Float64Array(NW));
+    for (let i = 0; i < NB; i++) {
+      for (let j = -half; j <= half; j++) {
+        const src = bins[clamp(i + j, 0, NB - 1)], kw = kern[j + half] / ksum;
+        for (let wi = 0; wi < NW; wi++) out[i][wi] += src[wi] * kw;
+      }
+    }
+    let peak = 1e-9;
+    for (let i = 0; i < NB; i++) {
+      let s = 0;
+      for (let wi = 0; wi < NW; wi++) s += out[i][wi];
+      peak = Math.max(peak, s);
+    }
+    TABLE = { key, bins: out, peak };
+    return TABLE;
+  }
+  function angleColour(angDeg) {
+    const { bins, peak } = buildTable();
+    const bi = Math.floor(angDeg / BIN);
+    if (bi < 0 || bi >= NB) return null;
+    const spec = bins[bi];
+    let sum = 0;
+    for (let wi = 0; wi < NW; wi++) sum += spec[wi];
+    if (sum <= 0) return null;
+    return { rgb: css(specToRgb(spec), 1), strength: sum / peak };
+  }
+
+  // ---------- the sun ----------
+  function sunAlt(d, t, lat) {
+    const n = 9497 + d, T = n / 36525;
+    const L = 280.460 + 0.9856474 * n, g = (357.528 + 0.9856003 * n) * DEG;
+    const lam = (L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * DEG;
+    const dec = Math.asin(Math.sin(23.44 * DEG) * Math.sin(lam));
+    const H = (t - 12) * 15 * DEG, p = lat * DEG;
+    return Math.asin(clamp(Math.sin(p) * Math.sin(dec) + Math.cos(p) * Math.cos(dec) * Math.cos(H), -1, 1)) / DEG;
+  }
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'drop', 'drop-edge', 'sky', 'ground', 'horizon', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { sky: $('sky'), drop: $('drop'), dev: $('dev'), when: $('when') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+
+  // ---------- 1. the bow in the sky ----------
+  function drawSky() {
+    const { ctx, w, h } = cv.sky;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const alt = sunAlt(state.d, state.t, state.lat);
+    const SPAN = 62;                                    // degrees from the antisolar point to draw
+    const gy = h * 0.78;                                // the horizon
+    const per = Math.min((h - 26) / (SPAN * 0.92), (w - 20) / (2 * SPAN));
+    const ax = w / 2, ay = gy + alt * per;              // the antisolar point, below the horizon
+
+    ctx.fillStyle = C.sky; ctx.fillRect(0, 0, w, gy);
+    // one radial gradient rather than stacked rings, so nothing accumulates
+    const outer = SPAN * per;
+    const grad = ctx.createRadialGradient(ax, ay, 0, ax, ay, outer);
+    for (let a = 0; a <= SPAN; a += 0.25) {
+      const col = angleColour(a);
+      const al = col ? clamp(Math.pow(col.strength, 0.8), 0, 1) : 0;
+      grad.addColorStop(clamp(a / SPAN, 0, 1),
+        col && al > 0.002 ? `rgba(${col.rgb[0]},${col.rgb[1]},${col.rgb[2]},${al})` : 'rgba(255,255,255,0)');
+    }
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, w, gy); ctx.clip();
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(ax, ay, outer, 0, 2 * Math.PI); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, h - gy);
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25;
+    line(ctx, 0, gy, w, gy);
+
+    // the antisolar point and the two radii
+    ctx.save();
+    ctx.setLineDash([3, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+    const top = clamp(ay - bowAngle(1, nAt(650)) * per, 0, gy);
+    line(ctx, ax, ay, ax, top);
+    ctx.restore();
+    ctx.fillStyle = C.ink;
+    ctx.beginPath(); ctx.arc(ax, ay, 3.5, 0, 2 * Math.PI); ctx.fill();
+    text(ctx, 'antisolar point', ax + 8, ay + 4, { font: uiFont, color: C.muted, halo: true });
+    const r1 = bowAngle(1, nAt(650)), r2 = bowAngle(2, nAt(650));
+    if (ay - r1 * per > 2) text(ctx, `${r1.toFixed(1)}°`, ax - 8, ay - r1 * per + 18, { font: handS, color: C.ink, align: 'right', halo: true });
+    if (ay - r2 * per > 2 && r2 < SPAN) text(ctx, `${r2.toFixed(1)}°`, ax - 8, ay - r2 * per + 18, { font: handS, color: C.muted, align: 'right', halo: true });
+    text(ctx, alt > r1 ? 'the sun is too high: no bow above the horizon' : `sun ${alt.toFixed(0)}° up`,
+      10, h - 12, { font: handS, color: alt > r1 ? C.muted : C['sun-ink'], halo: true });
+  }
+
+  // ---------- 2. inside one drop ----------
+  function drawDrop() {
+    const { ctx, w, h } = cv.drop;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const R = Math.min(h * 0.40, w * 0.22);
+    const cx = w * 0.52, cy = h * 0.5;
+    const n = nAt(590);
+    const k = state.bounces;
+
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+    ctx.fillStyle = C.drop; ctx.fill();
+    ctx.strokeStyle = C['drop-edge']; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // trace a ray at impact parameter b: in from the left, k bounces, out
+    const trace = b => {
+      const pts = [];
+      const y = -b;                                      // above the axis on screen
+      const x0 = -Math.sqrt(Math.max(1 - b * b, 1e-9));
+      pts.push([-1.75, y]);
+      let p = [x0, y], d = [1, 0];
+      const refract = (d, nrm, eta) => {
+        const ci = -(d[0] * nrm[0] + d[1] * nrm[1]);
+        const s2 = eta * eta * (1 - ci * ci);
+        if (s2 > 1) return null;
+        const ct = Math.sqrt(1 - s2);
+        return [eta * d[0] + (eta * ci - ct) * nrm[0], eta * d[1] + (eta * ci - ct) * nrm[1]];
+      };
+      d = refract(d, [p[0], p[1]], 1 / n) || d;          // outward normal at entry
+      pts.push([p[0], p[1]]);
+      for (let i = 0; i < k; i++) {
+        const t = -2 * (p[0] * d[0] + p[1] * d[1]);
+        p = [p[0] + d[0] * t, p[1] + d[1] * t];
+        pts.push([p[0], p[1]]);
+        const nn = [p[0], p[1]];                          // outward normal
+        d = [d[0] - 2 * (d[0] * nn[0] + d[1] * nn[1]) * nn[0], d[1] - 2 * (d[0] * nn[0] + d[1] * nn[1]) * nn[1]];
+      }
+      const t = -2 * (p[0] * d[0] + p[1] * d[1]);
+      p = [p[0] + d[0] * t, p[1] + d[1] * t];
+      pts.push([p[0], p[1]]);
+      const out = refract(d, [-p[0], -p[1]], n) || d;
+      pts.push([p[0] + out[0] * 1.6, p[1] + out[1] * 1.6]);
+      return pts;
+    };
+    const P = pt => [cx + pt[0] * R, cy + pt[1] * R];
+
+    // neighbours
+    for (let i = 0; i <= 15; i++) {
+      const b = clamp(i / 15, 0.001, 0.999);
+      const pts = trace(b).map(P);
+      ctx.save();
+      ctx.globalAlpha = .3; ctx.lineWidth = 1; ctx.strokeStyle = C.ghost;
+      poly(ctx, pts); ctx.stroke();
+      ctx.restore();
+    }
+    // the chosen ray, in its own colour
+    const col = angleColour(exitAngle(state.impact, k, n));
+    const pts = trace(state.impact).map(P);
+    poly(ctx, pts);
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = col ? `rgb(${col.rgb.join(',')})` : C.sun;
+    ctx.stroke();
+
+    // the axis through the drop, and the exit angle
+    ctx.save();
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+    line(ctx, 0, cy, w, cy);
+    ctx.restore();
+    text(ctx, 'sunlight', 6, cy - 8, { font: uiFont, color: C.muted, halo: true });
+    text(ctx, 'back towards the sun', w - 6, cy - 8, { font: uiFont, color: C.muted, align: 'right', halo: true });
+    const ang = exitAngle(state.impact, k, n);
+    const last = pts[pts.length - 1];
+    const lx = last[0] < cx ? 8 : w - 8;
+    const ly = clamp(last[1] < cy ? last[1] - 12 : last[1] + 20, 26, h - 12);
+    text(ctx, `leaves at ${ang.toFixed(1)}° from the antisolar point`, lx, ly,
+      { font: handS, color: C['sun-ink'], align: last[0] < cx ? 'left' : 'right', halo: true });
+  }
+
+  // ---------- 3. the deviation curve ----------
+  function drawDev() {
+    const { ctx, w, h } = cv.dev;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const stripW = Math.max(34, w * 0.10);
+    const x0 = 34, x1 = w - stripW - 16, y0 = 14, y1 = h - 26;
+    const TOP = 62;
+    const X = b => x0 + b * (x1 - x0);
+    const Y = a => y1 - clamp(a, 0, TOP) / TOP * (y1 - y0);
+
+    ctx.lineWidth = 1;
+    [0, 20, 40, 60].forEach(a => {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(a), x1, Y(a));
+      text(ctx, a + '°', x0 - 6, Y(a), { font: uiFont, color: C.muted, align: 'right', base: 'middle' });
+    });
+    text(ctx, 'centre', X(0), h - 8, { font: uiFont, color: C.muted });
+    text(ctx, 'edge of the drop', X(1), h - 8, { font: uiFont, color: C.muted, align: 'right' });
+
+    // Alexander's dark band
+    const p1 = bowAngle(1, nAt(650)), s2 = bowAngle(2, nAt(650));
+    if (s2 > p1 && s2 < TOP) {
+      ctx.fillStyle = C.surface;
+      ctx.fillRect(x0, Y(s2), x1 - x0, Y(p1) - Y(s2));
+      text(ctx, "Alexander's dark band", (x0 + x1) / 2, (Y(s2) + Y(p1)) / 2 + 4,
+        { font: uiFont, color: C.muted, align: 'center' });
+    }
+
+    // the curves, red and violet, for one and two bounces
+    [[1, 2.4], [2, 1.6]].forEach(([k, lw]) => {
+      [[650, 'rgb(200,70,60)'], [430, 'rgb(90,90,200)']].forEach(([nm, colr]) => {
+        const n = nAt(nm), pts = [];
+        for (let i = 0; i <= 200; i++) {
+          const b = i / 200;
+          pts.push([X(b), Y(exitAngle(b, k, n))]);
+        }
+        ctx.save();
+        ctx.globalAlpha = k === state.bounces ? 1 : .35;
+        ctx.setLineDash(k === 1 ? [] : [5, 4]);
+        poly(ctx, pts); ctx.lineWidth = lw; ctx.strokeStyle = colr; ctx.lineJoin = 'round'; ctx.stroke();
+        ctx.restore();
+      });
+    });
+    const kb = rainbowB(state.bounces, nAt(590)), ka = bowAngle(state.bounces, nAt(590));
+    if (ka <= TOP) {
+      ctx.save();
+      ctx.setLineDash([3, 3]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+      line(ctx, X(kb), Y(ka), X(kb), y1);
+      ctx.restore();
+      text(ctx, 'the flat spot', X(kb) - 10, Y(ka) + 24, { font: handS, color: C.ink, align: 'right', halo: true });
+    }
+    // where the chosen ray sits
+    const a = exitAngle(state.impact, state.bounces, nAt(590));
+    if (a <= TOP) {
+      ctx.fillStyle = C['sun-bright'];
+      ctx.beginPath(); ctx.arc(X(state.impact), Y(a), 5, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+
+    // the sky strip, on the same vertical scale
+    const sx = x1 + 14;
+    ctx.fillStyle = C.sky; ctx.fillRect(sx, y0, stripW, y1 - y0);
+    for (let ang = 0; ang < TOP; ang += BIN) {
+      const col = angleColour(ang);
+      if (!col || col.strength < 0.002) continue;
+      ctx.fillStyle = `rgba(${col.rgb[0]},${col.rgb[1]},${col.rgb[2]},${clamp(Math.pow(col.strength, 0.8), 0, 1)})`;
+      ctx.fillRect(sx, Y(ang + BIN), stripW, Y(ang) - Y(ang + BIN) + 1);
+    }
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+    ctx.strokeRect(sx, y0, stripW, y1 - y0);
+    text(ctx, 'sky', sx + stripW / 2, h - 8, { font: uiFont, color: C.muted, align: 'center' });
+  }
+
+  // ---------- 4. when you could see one ----------
+  const WHEN_PAD = { L: 40, R: 10, T: 12, B: 22 };
+  function drawWhen() {
+    const { ctx, w, h } = cv.when;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const x0 = WHEN_PAD.L, x1 = w - WHEN_PAD.R, y0 = WHEN_PAD.T, y1 = h - WHEN_PAD.B;
+    const font = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const X = d => x0 + d / 365 * (x1 - x0);
+    const Y = t => y0 + t / 24 * (y1 - y0);
+    const limit = bowAngle(1, nAt(650));
+
+    const stepD = 2, stepT = 0.2;
+    for (let d = 0; d < 365; d += stepD) {
+      for (let t = 0; t < 24; t += stepT) {
+        const a = sunAlt(d, t + stepT / 2, state.lat);
+        let col = null;
+        if (a <= 0) col = C.surface;
+        else if (a < limit) col = C['sun-fill'];
+        else col = null;
+        if (!col) continue;
+        ctx.fillStyle = col;
+        ctx.fillRect(X(d), Y(t), X(d + stepD) - X(d) + 1, Y(t + stepT) - Y(t) + 1);
+      }
+    }
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+    ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    [0, 6, 12, 18, 24].forEach(t => {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(t), x1, Y(t));
+      text(ctx, (t < 10 ? '0' : '') + t + ':00', x0 - 6, Y(t), { font, color: C.muted, align: 'right', base: 'middle' });
+    });
+    MSTART.forEach((s, i) => text(ctx, MONTHS[i][0], X(s + MDAYS[i] / 2), h - 6, { font, color: C.muted, align: 'center' }));
+    text(ctx, 'sun too high for a bow', (x0 + x1) / 2, Y(12) + 5, { font: handS, color: C.muted, align: 'center', halo: true });
+
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(state.d), y0, X(state.d), y1);
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(X(state.d), Y(state.t), 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { impact: $('impact'), bounces: $('bounces'), index: $('index'), time: $('time'), date: $('date'), lat: $('lat') };
+  const chipsImpact = [...document.querySelectorAll('[data-impact]')];
+  const chipsBounces = [...document.querySelectorAll('[data-bounces]')];
+  const chipsIndex = [...document.querySelectorAll('[data-index]')];
+  const chipsDay = [...document.querySelectorAll('[data-day]')];
+  const chipsLat = [...document.querySelectorAll('[data-lat]')];
+  const dayPreset = v => v === 'today' ? TODAY : Number(v);
+  const fmtLat = l => Math.abs(l) < 0.05 ? '0° (equator)' : `${Math.abs(l).toFixed(1)}° ${l > 0 ? 'N' : 'S'}`;
+  function fmtDate(d) {
+    const dd = Math.floor(d);
+    let i = 11;
+    while (MSTART[i] > dd) i--;
+    return `${dd - MSTART[i] + 1} ${MONTHS[i]}`;
+  }
+  const fmtClock = t => { const H = Math.floor(t), M = Math.round((t - H) * 60); return `${String(H % 24).padStart(2, '0')}:${String(M % 60).padStart(2, '0')}`; };
+
+  function updateText() {
+    const red1 = bowAngle(1, nAt(650)), vio1 = bowAngle(1, nAt(430));
+    const red2 = bowAngle(2, nAt(650)), vio2 = bowAngle(2, nAt(430));
+    const alt = sunAlt(state.d, state.t, state.lat);
+    $('rPrim').textContent = `${vio1.toFixed(1)}° to ${red1.toFixed(1)}°`;
+    $('rSec').textContent = red2 < 90 ? `${red2.toFixed(1)}° to ${vio2.toFixed(1)}°` : 'none';
+    $('rBand').textContent = red2 < 90 && red2 > red1 ? `${red1.toFixed(1)}° to ${red2.toFixed(1)}°` : 'none';
+    $('rSun').textContent = `${alt.toFixed(1)}°`;
+    $('rTop').textContent = alt < 0 ? 'no sun' : alt > red1 ? 'below the horizon' : `${(red1 - alt).toFixed(1)}° up`;
+    $('rRay').textContent = `${(100 * rainbowB(1, nAt(590))).toFixed(0)}% of the radius`;
+    $('impactOut').textContent = state.impact.toFixed(3) + ' × radius';
+    $('bouncesOut').textContent = state.bounces === 1 ? '1 (the primary bow)' : state.bounces === 2 ? '2 (the secondary)' : state.bounces === 3 ? '3 (the tertiary)' : '4';
+    $('indexOut').textContent = state.index.toFixed(3);
+    $('timeOut').textContent = fmtClock(state.t) + ' solar time';
+    $('dateOut').textContent = fmtDate(state.d);
+    $('latOut').textContent = fmtLat(state.lat);
+    $('rSum').textContent = alt < 0
+      ? 'The sun is down, so there is nothing to make a bow with.'
+      : alt > red1
+        ? `The sun is ${alt.toFixed(0)}° up, higher than the bow's own ${red1.toFixed(0)}° radius, so the whole primary is below the horizon. Climb a hill or wait a few hours.`
+        : `With the sun ${alt.toFixed(0)}° up, the antisolar point is ${alt.toFixed(0)}° below the horizon and the bow tops out ${(red1 - alt).toFixed(0)}° above it.`;
+    els.sky.setAttribute('aria-label', `The bow with the sun ${alt.toFixed(0)} degrees up.`);
+    els.drop.setAttribute('aria-label', `A ray striking at ${state.impact.toFixed(2)} of the radius leaves at ${exitAngle(state.impact, state.bounces, nAt(590)).toFixed(1)} degrees.`);
+    els.dev.setAttribute('aria-label', `Exit angle against impact parameter, peaking at ${red1.toFixed(1)} degrees.`);
+    els.when.setAttribute('aria-label', `When a rainbow is possible at ${fmtLat(state.lat)}.`);
+  }
+
+  function syncInputs() {
+    if (Number(inputs.impact.value) !== state.impact) inputs.impact.value = state.impact;
+    if (Number(inputs.bounces.value) !== state.bounces) inputs.bounces.value = state.bounces;
+    if (Number(inputs.index.value) !== state.index) inputs.index.value = state.index;
+    if (Number(inputs.time.value) !== state.t) inputs.time.value = state.t;
+    if (Number(inputs.date.value) !== Math.floor(state.d)) inputs.date.value = Math.floor(state.d);
+    if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    const rb = rainbowB(state.bounces, nAt(590));
+    chipsImpact.forEach(b => b.setAttribute('aria-pressed',
+      Math.abs(state.impact - (b.dataset.impact === 'rainbow' ? rb : Number(b.dataset.impact))) < 0.002));
+    chipsBounces.forEach(b => b.setAttribute('aria-pressed', state.bounces === Number(b.dataset.bounces)));
+    chipsIndex.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.index - Number(b.dataset.index)) < 0.0005));
+    chipsDay.forEach(b => b.setAttribute('aria-pressed', Math.floor(state.d) === dayPreset(b.dataset.day)));
+    chipsLat.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - Number(b.dataset.lat)) < 0.05));
+  }
+
+  let raf = 0, last = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const dt = state.playDay && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.playDay) state.t = (state.t + dt * 3) % 24;
+    last = state.playDay ? ts : 0;
+    syncInputs(); updateText();
+    drawSky(); drawDrop(); drawDev(); drawWhen();
+    if (state.playDay) render();
+  }
+  function setPlay(on) {
+    if (state.playDay === on) return;
+    state.playDay = on;
+    $('playDay').setAttribute('aria-pressed', on);
+    $('playDay').textContent = on ? 'Pause day' : 'Play day';
+    render();
+  }
+  $('playDay').addEventListener('click', () => setPlay(!state.playDay));
+  inputs.impact.addEventListener('input', e => { state.impact = Number(e.target.value); render(); });
+  inputs.bounces.addEventListener('input', e => { state.bounces = Number(e.target.value); render(); });
+  inputs.index.addEventListener('input', e => { state.index = Number(e.target.value); render(); });
+  inputs.time.addEventListener('input', e => { setPlay(false); state.t = Number(e.target.value); render(); });
+  inputs.date.addEventListener('input', e => { state.d = Number(e.target.value); render(); });
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
+  chipsImpact.forEach(b => b.addEventListener('click', () => {
+    state.impact = b.dataset.impact === 'rainbow' ? rainbowB(state.bounces, nAt(590)) : Number(b.dataset.impact);
+    render();
+  }));
+  chipsBounces.forEach(b => b.addEventListener('click', () => { state.bounces = Number(b.dataset.bounces); render(); }));
+  chipsIndex.forEach(b => b.addEventListener('click', () => { state.index = Number(b.dataset.index); render(); }));
+  chipsDay.forEach(b => b.addEventListener('click', () => { state.d = dayPreset(b.dataset.day); render(); }));
+  chipsLat.forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); render(); }));
+
+  readColors();
+  const ro = new ResizeObserver(() => {
+    Object.values(cv).forEach(fit);
+    drawSky(); drawDrop(); drawDev(); drawWhen();
+  });
+  Object.values(els).forEach(el => ro.observe(el));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>

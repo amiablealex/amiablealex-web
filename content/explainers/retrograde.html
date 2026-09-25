@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Retrograde motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20); --sun-glow: rgba(235, 162, 27, .30);
+  --earth: #2F6E9E; --planet: #A6452F; --retro: #7A5691;
+  --retro-fill: rgba(122, 86, 145, .18);
+  --sky: rgba(104, 146, 184, .13); --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+    --earth: #79B2DD; --planet: #E08A6E; --retro: #BB9AD6;
+    --retro-fill: rgba(187, 154, 214, .16);
+    --sky: rgba(120, 164, 210, .12); --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+  --earth: #79B2DD; --planet: #E08A6E; --retro: #BB9AD6;
+  --retro-fill: rgba(187, 154, 214, .16);
+  --sky: rgba(120, 164, 210, .12); --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.6rem, 9vw, 3.6rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#plan { aspect-ratio: 1 / 1; }
+#track { aspect-ratio: 16 / 9; }
+#graph { aspect-ratio: 5 / 3; }
+#rhythm { aspect-ratio: 5 / 3; }
+@media (min-width: 640px) {
+  #plan { aspect-ratio: 16 / 10; }
+  #track { aspect-ratio: 16 / 6; }
+  #graph { aspect-ratio: 16 / 6; }
+  #rhythm { aspect-ratio: 16 / 6; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl .lab { font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Retrograde motion</h1>
+    <p class="lede">Every couple of years Mars stops dead against the stars, reverses for ten weeks, stops again and carries on. Nothing happens to Mars. We overtake it on the inside, and for a while the direction we're looking swings backwards. This is the observation that broke the geocentric model.</p>
+  </header>
+
+  <figure>
+    <h2>Looking down on both orbits</h2>
+    <p class="hint">Centred on us, so Earth sits still and the sun swings round it. The line of sight runs out to the ring of distant stars; the trail shows where it has been pointing.</p>
+    <canvas id="plan" role="img" aria-label="Plan view of Earth and the planet with the line of sight"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Moving now</dt><dd id="rRate">–</dd></div>
+    <div><dt>Distance</dt><dd id="rDist">–</dd></div>
+    <div><dt>Angle from the sun</dt><dd id="rElong">–</dd></div>
+    <div><dt>This retrograde</dt><dd id="rSpan">–</dd></div>
+    <div><dt>It backs up</dt><dd id="rArc">–</dd></div>
+    <div><dt>Happens every</dt><dd id="rSyn">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Main controls">
+    <div class="play">
+      <button class="btn" id="playTime" aria-pressed="false">Play</button>
+      <button class="btn" id="prevR">◀ Retrograde</button>
+      <button class="btn" id="nextR">Retrograde ▶</button>
+    </div>
+    <div class="ctl">
+      <label for="date">Date <output id="dateOut" for="date"></output></label>
+      <input type="range" id="date" min="0" max="4382" step="1">
+      <div class="chips" role="group" aria-label="Date presets">
+        <button class="chip" data-when="today">Today</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="lab">Which planet</span>
+      <div class="chips" role="group" aria-label="Planet">
+        <button class="chip" data-planet="mercury">Mercury</button>
+        <button class="chip" data-planet="venus">Venus</button>
+        <button class="chip" data-planet="mars">Mars</button>
+        <button class="chip" data-planet="jupiter">Jupiter</button>
+        <button class="chip" data-planet="saturn">Saturn</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>The track against the stars</h2>
+    <p class="hint">Where it appears on the sky, drawn true to scale in degrees. East is to the left, as it is when you face south.</p>
+    <canvas id="track" role="img" aria-label="The planet's apparent path against the stars"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Window controls">
+    <div class="ctl">
+      <span class="lab">How much time this chart and the next one show</span>
+      <div class="chips" role="group" aria-label="Window">
+        <button class="chip" data-span="120">4 months</button>
+        <button class="chip" data-span="240">8 months</button>
+        <button class="chip" data-span="480">16 months</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>Longitude against time</h2>
+    <p class="hint">The same motion as a graph. Where the line leans backwards, the planet is retrograde.</p>
+    <canvas id="graph" role="img" aria-label="Apparent longitude against time"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Every planet's rhythm</h2>
+    <p class="hint">Twelve years of retrograde spells. Each planet keeps its own beat, set by how fast we lap it.</p>
+    <canvas id="rhythm" role="img" aria-label="Retrograde periods for all five naked-eye planets"></canvas>
+  </figure>
+
+  <section class="notes">
+    <h2>Overtaking on the inside</h2>
+    <p>Planets closer to the sun move faster, both because the sun's pull is stronger there and because they have less distance to cover. Earth takes a year; Mars takes 687 days. So every 780 days Earth catches Mars up and sweeps past it on the inside, the way a car in the inner lane overtakes one in the outer. During the overtaking, the direction from us to Mars swings backwards, and since we measure a planet's position as a direction against the fixed stars, Mars appears to reverse.</p>
+    <p>Watch the sight-line in the first panel as you play the date forward. Most of the time Earth and the planet are on unrelated parts of their orbits and the line sweeps steadily one way. As Earth comes level, the line pivots, holds still for a day or two, and tracks back. That pause is the stationary point, and it is why the ancients described planets as standing still.</p>
+    <p>The tell that this is our motion and not theirs is where it happens. An outer planet only goes retrograde at opposition, when it is directly opposite the sun, closest to us, brightest, and visible all night. Venus and Mercury only go retrograde at inferior conjunction, when they are between us and the sun, invisible in the glare. In a geocentric model those are two unrelated coincidences. In a heliocentric one they are the same fact: retrograde is the moment of closest approach, and which side of us the planet passes on decides whether that moment happens in the midnight sky or the noon one.</p>
+
+    <h2>What Ptolemy had to build</h2>
+    <p>To reproduce this without moving the Earth you need epicycles: each planet rides a small circle whose centre rides the big one. It works, and it fitted the observations for fourteen centuries. But there is a detail that should have itched. For every outer planet, the epicycle takes exactly one year to go round, no matter how long the planet's own circuit takes. Mars, Jupiter and Saturn share a period that belongs to none of them. In the heliocentric picture that shared year has an obvious owner: it is ours. The epicycle was Earth's own orbit, reflected into every planet's motion because every observation was made from a moving platform.</p>
+
+    <h2>Loops, zigzags and the size of the wiggle</h2>
+    <p>The apparent path only makes a loop when the planet has some ecliptic latitude to work with. Orbits are tilted by a degree or two, so a planet that happens to be off the ecliptic at opposition traces a proper loop, and one that is crossing a node traces a flat zigzag instead. The same planet does both at different oppositions, which is why no two retrogrades look alike.</p>
+    <p>The size of the backward arc depends on how much nearer we are than the planet. Mars is close, so it backs up ten to twenty degrees and does it briskly, in about ten weeks. Saturn, nine times further out, barely notices us going past: it backs up around seven degrees and takes four and a half months about it. Mars' arc varies far more than the others between oppositions, because its orbit is eccentric enough that some passes are much closer than others.</p>
+
+    <h2>Small print</h2>
+    <p class="small">Positions come from the standard Keplerian elements with their per-century rates, solved through Kepler's equation, which places the planets to within a fraction of a degree over the decades shown here. The model reproduces the real retrograde windows: Mars from 7 December 2024 to 24 February 2025, Jupiter from 9 October 2024 to 4 February 2025, Venus from 2 March to 13 April 2025. Positions are geometric and heliocentric-to-geocentric only: no light travel time, no aberration, no precession of the equinox, and the "stars" are a fixed ecliptic frame. Dates use the ecliptic longitude of date without nutation. Distances are in astronomical units, measured from Earth.</p>
+    <p class="small"><a href="index.html">All eleven visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const wrap = x => ((x % 360) + 540) % 360 - 180;
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // ---------- planets ----------
+  const PL = {
+    mercury: { name: 'Mercury', a: .38709927, e: .20563593, i: 7.00497902, L: 252.25032350, w: 77.45779628, O: 48.33076593, da: .00000037, de: .00001906, di: -.00594749, dL: 149472.67411175, dw: .16047689, dO: -.12534081 },
+    venus: { name: 'Venus', a: .72333566, e: .00677672, i: 3.39467605, L: 181.97909950, w: 131.60246718, O: 76.67984255, da: .00000390, de: -.00004107, di: -.00078890, dL: 58517.81538729, dw: .00268329, dO: -.27769418 },
+    earth: { name: 'Earth', a: 1.00000261, e: .01671123, i: -.00001531, L: 100.46457166, w: 102.93768193, O: 0, da: .00000562, de: -.00004392, di: -.01294668, dL: 35999.37244981, dw: .32327364, dO: 0 },
+    mars: { name: 'Mars', a: 1.52371034, e: .09339410, i: 1.84969142, L: -4.55343205, w: -23.94362959, O: 49.55953891, da: .00001847, de: .00007882, di: -.00813131, dL: 19140.30268499, dw: .44441088, dO: -.29257343 },
+    jupiter: { name: 'Jupiter', a: 5.20288700, e: .04838624, i: 1.30439695, L: 34.39644051, w: 14.72847983, O: 100.47390909, da: -.00011607, de: -.00013253, di: -.00183714, dL: 3034.74612775, dw: .21252668, dO: .20469106 },
+    saturn: { name: 'Saturn', a: 9.53667594, e: .05386179, i: 2.48599187, L: 49.95424423, w: 92.59887831, O: 113.66242448, da: -.00125060, de: -.00050991, di: .00193609, dL: 1222.49362201, dw: -.41897216, dO: -.28867794 }
+  };
+  const ORDER = ['mercury', 'venus', 'mars', 'jupiter', 'saturn'];
+  function helio(p, t) {
+    const T = t / 36525;
+    const a = p.a + p.da * T, e = p.e + p.de * T, I = (p.i + p.di * T) * DEG;
+    const L = p.L + p.dL * T, w = p.w + p.dw * T, O = (p.O + p.dO * T) * DEG;
+    let M = wrap(L - w) * DEG, E = M;
+    for (let k = 0; k < 8; k++) E -= (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+    const nu = 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
+    const r = a * (1 - e * Math.cos(E)), u = nu + w * DEG - O;
+    return [
+      r * (Math.cos(O) * Math.cos(u) - Math.sin(O) * Math.sin(u) * Math.cos(I)),
+      r * (Math.sin(O) * Math.cos(u) + Math.cos(O) * Math.sin(u) * Math.cos(I)),
+      r * Math.sin(u) * Math.sin(I)
+    ];
+  }
+  function view(name, t) {
+    const E = helio(PL.earth, t), P = helio(PL[name], t);
+    const d = [P[0] - E[0], P[1] - E[1], P[2] - E[2]];
+    const R = Math.hypot(d[0], d[1], d[2]);
+    const sunLon = Math.atan2(-E[1], -E[0]) / DEG;
+    const lon = Math.atan2(d[1], d[0]) / DEG;
+    return { E, P, lon: (lon + 360) % 360, lat: Math.asin(d[2] / R) / DEG, dist: R, elong: wrap(lon - sunLon) };
+  }
+  const rateAt = (name, t) => wrap(view(name, t + 0.5).lon - view(name, t - 0.5).lon);
+  const jan1 = y => {
+    const a = Math.floor((14 - 1) / 12), yy = y + 4800 - a, mm = 1 + 12 * a - 3;
+    return 1 + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045 - 0.5 - 2451545.0;
+  };
+  const now = new Date();
+  const BASE = now.getUTCFullYear() - 2;
+  const T_START = jan1(BASE), T_END = jan1(BASE + 12);
+  const TODAY = Math.floor((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - Date.UTC(2000, 0, 1)) / 86400000) - 0.5;
+  const ymd = t => {
+    const dt = new Date((t + 2451545.0 - 2440587.5) * 86400000);
+    return { y: dt.getUTCFullYear(), m: dt.getUTCMonth(), d: dt.getUTCDate() };
+  };
+  const fmtD = (t, withYear) => { const o = ymd(t); return `${o.d} ${MONTHS[o.m]}${withYear ? ' ' + o.y : ''}`; };
+
+  const state = { d: clamp(TODAY - T_START, 0, T_END - T_START - 1), planet: 'mars', span: 240, play: false };
+  const T = () => T_START + state.d;
+
+  // ---------- retrograde spells, worked out once ----------
+  const SPELLS = {};
+  function spells(name) {
+    if (SPELLS[name]) return SPELLS[name];
+    const out = [];
+    let prev = view(name, T_START).lon, start = null, ext = 0;
+    for (let t = T_START + 0.5; t <= T_END; t += 0.5) {
+      const lon = view(name, t).lon, d = wrap(lon - prev);
+      if (d < 0 && start === null) { start = t; ext = 0; }
+      if (d < 0 && start !== null) ext += -d;
+      if (d >= 0 && start !== null) {
+        if (t - start > 5) out.push({ from: start, to: t, mid: (start + t) / 2, arc: ext });
+        start = null;
+      }
+      prev = lon;
+    }
+    SPELLS[name] = out;
+    return out;
+  }
+  const spellAt = (name, t) => spells(name).find(s => t >= s.from && t <= s.to) || null;
+  const nextSpell = (name, t) => spells(name).find(s => s.mid > t + 2) || null;
+  const prevSpell = (name, t) => [...spells(name)].reverse().find(s => s.mid < t - 2) || null;
+  const synodic = name => {
+    const Tp = 36525 * 360 / Math.abs(PL[name].dL), Te = 36525 * 360 / PL.earth.dL;
+    return Math.abs(1 / (1 / Te - 1 / Tp));
+  };
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'sun-glow', 'earth', 'planet', 'retro', 'retro-fill', 'sky', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { plan: $('plan'), track: $('track'), graph: $('graph'), rhythm: $('rhythm') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+
+  // ---------- 1. the plan view ----------
+  function drawPlan() {
+    const { ctx, w, h } = cv.plan;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const t = T(), v = view(state.planet, t);
+    const aP = PL[state.planet].a;
+    const half = Math.min(w, h) / 2 - 10;
+    const S = half / (Math.max(aP, 1) * 1.12);                      // pixels per AU
+    const cx = w / 2, cy = h / 2;
+    // centred on the observer: Earth sits still and the sun swings round it
+    const XY = p => [cx + (p[0] - v.E[0]) * S, cy - (p[1] - v.E[1]) * S];
+
+    // orbits
+    [['earth', C.earth], [state.planet, C.planet]].forEach(([nm, col]) => {
+      const per = 36525 * 360 / Math.abs(PL[nm].dL);
+      const pts = [];
+      for (let k = 0; k <= 120; k++) pts.push(XY(helio(PL[nm], t + per * k / 120)));
+      poly(ctx, pts); ctx.closePath();
+      ctx.lineWidth = 1.25; ctx.strokeStyle = col; ctx.globalAlpha = .5; ctx.stroke(); ctx.globalAlpha = 1;
+    });
+
+    // the sun
+    const sp = XY([0, 0]);
+    ctx.fillStyle = C['sun-glow'];
+    ctx.beginPath(); ctx.arc(sp[0], sp[1], 13, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(sp[0], sp[1], 6, 0, 2 * Math.PI); ctx.fill();
+
+    // the ring of distant sky, always centred on the observer at the middle of the frame
+    const ep = [cx, cy];
+    const la0 = v.lon * DEG;
+    const ringR = half * 0.88;
+    const SPREAD = 180;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(2, 2, w - 4, h - 4); ctx.clip();
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(ep[0], ep[1], ringR, 0, 2 * Math.PI); ctx.stroke();
+    for (let a = 0; a < 360; a += 10) {
+      const c = Math.cos(a * DEG), s = Math.sin(a * DEG);
+      const long = a % 90 === 0;
+      ctx.strokeStyle = C.ghost; ctx.globalAlpha = .7;
+      line(ctx, ep[0] + c * ringR, ep[1] - s * ringR, ep[0] + c * (ringR - (long ? 11 : 5)), ep[1] - s * (ringR - (long ? 11 : 5)));
+      ctx.globalAlpha = 1;
+      if (long) text(ctx, `${a}°`, ep[0] + c * (ringR - 22), ep[1] - s * (ringR - 22) + 4,
+        { font: uiFont, color: C.muted, align: 'center', halo: true });
+    }
+
+    // where the sight-line has been pointing
+    const back = Math.min(state.span, 200);
+    for (let k = -back; k <= 0; k += 2) {
+      const tt = t + k;
+      if (tt < T_START) continue;
+      const vv = view(state.planet, tt);
+      const a = vv.lon * DEG;
+      const retro = rateAt(state.planet, tt) < 0;
+      ctx.globalAlpha = 0.18 + 0.6 * (1 - Math.abs(k) / back);
+      ctx.fillStyle = retro ? C.retro : C.ghost;
+      ctx.beginPath();
+      ctx.arc(ep[0] + Math.cos(a) * ringR, ep[1] - Math.sin(a) * ringR, retro ? 3 : 2, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // the sight-line itself
+    const tip = [ep[0] + Math.cos(la0) * ringR, ep[1] - Math.sin(la0) * ringR];
+    ctx.strokeStyle = spellAt(state.planet, t) ? C.retro : C.ghost;
+    ctx.lineWidth = 1.75;
+    line(ctx, ep[0], ep[1], tip[0], tip[1]);
+    ctx.fillStyle = spellAt(state.planet, t) ? C.retro : C.ink;
+    ctx.beginPath(); ctx.arc(tip[0], tip[1], 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.restore();
+
+    // the two worlds
+    const pp = XY(v.P);
+    ctx.fillStyle = C.planet;
+    ctx.beginPath(); ctx.arc(pp[0], pp[1], small ? 5 : 6, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C.earth;
+    ctx.beginPath(); ctx.arc(ep[0], ep[1], small ? 4.5 : 5.5, 0, 2 * Math.PI); ctx.fill();
+    text(ctx, 'Earth', ep[0] + 9, ep[1] + 4, { font: uiFont, color: C.earth, halo: true });
+    text(ctx, PL[state.planet].name, pp[0] + 9, pp[1] + 4, { font: uiFont, color: C.planet, halo: true });
+
+    const sp2 = spellAt(state.planet, t);
+    text(ctx, sp2 ? 'retrograde' : 'moving the usual way', 10, h - 12,
+      { font: handS, color: sp2 ? C.retro : C.muted, halo: true });
+    text(ctx, fmtD(t, true), w - 10, 22, { font: handS, color: C.muted, align: 'right', halo: true });
+  }
+
+  // ---------- 2. the track against the stars ----------
+  function drawTrack() {
+    const { ctx, w, h } = cv.track;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const t = T(), half = state.span / 2;
+    const pts = [];
+    let base = null;
+    for (let k = -half; k <= half; k += 1) {
+      const tt = clamp(t + k, T_START, T_END);
+      const v = view(state.planet, tt);
+      if (base === null) base = v.lon;
+      pts.push({ t: tt, x: wrap(v.lon - base), y: v.lat, retro: rateAt(state.planet, tt) < 0 });
+    }
+    const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+    const xlo = Math.min(...xs), xhi = Math.max(...xs), ylo = Math.min(...ys), yhi = Math.max(...ys);
+    const padX = Math.max((xhi - xlo) * 0.12, 0.5), padY = Math.max((yhi - ylo) * 0.35, 0.4);
+    const X0 = xlo - padX, X1 = xhi + padX, Y0 = ylo - padY, Y1 = yhi + padY;
+    const per = Math.min((w - 30) / (X1 - X0), (h - 44) / (Y1 - Y0));
+    const cx = (w - 14) / 2 + 14, cy = h / 2 - 4;
+    const PX = x => cx - (x - (X0 + X1) / 2) * per;          // east to the left
+    const PY = y => cy - (y - (Y0 + Y1) / 2) * per;
+
+    ctx.fillStyle = C.sky; ctx.fillRect(0, 0, w, h);
+    // a scattering of stars, fixed by position so they don't jitter
+    for (let i = 0; i < 90; i++) {
+      const sx = ((i * 9301 + 49297) % 233280) / 233280 * w;
+      const sy = ((i * 4271 + 12345) % 65536) / 65536 * h;
+      ctx.fillStyle = C.ghost; ctx.globalAlpha = .28 + .3 * (((i * 31) % 7) / 7);
+      ctx.beginPath(); ctx.arc(sx, sy, ((i % 5) === 0 ? 1.6 : 1), 0, 2 * Math.PI); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    // the ecliptic
+    ctx.save();
+    ctx.setLineDash([4, 5]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+    line(ctx, 0, PY(0), w, PY(0));
+    ctx.restore();
+    text(ctx, 'the ecliptic', w - 6, PY(0) - 6, { font: uiFont, color: C.muted, align: 'right', halo: C.sky });
+
+    // the path, prograde thin and retrograde bold
+    const seg = (keep, style) => {
+      ctx.save();
+      ctx.lineWidth = style.width; ctx.strokeStyle = style.color; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      let run = [];
+      const flush = () => { if (run.length > 1) { poly(ctx, run); ctx.stroke(); } run = []; };
+      pts.forEach(p => { if (keep(p)) run.push([PX(p.x), PY(p.y)]); else { if (run.length) run.push([PX(p.x), PY(p.y)]); flush(); } });
+      flush(); ctx.restore();
+    };
+    seg(p => !p.retro, { width: 2, color: C.faint });
+    seg(p => p.retro, { width: 3.5, color: C.retro });
+
+    // a tick on the first of each month
+    let lastM = -1;
+    pts.forEach(p => {
+      const o = ymd(p.t);
+      if (o.m === lastM) return;
+      lastM = o.m;
+      const x = PX(p.x), y = PY(p.y);
+      ctx.fillStyle = C.ink;
+      ctx.beginPath(); ctx.arc(x, y, 2.5, 0, 2 * Math.PI); ctx.fill();
+      text(ctx, MONTHS[o.m], x, y - 8, { font: uiFont, color: C.muted, align: 'center', halo: C.sky });
+    });
+
+    // where it is now
+    const v = view(state.planet, t);
+    const nx = PX(wrap(v.lon - base)), ny = PY(v.lat);
+    ctx.fillStyle = C.planet;
+    ctx.beginPath(); ctx.arc(nx, ny, 6, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.bg; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // a scale bar, so the degrees are legible
+    const barDeg = (X1 - X0) > 20 ? 10 : (X1 - X0) > 8 ? 5 : 2;
+    const bx = 14, by = h - 14;
+    ctx.strokeStyle = C.muted; ctx.lineWidth = 1.5;
+    line(ctx, bx, by, bx + barDeg * per, by);
+    line(ctx, bx, by - 4, bx, by + 4);
+    line(ctx, bx + barDeg * per, by - 4, bx + barDeg * per, by + 4);
+    text(ctx, `${barDeg}°`, bx + barDeg * per / 2, by - 8, { font: uiFont, color: C.muted, align: 'center', halo: C.sky });
+    text(ctx, 'east', w - 6, 18, { font: handS, color: C.muted, align: 'right', halo: C.sky });
+  }
+
+  // ---------- 3. longitude against time ----------
+  const G_PAD = { L: 44, R: 10, T: 14, B: 24 };
+  function drawGraph() {
+    const { ctx, w, h } = cv.graph;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = G_PAD.L, x1 = w - G_PAD.R, y0 = G_PAD.T, y1 = h - G_PAD.B;
+    const t = T(), half = state.span / 2;
+    const T0 = clamp(t - half, T_START, T_END), T1 = clamp(t + half, T_START, T_END);
+    const X = tt => x0 + (tt - T0) / (T1 - T0) * (x1 - x0);
+
+    const pts = [];
+    let lo = 1e9, hi = -1e9, unwrap = 0, prev = null;
+    for (let tt = T0; tt <= T1; tt += 1) {
+      const lon = view(state.planet, tt).lon;
+      if (prev !== null && lon - prev > 180) unwrap -= 360;
+      if (prev !== null && lon - prev < -180) unwrap += 360;
+      prev = lon;
+      const v = lon + unwrap;
+      pts.push({ t: tt, v, retro: rateAt(state.planet, tt) < 0 });
+      lo = Math.min(lo, v); hi = Math.max(hi, v);
+    }
+    const pad = (hi - lo) * 0.12 + 0.5;
+    const Y = v => y1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)) * (y1 - y0);
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    // the retrograde spells as shaded columns
+    spells(state.planet).forEach(s => {
+      if (s.to < T0 || s.from > T1) return;
+      const a = X(clamp(s.from, T0, T1)), b = X(clamp(s.to, T0, T1));
+      ctx.fillStyle = C['retro-fill'];
+      ctx.fillRect(a, y0, b - a, y1 - y0);
+      if (b - a > 40) text(ctx, 'retrograde', (a + b) / 2, y0 + 16, { font, color: C.retro, align: 'center' });
+    });
+    ctx.lineWidth = 1;
+    const range = (hi + pad) - (lo - pad);
+    const stepV = range > 60 ? 20 : range > 25 ? 10 : range > 10 ? 5 : 2;
+    for (let v = Math.ceil((lo - pad) / stepV) * stepV; v <= hi + pad; v += stepV) {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(v), x1, Y(v));
+      text(ctx, `${((v % 360) + 360) % 360 | 0}°`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
+    }
+    poly(ctx, pts.map(p => [X(p.t), Y(p.v)]));
+    ctx.lineWidth = 2.5; ctx.strokeStyle = C.faint; ctx.lineJoin = 'round'; ctx.stroke();
+    let run = [];
+    const flush = () => { if (run.length > 1) { poly(ctx, run); ctx.lineWidth = 3.5; ctx.strokeStyle = C.retro; ctx.stroke(); } run = []; };
+    pts.forEach(p => { if (p.retro) run.push([X(p.t), Y(p.v)]); else flush(); });
+    flush();
+
+    // months along the foot
+    let lastM = -1;
+    pts.forEach(p => {
+      const o = ymd(p.t);
+      if (o.m === lastM || o.d > 2) return;
+      lastM = o.m;
+      ctx.strokeStyle = C.rule; ctx.globalAlpha = .7;
+      line(ctx, X(p.t), y0, X(p.t), y1);
+      ctx.globalAlpha = 1;
+      text(ctx, MONTHS[o.m], X(p.t) + 3, h - 8, { font, color: C.muted });
+    });
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(t), y0, X(t), y1);
+    const vNow = pts.reduce((a, b) => Math.abs(b.t - t) < Math.abs(a.t - t) ? b : a);
+    ctx.fillStyle = C.planet;
+    ctx.beginPath(); ctx.arc(X(t), Y(vNow.v), 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.bg; ctx.lineWidth = 1.5; ctx.stroke();
+    text(ctx, 'apparent longitude', x1 - 6, y1 - 8, { font: handS, color: C.muted, align: 'right', halo: C.surface });
+  }
+
+  // ---------- 4. every planet's rhythm ----------
+  const R_PAD = { L: 56, R: 10, T: 14, B: 22 };
+  function drawRhythm() {
+    const { ctx, w, h } = cv.rhythm;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const x0 = R_PAD.L, x1 = w - R_PAD.R, y0 = R_PAD.T, y1 = h - R_PAD.B;
+    const X = t => x0 + (t - T_START) / (T_END - T_START) * (x1 - x0);
+    const rowH = (y1 - y0) / ORDER.length;
+
+    ORDER.forEach((nm, i) => {
+      const ya = y0 + i * rowH, yb = ya + rowH;
+      ctx.fillStyle = C.surface;
+      ctx.fillRect(x0, ya + 3, x1 - x0, rowH - 6);
+      text(ctx, PL[nm].name, x0 - 6, (ya + yb) / 2, { font, color: nm === state.planet ? C.ink : C.muted, align: 'right', base: 'middle' });
+      spells(nm).forEach(s => {
+        ctx.fillStyle = nm === state.planet ? C.retro : C.ghost;
+        ctx.globalAlpha = nm === state.planet ? 1 : .45;
+        ctx.fillRect(X(s.from), ya + 4, Math.max(1.5, X(s.to) - X(s.from)), rowH - 8);
+        ctx.globalAlpha = 1;
+      });
+    });
+    for (let y = BASE; y <= BASE + 12; y++) {
+      ctx.strokeStyle = C.rule; ctx.globalAlpha = .8;
+      line(ctx, X(jan1(y)), y0, X(jan1(y)), y1);
+      ctx.globalAlpha = 1;
+      if (y < BASE + 12 && (y - BASE) % 2 === 0) text(ctx, String(y), X(jan1(y)) + 3, h - 7, { font, color: C.muted });
+    }
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+    line(ctx, X(T()), y0 - 3, X(T()), y1 + 3);
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { date: $('date') };
+  const chipsPlanet = [...document.querySelectorAll('[data-planet]')];
+  const chipsSpan = [...document.querySelectorAll('[data-span]')];
+  const chipsWhen = [...document.querySelectorAll('[data-when]')];
+
+  function updateText() {
+    const t = T(), v = view(state.planet, t), r = rateAt(state.planet, t);
+    const sp = spellAt(state.planet, t), nx = nextSpell(state.planet, t);
+    $('rRate').textContent = `${r >= 0 ? '+' : '−'}${Math.abs(r).toFixed(3)}°/day`;
+    $('rDist').textContent = `${v.dist.toFixed(3)} AU`;
+    $('rElong').textContent = `${Math.abs(v.elong).toFixed(0)}°${Math.abs(v.elong) > 170 ? ' (opposition)' : Math.abs(v.elong) < 10 ? ' (conjunction)' : ''}`;
+    const show = sp || nx;
+    $('rSpan').textContent = show ? `${fmtD(show.from)} to ${fmtD(show.to, true)}` : '—';
+    $('rArc').textContent = show ? `${show.arc.toFixed(1)}° over ${Math.round(show.to - show.from)} days` : '—';
+    $('rSyn').textContent = `${Math.round(synodic(state.planet))} days`;
+    $('dateOut').textContent = fmtD(t, true);
+    const nm = PL[state.planet].name;
+    $('rSum').textContent = sp
+      ? `${nm} is retrograde: it has been moving backwards since ${fmtD(sp.from)} and will turn again on ${fmtD(sp.to, true)}. We are passing it on the inside.`
+      : nx
+        ? `${nm} is moving the usual way, eastward. The next backward spell runs from ${fmtD(nx.from)} to ${fmtD(nx.to, true)}, when Earth next laps it.`
+        : `${nm} is moving the usual way, eastward.`;
+    els.plan.setAttribute('aria-label', `Plan view on ${fmtD(t, true)}: ${nm} at ${v.dist.toFixed(2)} AU, ${sp ? 'retrograde' : 'prograde'}.`);
+    els.track.setAttribute('aria-label', `${nm}'s apparent track against the stars around ${fmtD(t, true)}.`);
+    els.graph.setAttribute('aria-label', `${nm}'s apparent longitude against time.`);
+    els.rhythm.setAttribute('aria-label', `Retrograde spells for all five planets across twelve years.`);
+  }
+
+  function syncInputs() {
+    if (Number(inputs.date.value) !== Math.floor(state.d)) inputs.date.value = Math.floor(state.d);
+    inputs.date.max = Math.floor(T_END - T_START - 1);
+    chipsPlanet.forEach(b => b.setAttribute('aria-pressed', state.planet === b.dataset.planet));
+    chipsSpan.forEach(b => b.setAttribute('aria-pressed', state.span === Number(b.dataset.span)));
+    chipsWhen.forEach(b => b.setAttribute('aria-pressed', Math.abs(T() - TODAY) < 1));
+  }
+
+  let raf = 0, last = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const dt = state.play && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.play) {
+      state.d += dt * 22;
+      if (state.d > T_END - T_START - 1) state.d = 0;
+    }
+    last = state.play ? ts : 0;
+    syncInputs(); updateText();
+    drawPlan(); drawTrack(); drawGraph(); drawRhythm();
+    if (state.play) render();
+  }
+  function setPlay(on) {
+    if (state.play === on) return;
+    state.play = on;
+    $('playTime').setAttribute('aria-pressed', on);
+    $('playTime').textContent = on ? 'Pause' : 'Play';
+    render();
+  }
+  $('playTime').addEventListener('click', () => setPlay(!state.play));
+  $('nextR').addEventListener('click', () => {
+    setPlay(false);
+    const s = nextSpell(state.planet, T());
+    if (s) { state.d = clamp(s.mid - T_START, 0, T_END - T_START - 1); render(); }
+  });
+  $('prevR').addEventListener('click', () => {
+    setPlay(false);
+    const s = prevSpell(state.planet, T());
+    if (s) { state.d = clamp(s.mid - T_START, 0, T_END - T_START - 1); render(); }
+  });
+  inputs.date.addEventListener('input', e => { setPlay(false); state.d = Number(e.target.value); render(); });
+  chipsPlanet.forEach(b => b.addEventListener('click', () => { state.planet = b.dataset.planet; render(); }));
+  chipsSpan.forEach(b => b.addEventListener('click', () => { state.span = Number(b.dataset.span); render(); }));
+  chipsWhen.forEach(b => b.addEventListener('click', () => { setPlay(false); state.d = clamp(TODAY - T_START, 0, T_END - T_START - 1); render(); }));
+
+  readColors();
+  const ro = new ResizeObserver(() => {
+    Object.values(cv).forEach(fit);
+    drawPlan(); drawTrack(); drawGraph(); drawRhythm();
+  });
+  Object.values(els).forEach(el => ro.observe(el));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>

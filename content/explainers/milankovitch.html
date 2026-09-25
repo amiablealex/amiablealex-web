@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Milankovitch cycles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20); --sun-glow: rgba(235, 162, 27, .30);
+  --tilt: #2F6E6C; --prec: #7A5691; --ecc-c: #3C6B9E;
+  --ice: rgba(120, 160, 200, .22);
+  --sky: rgba(104, 146, 184, .13); --ground: rgba(98, 112, 64, .16); --horizon: #4B5731;
+  --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+    --tilt: #63BFBB; --prec: #BB9AD6; --ecc-c: #7FB0E0;
+    --ice: rgba(120, 160, 200, .16);
+    --sky: rgba(120, 164, 210, .12); --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C;
+    --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+  --tilt: #63BFBB; --prec: #BB9AD6; --ecc-c: #7FB0E0;
+  --ice: rgba(120, 160, 200, .16);
+  --sky: rgba(120, 164, 210, .12); --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C;
+  --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.6rem, 9vw, 3.6rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#orbit { aspect-ratio: 4 / 3; }
+#wobble { aspect-ratio: 4 / 5; }
+#insol { aspect-ratio: 5 / 3; }
+#map { aspect-ratio: 5 / 4; }
+@media (min-width: 640px) {
+  #orbit { aspect-ratio: 16 / 9; }
+  #wobble { aspect-ratio: 16 / 10; }
+  #insol { aspect-ratio: 16 / 6; }
+  #map { aspect-ratio: 16 / 8; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl .lab { font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Milankovitch cycles</h1>
+    <p class="lede">The analemma page gave you three sliders for axial tilt, orbital eccentricity and the date of perihelion, and called them "what if Earth were different". They aren't hypothetical. All three wander, on their own slow clocks, and between them they decide how much summer sunlight falls on the northern ice.</p>
+  </header>
+
+  <figure>
+    <h2>Earth's orbit, then and now</h2>
+    <p class="hint">Eccentricity drawn ten times over so it shows at all. The shaded half is the northern summer, equinox to equinox.</p>
+    <canvas id="orbit" role="img" aria-label="Earth's orbit with the seasons marked against perihelion"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Summer sun at 65° N</dt><dd id="rIns">–</dd></div>
+    <div><dt>Against today</dt><dd id="rDiff">–</dd></div>
+    <div><dt>Axial tilt</dt><dd id="rTilt">–</dd></div>
+    <div><dt>Eccentricity</dt><dd id="rEcc">–</dd></div>
+    <div><dt>Perihelion falls</dt><dd id="rPeri">–</dd></div>
+    <div><dt>Northern summer lasts</dt><dd id="rSeason">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Time controls">
+    <div class="play">
+      <button class="btn" id="playTime" aria-pressed="false">Play time</button>
+    </div>
+    <div class="ctl">
+      <label for="time">When <output id="timeOut" for="time"></output></label>
+      <input type="range" id="time" min="-500" max="100" step="0.5">
+      <div class="chips" role="group" aria-label="Time presets">
+        <button class="chip" data-time="0">Now</button>
+        <button class="chip" data-time="-11">Warm peak, −11k</button>
+        <button class="chip" data-time="-21">Ice at its worst, −21k</button>
+        <button class="chip" data-time="-125">Last interglacial, −125k</button>
+        <button class="chip" data-time="11">In 11,000 years</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>Three clocks, three speeds</h2>
+    <p class="hint">Tilt on a 41,000-year beat, perihelion round the calendar in 21,700, eccentricity on 100,000 and 405,000 together.</p>
+    <canvas id="wobble" role="img" aria-label="Tilt, perihelion date and eccentricity through time"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Time window">
+    <div class="ctl">
+      <span class="lab">How much time both charts show</span>
+      <div class="chips" role="group" aria-label="Time window">
+        <button class="chip" data-span="100">100,000 years</button>
+        <button class="chip" data-span="300">300,000 years</button>
+        <button class="chip" data-span="600">Everything</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>Summer sunlight where the ice is</h2>
+    <p class="hint">Daily average sunlight on the day and latitude chosen below. Ice grows when summers are too cool to melt the winter's snow.</p>
+    <canvas id="insol" role="img" aria-label="Summer insolation through time"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Insolation controls">
+    <div class="ctl">
+      <label for="lat">Latitude <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="-90" max="90" step="0.5">
+      <div class="chips" role="group" aria-label="Latitude presets">
+        <button class="chip" data-lat="65">65° N, the ice</button>
+        <button class="chip" data-lat="53">UK 53° N</button>
+        <button class="chip" data-lat="0">Equator</button>
+        <button class="chip" data-lat="-65">65° S</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="lab">Which day</span>
+      <div class="chips" role="group" aria-label="Day presets">
+        <button class="chip" data-day="90">June solstice</button>
+        <button class="chip" data-day="270">December solstice</button>
+        <button class="chip" data-day="year">Whole year</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="lab">Which wobbles are allowed to move</span>
+      <div class="chips" role="group" aria-label="Component presets">
+        <button class="chip" data-mode="all">All three</button>
+        <button class="chip" data-mode="tilt">Tilt only</button>
+        <button class="chip" data-mode="prec">Perihelion only</button>
+        <button class="chip" data-mode="ecc">Eccentricity only</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>Sunlight over the whole globe</h2>
+    <p class="hint">Every latitude, every day of the year, at the moment you've chosen.</p>
+    <canvas id="map" role="img" aria-label="Daily insolation by latitude and day of year"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Map controls">
+    <div class="ctl">
+      <span class="lab">What the colours show</span>
+      <div class="chips" role="group" aria-label="Map mode">
+        <button class="chip" data-map="abs">Sunlight itself</button>
+        <button class="chip" data-map="diff">Difference from today</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>Three wobbles, three jobs</h2>
+    <p>Tilt is the simplest. More tilt means fiercer seasons everywhere, summers hotter and winters colder in both hemispheres at once, and the poles gain most because tilt is what gives them a summer at all. It swings between about 22.1° and 24.5° every 41,000 years. We are at 23.44° and falling, nine thousand years past the last maximum.</p>
+    <p>Precession is the sly one. It doesn't change how much sunlight Earth gets in a year, or even how much any latitude gets in a year. It only moves which season happens at the near end of the orbit. Today perihelion falls on 3 January, so the northern hemisphere takes its winter close to the sun and its summer far away: mild winters, cool summers. Eleven thousand years from now that is reversed and it is the southern hemisphere's turn. Both hemispheres are always on opposite ends of this deal, which is why an ice age driven by precession alone would be a northern and southern see-saw rather than a global event.</p>
+    <p>Eccentricity does almost nothing by itself. Even at its most elliptical the orbit changes the year's total sunlight by well under a percent. What it does is set the gain on precession: with a near-circular orbit it makes no difference at all which season sits at perihelion, and the precession signal vanishes. Watch the summer curve with eccentricity near zero, around 28,000 years from now, and the 21,000-year wiggles flatten right out.</p>
+
+    <h2>Why 65° north</h2>
+    <p>Ice sheets don't grow because winters are cold; they are always cold enough to snow. They grow when summers are too cool to melt what fell. That makes summer sunlight at the latitude of the ice, around 65° north where Canada and Scandinavia sit, the number to watch. Today it is 478 watts per square metre at the June solstice. At the last glacial maximum it was 462, and eleven thousand years ago, when the ice sheets collapsed, it was 539.</p>
+    <p>Set the latitude to the equator and the curve nearly flattens: the tropics barely notice any of this. Set it to 65° south and it inverts, because that hemisphere's summer is at the other end of the orbit. Set the day selector to the whole year and every precession wiggle disappears: what a latitude receives over a whole year depends on tilt and, very weakly, on eccentricity, but not at all on which season sits at perihelion. Switch to perihelion only with the whole year showing and the line is dead flat. That is the real lesson. Milankovitch is not about how much sunlight Earth receives, but about when and where it lands.</p>
+
+    <h2>What the theory doesn't explain</h2>
+    <p>The honest part. Over the last million years the ice ages have come and gone roughly every 100,000 years, matching the eccentricity cycle. But eccentricity is by far the weakest of the three forcings, and the insolation curve on this page is dominated by the 21,000-year precession beat with a 41,000-year tilt beat behind it. The 100,000-year rhythm in the ice is much stronger than the 100,000-year rhythm in the sunlight, and before about a million years ago the ice followed the 41,000-year tilt beat instead and then switched. Something in the ice sheets, the carbon cycle and the oceans is amplifying a weak nudge and picking which beat to dance to. The orbital clock sets the timing; it does not supply the power.</p>
+
+    <h2>Small print</h2>
+    <p class="small">Daily insolation is the standard expression, integrating the solar elevation over the day with the inverse-square distance from Kepler's orbit, at a solar constant of 1361 watts per square metre; it reproduces the textbook 478 for 65° N at today's June solstice. The orbital history is idealised: one 41,000-year term for tilt, a steady 21,700-year circuit for perihelion, and 100,000 and 405,000-year terms for eccentricity, each with the right range and phased to match today's values exactly. That makes the shape, the interplay and the recent few cycles faithful, and it drifts from the full astronomical solution deeper into the past, where the real terms beat against each other. Dates are given as years from now. "Perihelion falls on" uses today's calendar as a convenience; the calendar itself has no meaning over these spans, only the season does.</p>
+    <p class="small">The three wobbles are sliders you can drive by hand on <a href="analemma.html">the analemma</a>.</p>
+    <p class="small"><a href="index.html">All eleven visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180, S0 = 1361, YEAR = 365.2422;
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const MDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const MSTART = [];
+  MDAYS.reduce((acc, n, i) => (MSTART[i] = acc, acc + n), 0);
+  const MAR_EQ = 78;                       // 20 March, the anchor for solar longitude
+
+  const state = { t: 0, lat: 65, day: 90, mode: 'all', map: 'abs', span: 300, playTime: false };
+
+  // ---------- the orbital clocks ----------
+  const obliqOf = t => 23.30 + 1.20 * Math.cos(2 * Math.PI * t / 41000 + 83.3 * DEG);
+  const eccOf = t => clamp(0.0246 + 0.0165 * Math.cos(2 * Math.PI * t / 100000 + 80 * DEG)
+    + 0.0115 * Math.cos(2 * Math.PI * t / 405000 + 200 * DEG), 0.0005, 0.07);
+  const periOf = t => ((283 + 360 * t / 21700) % 360 + 360) % 360;
+  function elements(t) {
+    const m = state.mode;
+    return {
+      eps: (m === 'all' || m === 'tilt' ? obliqOf(t) : obliqOf(0)),
+      e: (m === 'all' || m === 'ecc' ? eccOf(t) : eccOf(0)),
+      w: (m === 'all' || m === 'prec' ? periOf(t) : periOf(0))
+    };
+  }
+  // daily mean insolation at a latitude, for solar longitude lam
+  function insolation(el, latDeg, lamDeg) {
+    const eps = el.eps * DEG, lam = lamDeg * DEG, phi = latDeg * DEG;
+    const dec = Math.asin(Math.sin(eps) * Math.sin(lam));
+    const nu = lam - el.w * DEG;
+    const rho = (1 + el.e * Math.cos(nu)) / (1 - el.e * el.e);      // a over r
+    const x = -Math.tan(phi) * Math.tan(dec);
+    const H0 = x <= -1 ? Math.PI : x >= 1 ? 0 : Math.acos(x);
+    return (S0 / Math.PI) * rho * rho *
+      (H0 * Math.sin(phi) * Math.sin(dec) + Math.cos(phi) * Math.cos(dec) * Math.sin(H0));
+  }
+  // a whole-year mean must be averaged over time, not over solar longitude:
+  // Earth dawdles at aphelion, so each longitude gets weight r squared
+  function yearMean(el, latDeg) {
+    let s = 0, wsum = 0;
+    for (let l = 0; l < 360; l += 2) {
+      const nu = (l - el.w) * DEG;
+      const r = (1 - el.e * el.e) / (1 + el.e * Math.cos(nu));
+      const wgt = r * r;
+      s += insolation(el, latDeg, l) * wgt;
+      wsum += wgt;
+    }
+    return s / wsum;
+  }
+  const measure = (t, latDeg) => {
+    const el = elements(t);
+    return state.day === 'year' ? yearMean(el, latDeg) : insolation(el, latDeg, state.day);
+  };
+  // days from the March equinox to a given solar longitude, by Kepler
+  function daysTo(el, lamDeg) {
+    const e = el.e, w = el.w * DEG;
+    const at = lam => {
+      const nu = lam * DEG - w;
+      const E = 2 * Math.atan2(Math.sqrt(1 - e) * Math.sin(nu / 2), Math.sqrt(1 + e) * Math.cos(nu / 2));
+      const M = E - e * Math.sin(E);
+      return ((M / (2 * Math.PI)) % 1 + 1) % 1 * YEAR;
+    };
+    const d = at(lamDeg) - at(0);
+    return ((d % YEAR) + YEAR) % YEAR;
+  }
+  const seasonLength = (el, a, b) => {
+    const d = daysTo(el, b) - daysTo(el, a);
+    return ((d % YEAR) + YEAR) % YEAR;
+  };
+  function periDate(el) {
+    const d = (MAR_EQ + daysTo(el, el.w)) % 365;
+    let i = 11;
+    while (MSTART[i] > Math.floor(d)) i--;
+    return `${Math.floor(d) - MSTART[i] + 1} ${MONTHS[i]}`;
+  }
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'sun-glow', 'tilt', 'prec', 'ecc-c', 'ice', 'sky', 'ground', 'horizon', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { orbit: $('orbit'), wobble: $('wobble'), insol: $('insol'), map: $('map') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+  const fmtT = t => t === 0 ? 'now' : t < 0 ? `${Math.abs(t).toFixed(t % 1 ? 1 : 0)},000 years ago` : `in ${t.toFixed(t % 1 ? 1 : 0)},000 years`;
+  function window_() {
+    if (state.span >= 600) return [-500, 100];
+    const half = state.span / 2, c = clamp(state.t, -500 + half, 100 - half);
+    return [c - half, c + half];
+  }
+  function ticks(T0, T1) {
+    const step = (T1 - T0) >= 500 ? 100 : (T1 - T0) >= 250 ? 50 : 20;
+    const out = [];
+    for (let t = Math.ceil(T0 / step) * step; t <= T1; t += step) out.push(t);
+    if (T0 <= 0 && T1 >= 0 && !out.includes(0)) out.push(0);
+    return out;
+  }
+
+  // ---------- 1. the orbit ----------
+  function drawOrbit() {
+    const { ctx, w, h } = cv.orbit;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const el = elements(state.t * 1000);
+    const eDraw = clamp(el.e * 10, 0.005, 0.62);
+    const a = Math.min((w - 90) / 2, (h - 56) / (2 * Math.sqrt(1 - eDraw * eDraw)));
+    const b = a * Math.sqrt(1 - eDraw * eDraw);
+    const cx = w / 2 + a * eDraw, cy = h / 2;        // the sun sits at a focus, so shift the centre
+    // perihelion is drawn to the right; Earth's true anomaly nu measures from there
+    const P = nu => {
+      const r = (1 - eDraw * eDraw) / (1 + eDraw * Math.cos(nu * DEG));
+      return [cx - a * eDraw + a * r * Math.cos(nu * DEG), cy - a * r * Math.sin(nu * DEG)];
+    };
+    const nuOf = lam => lam - el.w;
+
+    // the northern summer half of the orbit, equinox to equinox
+    const arc = [];
+    for (let l = 0; l <= 180; l += 2) arc.push(P(nuOf(l)));
+    ctx.save();
+    ctx.lineWidth = 9; ctx.strokeStyle = C['sun-fill']; ctx.lineCap = 'butt';
+    poly(ctx, arc); ctx.stroke();
+    ctx.restore();
+
+    // the orbit
+    const ring = [];
+    for (let nu = 0; nu <= 360; nu += 2) ring.push(P(nu));
+    poly(ctx, ring); ctx.lineWidth = 1.5; ctx.strokeStyle = C.ghost; ctx.stroke();
+
+    // the sun
+    const sx = cx - a * eDraw, sy = cy;
+    ctx.fillStyle = C['sun-glow'];
+    ctx.beginPath(); ctx.arc(sx, sy, 16, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(sx, sy, 8, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // perihelion and aphelion
+    [[0, 'perihelion'], [180, 'aphelion']].forEach(([nu, label]) => {
+      const p = P(nu);
+      ctx.save();
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+      line(ctx, sx, sy, p[0], p[1]);
+      ctx.restore();
+      const lx = clamp(p[0] + (nu === 0 ? 10 : -10), 4, w - 4);
+      text(ctx, label, lx, p[1] - 8,
+        { font: uiFont, color: C.muted, align: nu === 0 ? 'left' : (lx < 60 ? 'left' : 'right'), halo: true });
+    });
+
+    // the four season points, with a tilted Earth at each solstice
+    const seasons = [[0, 'Mar'], [90, 'Jun'], [180, 'Sep'], [270, 'Dec']];
+    seasons.forEach(([lam, name]) => {
+      const p = P(nuOf(lam));
+      const solst = lam === 90 || lam === 270;
+      if (solst) {
+        const R = small ? 11 : 13;
+        ctx.fillStyle = C.surface;
+        ctx.beginPath(); ctx.arc(p[0], p[1], R, 0, 2 * Math.PI); ctx.fill();
+        ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25; ctx.stroke();
+        // the axis leans by the obliquity, towards the sun in June and away in December
+        const tow = lam === 90 ? 1 : -1;
+        const dirToSun = Math.atan2(sy - p[1], sx - p[0]);
+        const ax = Math.cos(dirToSun + Math.PI / 2) , ay = Math.sin(dirToSun + Math.PI / 2);
+        const lean = el.eps * DEG * tow;
+        const vx = ax * Math.cos(lean) - ay * Math.sin(lean), vy = ax * Math.sin(lean) + ay * Math.cos(lean);
+        ctx.strokeStyle = C.tilt; ctx.lineWidth = 2;
+        line(ctx, p[0] - vx * R * 1.5, p[1] - vy * R * 1.5, p[0] + vx * R * 1.5, p[1] + vy * R * 1.5);
+        ctx.fillStyle = C.tilt;
+        ctx.beginPath(); ctx.arc(p[0] + vx * R * 1.5, p[1] + vy * R * 1.5, 2.5, 0, 2 * Math.PI); ctx.fill();
+      } else {
+        ctx.fillStyle = C.ghost;
+        ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, 2 * Math.PI); ctx.fill();
+      }
+      const out = Math.atan2(p[1] - cy, p[0] - cx);
+      text(ctx, name, p[0] + Math.cos(out) * 24, p[1] + Math.sin(out) * 24 + 4,
+        { font: uiFont, color: solst ? C.ink : C.muted, align: 'center', halo: true });
+    });
+
+    text(ctx, `northern summer, ${seasonLength(el, 0, 180).toFixed(0)} days of it`, 10, h - 12,
+      { font: handS, color: C['sun-ink'], halo: true });
+    text(ctx, fmtT(state.t), w - 10, 22, { font: handS, color: C.muted, align: 'right', halo: true });
+  }
+
+  // ---------- 2. the three clocks ----------
+  const WOB_PAD = { L: 44, R: 10, T: 12, B: 24 };
+  function drawWobble() {
+    const { ctx, w, h } = cv.wobble;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = WOB_PAD.L, x1 = w - WOB_PAD.R, y0 = WOB_PAD.T, y1 = h - WOB_PAD.B;
+    const [T0, T1] = window_();
+    const X = t => x0 + (t - T0) / (T1 - T0) * (x1 - x0);
+    const step = (T1 - T0) / 900;
+    const gap = 16, sh = (y1 - y0 - gap * 2) / 3;
+
+    const strips = [
+      {
+        name: 'tilt', col: C.tilt, lo: 22.0, hi: 24.6, fmt: v => v.toFixed(1) + '°',
+        f: t => obliqOf(t * 1000), ticks: [22, 23, 24]
+      },
+      {
+        name: 'perihelion', col: C.prec, lo: 0, hi: 365, fmt: () => '',
+        f: t => (MAR_EQ + daysTo({ e: eccOf(t * 1000), w: periOf(t * 1000) }, periOf(t * 1000))) % 365,
+        ticks: [], sawtooth: true
+      },
+      {
+        name: 'eccentricity', col: C['ecc-c'], lo: 0, hi: 0.06, fmt: v => v.toFixed(3),
+        f: t => eccOf(t * 1000), ticks: [0, 0.03, 0.06]
+      }
+    ];
+
+    strips.forEach((st, i) => {
+      const ya = y0 + i * (sh + gap), yb = ya + sh;
+      const Y = v => yb - (clamp(v, st.lo, st.hi) - st.lo) / (st.hi - st.lo) * (yb - ya);
+      ctx.fillStyle = C.surface; ctx.fillRect(x0, ya, x1 - x0, yb - ya);
+      ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+      st.ticks.forEach(v => {
+        line(ctx, x0, Y(v), x1, Y(v));
+        text(ctx, st.fmt(v), x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
+      });
+      if (st.sawtooth) {
+        [[MSTART[0], 'Jan'], [MSTART[6], 'Jul']].forEach(([d, lab]) =>
+          text(ctx, lab, x0 - 5, Y(d), { font, color: C.muted, align: 'right', base: 'middle' }));
+      }
+      // the curve, broken where a sawtooth wraps
+      let run = [];
+      const flush = () => { if (run.length > 1) { poly(ctx, run); ctx.stroke(); } run = []; };
+      ctx.strokeStyle = st.col; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+      let prev = null;
+      for (let t = T0; t <= T1; t += step) {
+        const v = st.f(t);
+        if (st.sawtooth && prev !== null && Math.abs(v - prev) > 180) flush();
+        run.push([X(t), Y(v)]);
+        prev = v;
+      }
+      flush();
+      text(ctx, st.name, x0 + 6, ya + 14, { font: handS, color: st.col, halo: C.surface });
+      // where we are
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+      line(ctx, X(state.t), ya, X(state.t), yb);
+      ctx.fillStyle = C['sun-bright'];
+      ctx.beginPath(); ctx.arc(X(state.t), Y(st.f(state.t)), 4.5, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = C.sun; ctx.lineWidth = 1.25; ctx.stroke();
+    });
+
+    ticks(T0, T1).forEach(t => text(ctx, t === 0 ? 'now' : `${t}k`, clamp(X(t), x0 + 16, x1 - 16), h - 7, { font, color: C.muted, align: 'center' }));
+  }
+
+  // ---------- 3. the insolation curve ----------
+  const INS_PAD = { L: 46, R: 10, T: 14, B: 24 };
+  function drawInsol() {
+    const { ctx, w, h } = cv.insol;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = INS_PAD.L, x1 = w - INS_PAD.R, y0 = INS_PAD.T, y1 = h - INS_PAD.B;
+    const [T0, T1] = window_();
+    const X = t => x0 + (t - T0) / (T1 - T0) * (x1 - x0);
+    const stepT = (T1 - T0) / 600;
+
+    const pts = [];
+    let lo = 1e9, hi = -1e9;
+    for (let t = T0; t <= T1; t += stepT) {
+      const v = measure(t * 1000, state.lat);
+      pts.push([t, v]);
+      lo = Math.min(lo, v); hi = Math.max(hi, v);
+    }
+    if (hi - lo < 8) { const m = (hi + lo) / 2; lo = m - 4; hi = m + 4; }
+    const pad = (hi - lo) * 0.14;
+    lo -= pad; hi += pad;
+    const Y = v => y1 - (v - lo) / (hi - lo) * (y1 - y0);
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.lineWidth = 1;
+    const stepV = (hi - lo) > 120 ? 50 : (hi - lo) > 40 ? 20 : 5;
+    for (let v = Math.ceil(lo / stepV) * stepV; v <= hi; v += stepV) {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(v), x1, Y(v));
+      text(ctx, String(Math.round(v)), x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
+    }
+    text(ctx, 'W/m²', x0 - 5, y0 + 6, { font, color: C.muted, align: 'right' });
+
+    // the ice-age markers
+    [[-21, 'ice at its worst', 14], [-11.7, 'ice gone', 30]].forEach(([t, label, dy]) => {
+      if (t < T0 || t > T1) return;
+      ctx.save();
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+      line(ctx, X(t), y0, X(t), y1);
+      ctx.restore();
+      text(ctx, label, X(t) - 4, y0 + dy, { font, color: C.muted, align: 'right', halo: C.surface });
+    });
+
+    poly(ctx, pts.map(p => [X(p[0]), Y(p[1])]));
+    ctx.lineWidth = 2; ctx.strokeStyle = C.sun; ctx.lineJoin = 'round'; ctx.stroke();
+
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(state.t), y0, X(state.t), y1);
+    const now = measure(state.t * 1000, state.lat);
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(X(state.t), Y(now), 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+
+    ticks(T0, T1).forEach(t => text(ctx, t === 0 ? 'now' : `${t}k`, clamp(X(t), x0 + 16, x1 - 16), h - 7, { font, color: C.muted, align: 'center' }));
+    const dayLabel = state.day === 'year' ? 'year-round average' : state.day === 90 ? 'June solstice' : 'December solstice';
+    text(ctx, `${dayLabel} at ${Math.abs(state.lat).toFixed(0)}° ${state.lat < 0 ? 'S' : 'N'}`, x1 - 6, y1 - 8,
+      { font: handS, color: C['sun-ink'], align: 'right', halo: C.surface });
+  }
+
+  // ---------- 4. the map ----------
+  const MAP_PAD = { L: 40, R: 10, T: 12, B: 24 };
+  function drawMap() {
+    const { ctx, w, h } = cv.map;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = MAP_PAD.L, x1 = w - MAP_PAD.R, y0 = MAP_PAD.T, y1 = h - MAP_PAD.B;
+    const X = lam => x0 + lam / 360 * (x1 - x0);
+    const Y = lat => y0 + (90 - lat) / 180 * (y1 - y0);
+    const el = elements(state.t * 1000), el0 = elements(0);
+    const dLat = 2.5, dLam = 4;
+
+    for (let lat = -90; lat < 90; lat += dLat) {
+      for (let lam = 0; lam < 360; lam += dLam) {
+        const v = insolation(el, lat + dLat / 2, lam + dLam / 2);
+        let col;
+        if (state.map === 'abs') {
+          const u = clamp(v / 560, 0, 1);
+          const r = Math.round(255 * clamp(1.6 * u, 0, 1));
+          const g = Math.round(255 * clamp(1.7 * u - 0.35, 0, 1));
+          const bl = Math.round(255 * clamp(2.2 * u - 1.2, 0, 1));
+          col = `rgb(${r},${g},${bl})`;
+        } else {
+          const d = v - insolation(el0, lat + dLat / 2, lam + dLam / 2);
+          const u = clamp(d / 45, -1, 1);
+          col = u >= 0
+            ? `rgba(200,120,20,${(u * 0.92).toFixed(3)})`
+            : `rgba(60,110,170,${(-u * 0.92).toFixed(3)})`;
+          ctx.fillStyle = C.surface;
+          ctx.fillRect(X(lam), Y(lat + dLat), X(lam + dLam) - X(lam) + 1, Y(lat) - Y(lat + dLat) + 1);
+        }
+        ctx.fillStyle = col;
+        ctx.fillRect(X(lam), Y(lat + dLat), X(lam + dLam) - X(lam) + 1, Y(lat) - Y(lat + dLat) + 1);
+      }
+    }
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+    ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    [60, 30, 0, -30, -60].forEach(lat => {
+      text(ctx, (lat > 0 ? '+' : '') + lat + '°', x0 - 5, Y(lat), { font, color: C.muted, align: 'right', base: 'middle' });
+      ctx.save(); ctx.globalAlpha = .35; ctx.strokeStyle = C.bg;
+      line(ctx, x0, Y(lat), x1, Y(lat));
+      ctx.restore();
+    });
+    [[0, 'Mar'], [90, 'Jun'], [180, 'Sep'], [270, 'Dec']].forEach(([lam, lab]) =>
+      text(ctx, lab, X(lam), h - 7, { font, color: C.muted, align: 'center' }));
+    // where the chosen latitude sits
+    ctx.save();
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, x0, Y(state.lat), x1, Y(state.lat));
+    ctx.restore();
+    text(ctx, state.map === 'abs' ? 'brighter is more sunlight' : 'amber: more than today. blue: less.',
+      x1 - 6, y0 + 16, { font: handS, color: state.map === 'abs' ? C.bg : C.ink, align: 'right', halo: state.map === 'abs' ? false : C.surface });
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { time: $('time'), lat: $('lat') };
+  const chipsTime = [...document.querySelectorAll('[data-time]')];
+  const chipsLat = [...document.querySelectorAll('[data-lat]')];
+  const chipsDay = [...document.querySelectorAll('[data-day]')];
+  const chipsMode = [...document.querySelectorAll('[data-mode]')];
+  const chipsMap = [...document.querySelectorAll('[data-map]')];
+  const chipsSpan = [...document.querySelectorAll('[data-span]')];
+
+  function updateText() {
+    const el = elements(state.t * 1000), el0 = elements(0);
+    const ins = measure(state.t * 1000, 65), ins0 = state.day === 'year' ? yearMean(el0, 65) : insolation(el0, 65, state.day);
+    const chosen = measure(state.t * 1000, state.lat);
+    const chosen0 = state.day === 'year' ? yearMean(el0, state.lat) : insolation(el0, state.lat, state.day);
+    $('rIns').textContent = `${ins.toFixed(0)} W/m²`;
+    const hemi = Math.abs(state.lat) < 0.5 ? '' : state.lat > 0 ? ' N' : ' S';
+    $('rDiff').textContent = `${chosen - chosen0 >= 0 ? '+' : '−'}${Math.abs(chosen - chosen0).toFixed(0)} W/m² at ${Math.abs(state.lat).toFixed(0)}°${hemi}`;
+    $('rTilt').textContent = `${el.eps.toFixed(2)}°`;
+    $('rEcc').textContent = el.e.toFixed(4);
+    $('rPeri').textContent = periDate(el);
+    $('rSeason').textContent = `${seasonLength(el, 0, 180).toFixed(0)} days`;
+    $('timeOut').textContent = fmtT(state.t);
+    $('latOut').textContent = Math.abs(state.lat) < 0.5 ? '0° (equator)' : `${Math.abs(state.lat).toFixed(0)}° ${state.lat > 0 ? 'N' : 'S'}`;
+    const north = seasonLength(el, 0, 180);
+    $('rSum').textContent = state.t === 0
+      ? 'Today perihelion falls on 3 January, so the north takes its winter close to the sun: mild winters, cool summers, and a northern summer half-year six days longer than its winter.'
+      : `${fmtT(state.t).replace(/^i/, 'I')}: tilt ${el.eps.toFixed(2)}°, eccentricity ${el.e.toFixed(4)}, perihelion in ${periDate(el).split(' ')[1]}. Northern summer runs ${north.toFixed(0)} days against ${(YEAR - north).toFixed(0)} of winter, and 65° N gets ${ins.toFixed(0)} W/m² at the June solstice against 478 today.`;
+    els.orbit.setAttribute('aria-label', `Earth's orbit ${fmtT(state.t)}: tilt ${el.eps.toFixed(2)} degrees, eccentricity ${el.e.toFixed(4)}, perihelion on ${periDate(el)}.`);
+    els.wobble.setAttribute('aria-label', `Tilt, perihelion date and eccentricity from 500,000 years ago to 100,000 years ahead.`);
+    els.insol.setAttribute('aria-label', `Insolation through time at ${state.lat} degrees: ${chosen.toFixed(0)} watts per square metre ${fmtT(state.t)}.`);
+    els.map.setAttribute('aria-label', `Daily insolation by latitude and day of year ${fmtT(state.t)}.`);
+  }
+
+  function syncInputs() {
+    if (Number(inputs.time.value) !== state.t) inputs.time.value = state.t;
+    if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    chipsTime.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.t - Number(b.dataset.time)) < 0.26));
+    chipsLat.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - Number(b.dataset.lat)) < 0.26));
+    chipsDay.forEach(b => b.setAttribute('aria-pressed', String(state.day) === b.dataset.day));
+    chipsMode.forEach(b => b.setAttribute('aria-pressed', state.mode === b.dataset.mode));
+    chipsMap.forEach(b => b.setAttribute('aria-pressed', state.map === b.dataset.map));
+    chipsSpan.forEach(b => b.setAttribute('aria-pressed', state.span === Number(b.dataset.span)));
+  }
+
+  let raf = 0, last = 0, dir = 1;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const dt = state.playTime && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.playTime) {
+      state.t = clamp(state.t + dir * dt * 40, -500, 100);
+      if (state.t <= -500 || state.t >= 100) dir = -dir;
+      state.t = Math.round(state.t * 2) / 2;
+    }
+    last = state.playTime ? ts : 0;
+    syncInputs(); updateText();
+    drawOrbit(); drawWobble(); drawInsol(); drawMap();
+    if (state.playTime) render();
+  }
+  function setPlay(on) {
+    if (state.playTime === on) return;
+    state.playTime = on;
+    $('playTime').setAttribute('aria-pressed', on);
+    $('playTime').textContent = on ? 'Pause time' : 'Play time';
+    render();
+  }
+  $('playTime').addEventListener('click', () => setPlay(!state.playTime));
+  inputs.time.addEventListener('input', e => { setPlay(false); state.t = Number(e.target.value); render(); });
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
+  chipsTime.forEach(b => b.addEventListener('click', () => { setPlay(false); state.t = Number(b.dataset.time); render(); }));
+  chipsLat.forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); render(); }));
+  chipsDay.forEach(b => b.addEventListener('click', () => { state.day = b.dataset.day === 'year' ? 'year' : Number(b.dataset.day); render(); }));
+  chipsMode.forEach(b => b.addEventListener('click', () => { state.mode = b.dataset.mode; render(); }));
+  chipsMap.forEach(b => b.addEventListener('click', () => { state.map = b.dataset.map; render(); }));
+  chipsSpan.forEach(b => b.addEventListener('click', () => { state.span = Number(b.dataset.span); render(); }));
+
+  readColors();
+  const ro = new ResizeObserver(() => {
+    Object.values(cv).forEach(fit);
+    drawOrbit(); drawWobble(); drawInsol(); drawMap();
+  });
+  Object.values(els).forEach(el => ro.observe(el));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>

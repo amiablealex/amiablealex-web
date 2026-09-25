@@ -6,7 +6,7 @@
 # List order is display order.
 topics:
   - name: Tilt and the seasons
-    summary: "One story, about axial tilt and the geometry of the seasons. Each one runs on its own, but they build on each other in this order."
+    summary: "One continuous story about axial tilt and the geometry of the seasons, building on itself in order."
   - name: Light and air
-    summary: "[ a line about this topic, or delete this line ]"
+  - name: The planets
 ---
