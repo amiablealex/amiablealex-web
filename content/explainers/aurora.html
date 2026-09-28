@@ -106,7 +106,7 @@ a { color: var(--sun-ink); }
 
   <figure>
     <h2>What you would see from here</h2>
-    <p class="hint">Looking north. How much of the curtain clears your horizon depends on how far away the oval is.</p>
+    <p class="hint">How much of the curtain clears your horizon depends on how far off the ring is, and which side of it you are standing on.</p>
     <canvas id="sky" role="img" aria-label="The aurora as seen from the chosen latitude"></canvas>
   </figure>
 
@@ -188,10 +188,16 @@ a { color: var(--sun-ink); }
 
     <h2>Why it is always red from down here</h2>
     <p>The best part, and it ties the two halves of the page together. A curtain is a tall thing, running from about 100 km at its base to 300 or 400 km at the top, and Earth is curved. From a thousand kilometres away the base of the curtain is already below your horizon while the top is still well clear of it. Since the top is the part that glows red and the base is the part that glows green, distance filters the colours.</p>
-    <p>This is why aurora seen from England are so often reported as a red glow low in the north, while the same display photographed from Scotland is green. You are not seeing a different aurora. You are seeing the top two hundred kilometres of the same one, with the green part hidden behind the curve of the planet. Push the latitude slider down from northern Norway towards the UK and watch the green sink below the horizon.</p>
+    <p>This is why aurora seen from England are so often reported as a red glow low in the north, while the same display photographed from Scotland is green. You are not seeing a different aurora. You are seeing the top two hundred kilometres of the same one, with the green part hidden behind the curve of the planet. Put yourself inside the ring, then push the latitude down and away from it: the green sinks below the horizon first and the red hangs on above it. Be careful which side of the ring you start on, though. From northern Norway during a decent storm the ring has already slid south of you, so moving south at first brings it closer and lifts the curtain higher before it starts to sink again.</p>
+
+    <h2>Why the camera sees what you cannot</h2>
+    <p>Put yourself at 53° north and give the model a decent storm, and the readout tells a discouraging story. The green is scraping the horizon or below it, and what reaches twenty degrees up is the red. That already makes UK aurora a marginal business, but there is a second problem, and it is in your eyes rather than in the sky.</p>
+    <p>Colour vision belongs to the cones in your retina, and cones need a reasonable amount of light. Below that level you switch over to rod vision, which has no colour at all and is most sensitive around 500 nanometres, in the blue-green. Rods are very nearly blind to 630 nanometre red. So a faint red aurora, which is the only part of the display a southern observer can see over the horizon anyway, lands almost exactly where human night vision is worst.</p>
+    <p>A camera has no such problem. Leave the shutter open for ten seconds and the sensor accumulates what your eye cannot, and it registers red as faithfully as green. This is the whole explanation for a familiar disappointment: photographs from an English garden showing vivid crimson curtains, taken by someone who stood there and saw a vague grey glow and wondered what the fuss was about. They were not imagining the glow and the camera was not lying. The light was real, it was red, and their rods could not see it.</p>
+    <p>It also explains why the reports change character with latitude. Under the oval the green is overhead and bright enough to work your cones, so people describe vivid colour and movement. From a thousand kilometres south the green is behind the horizon, only the red survives, and the naked-eye account becomes "a pale glow, like a distant town".</p>
 
     <h2>Small print</h2>
-    <p class="small">Air density comes from a standard thermosphere table interpolated in log space. Electron penetration uses the usual range law, energy to the power 1.65 in grams per square centimetre, matched against the mass column from above; it puts a 10 keV electron at about 103 km against a textbook 110, which is close enough for the shapes here. The survival of each excited state is the radiative rate divided by the radiative rate plus the collision rate, with the collision coefficients calibrated so that green half-survives at 95 km and red at 220 km, which is what observations show. The three emissions are real spectral lines and are drawn in their true colours: 558 nm green and 630 nm red from atomic oxygen, 428 nm violet from ionised nitrogen. The oval is a circle about the geomagnetic pole at 80.7° north, 72.7° west, with its lower edge at 66.5° minus two degrees per unit of Kp, which is a rule of thumb rather than a model, and the real oval is fatter and pushed further from the pole on the midnight side. Visibility over the horizon is exact geometry for a spherical Earth with no refraction.</p>
+    <p class="small">Air density comes from a standard thermosphere table interpolated in log space. Electron penetration uses the usual range law, energy to the power 1.65 in grams per square centimetre, matched against the mass column from above; it puts a 10 keV electron at about 103 km against a textbook 110, which is close enough for the shapes here. The survival of each excited state is the radiative rate divided by the radiative rate plus the collision rate, with the collision coefficients calibrated so that green half-survives at 95 km and red at 220 km, which is what observations show. The three emissions are real spectral lines and are drawn in their true colours: 558 nm green and 630 nm red from atomic oxygen, 428 nm violet from ionised nitrogen. The oval is a circle about the geomagnetic pole at 80.7° north, 72.7° west, with its lower edge at 66.5° minus two degrees per unit of Kp, which is a rule of thumb rather than a model, and the real oval is fatter and pushed further from the pole on the midnight side. Visibility over the horizon is exact geometry for a spherical Earth with no refraction, and the sky panel adds up the light along the whole line of sight as it crosses the five degrees of depth in the ring, which is why a low sight line comes out greener than a steep one.</p>
     <p class="small"><a href="index.html">All fourteen visualisations</a></p>
   </section>
 </main>
@@ -307,10 +313,49 @@ a { color: var(--sun-ink); }
   const OVAL_WIDTH = 5;
   function distanceToOval() {
     const g = geomagLat(state.lat, state.lon), lo = ovalEdge(state.kp), hi = lo + OVAL_WIDTH;
-    if (g < lo) return { km: (lo - g) * 111.2, inside: false, geo: g };
-    if (g > hi) return { km: (g - hi) * 111.2, inside: false, geo: g, north: true };
-    return { km: 0, inside: true, geo: g };
+    // the ring is five degrees deep, so it spans a range of distances, not one
+    if (g < lo) return { km: (lo - g) * 111.2, far: (hi - g) * 111.2, inside: false, geo: g, facing: 'north' };
+    if (g > hi) return { km: (g - hi) * 111.2, far: (g - lo) * 111.2, inside: false, geo: g, facing: 'south' };
+    return { km: 0, far: Math.max(g - lo, hi - g) * 111.2, inside: true, geo: g, facing: 'up' };
   }
+  // add up the light along the whole line of sight as it crosses the ring:
+  // a low sight line stays down in the green for hundreds of kilometres, a steep one
+  // climbs through green and out into the red, which is why the colours sort themselves out
+  let SKY = null, SKY_KEY = '';
+  function skyProfile() {
+    const d = distanceToOval();
+    const key = `${state.kp.toFixed(2)}|${state.lat.toFixed(2)}|${state.lon.toFixed(1)}|${state.energy.toFixed(2)}`;
+    if (SKY_KEY === key) return SKY;
+    const near = d.inside ? 5 : d.km, far = Math.max(d.far, near + 60);
+    const N = 26, ds = (far - near) / N;
+    const rows = [];
+    let peak = 1e-12;
+    for (let e = 0; e <= 90; e += 0.5) {
+      let g = 0, r = 0, v = 0, lowest = null;
+      for (let i = 0; i <= N; i++) {
+        const dist = near + ds * i;
+        const z = altAtElev(e, dist);
+        if (z === null || z < 80 || z > 520) continue;
+        const w = ds;
+        g += emit('green', z) * w; r += emit('red', z) * w; v += emit('violet', z) * w;
+        if (lowest === null) lowest = z;
+      }
+      const tot = g + r + v;
+      peak = Math.max(peak, tot);
+      rows.push({ e, g, r, v, tot, lowest });
+    }
+    rows.forEach(row => {
+      row.strength = row.tot / peak;
+      row.rgb = row.tot <= 0 ? [0, 0, 0] : [0, 1, 2].map(i =>
+        Math.round((row.g * LINE.green[i] + row.r * LINE.red[i] + row.v * LINE.violet[i]) / row.tot));
+    });
+    SKY = { rows, d }; SKY_KEY = key;
+    return SKY;
+  }
+  const skyAtElev = e => {
+    const p2 = skyProfile();
+    return p2.rows[clamp(Math.round(e * 2), 0, p2.rows.length - 1)];
+  };
   // what altitude do you see at a given elevation, for a curtain that far away
   function altAtElev(elevDeg, distKm) {
     const th = distKm / R, den = Math.cos(th) - Math.tan(elevDeg * DEG) * Math.sin(th);
@@ -364,31 +409,21 @@ a { color: var(--sun-ink); }
     const handS = `500 ${small ? 17 : 19}px ${HAND}`;
     const gy = h * 0.84;
     const d0 = distanceToOval();
-    const dTop = d0.inside ? 60 : d0.km;
-    let topE = 8;
-    for (let e = 1; e < 88; e += 1) {
-      const z = altAtElev(e, dTop);
-      if (z === null) continue;
-      const c = colourAt(z);
-      if (c && c.strength > 0.004) topE = e;
-    }
-    const MAXE = clamp(topE * 1.35, 22, 88);
+    const MAXE = 90;                                   // the whole sky, always, so heights compare
     const Y = e => gy - e / MAXE * (gy - 10);
     ctx.fillStyle = C.night; ctx.fillRect(0, 0, w, gy);
 
     const d = d0;
-    const dist = dTop;
     // paint the sky column by column of elevation
     const stepE = 0.5;
-    let anyLight = false, lowest = null, highest = null;
+    let anyLight = false, lowest = null, topSeen = 0;
     for (let e = 0; e < MAXE; e += stepE) {
-      const z = altAtElev(e + stepE / 2, dist);
-      if (z === null) continue;
-      const col = colourAt(z);
+      const col = skyAtElev(e + stepE / 2);
       if (!col || col.strength < 0.004) continue;
+      const z = altAtElev(e + stepE / 2, d.inside ? 20 : d.km);
       anyLight = true;
-      if (lowest === null) lowest = z;
-      highest = z;
+      if (lowest === null && z !== null) lowest = z;
+      topSeen = e;
       const a = clamp(Math.pow(col.strength, 0.55) * (d.inside ? 0.95 : 0.85), 0, 1);
       ctx.fillStyle = `rgba(${col.rgb[0]},${col.rgb[1]},${col.rgb[2]},${a.toFixed(3)})`;
       ctx.fillRect(0, Y(e + stepE), w, Y(e) - Y(e + stepE) + 1);
@@ -414,15 +449,16 @@ a { color: var(--sun-ink); }
     ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, h - gy);
     ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25;
     line(ctx, 0, gy, w, gy);
-    text(ctx, 'north', w - 10, gy + 20, { font: uiFont, color: C.muted, align: 'right' });
-    [MAXE > 55 ? 20 : 10, MAXE > 55 ? 40 : 20, MAXE > 55 ? 60 : 30].forEach(e => {
+    text(ctx, d.inside ? 'overhead' : d.facing === 'south' ? 'looking south' : 'looking north',
+      w - 10, gy + 20, { font: uiFont, color: C.muted, align: 'right' });
+    [15, 30, 45, 60, 75].forEach(e => {
       ctx.save(); ctx.globalAlpha = .35; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
       line(ctx, 0, Y(e), 16, Y(e)); ctx.restore();
       text(ctx, e + '°', 20, Y(e) + 4, { font: uiFont, color: '#fff', halo: 'rgba(0,0,0,.4)' });
     });
     const label = !anyLight ? 'nothing above your horizon'
-      : d.inside ? 'right overhead'
-        : `you are seeing the curtain from ${Math.round(lowest)} km up`;
+      : d.inside ? 'the ring is overhead'
+        : `lowest visible: ${Math.round(lowest)} km up, reaching ${topSeen.toFixed(0)}°`;
     text(ctx, label, 10, h - 12, { font: handS, color: C.muted, halo: true });
   }
 
@@ -491,6 +527,17 @@ a { color: var(--sun-ink); }
     const X = lg => x0 + (clamp(lg, LO, HI) - LO) / (HI - LO) * (x1 - x0);
 
     ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    // the altitudes this evening's electrons are actually reaching
+    let dmax = 1e-12;
+    for (let z = ZLO; z <= ZHI; z += 2) dmax = Math.max(dmax, deposit('green', z) + deposit('red', z));
+    for (let z = ZLO; z < ZHI; z += 2) {
+      const f = (deposit('green', z) + deposit('red', z)) / dmax;
+      if (f < 0.02) continue;
+      ctx.fillStyle = `rgba(235,162,27,${(0.30 * f).toFixed(3)})`;
+      ctx.fillRect(x0, Y(z + 2), x1 - x0, Y(z) - Y(z + 2) + 1);
+    }
+    text(ctx, 'where the electrons are landing', x0 + 6, y0 + 32,
+      { font, color: C['sun-ink'], halo: C.surface });
     // how long an atom is left alone, per colour (the rates differ)
     ['green', 'red'].forEach(k => {
       const pts = [];
@@ -515,7 +562,9 @@ a { color: var(--sun-ink); }
         ctx.font = handS;
         const lw = ctx.measureText(lab2).width;
         const toRight = X(Math.log10(t)) + 10 + lw < x1;
-        text(ctx, lab2, toRight ? X(Math.log10(t)) + 10 : X(Math.log10(t)) - 10, Y(cross) + 4,
+        text(ctx, lab2,
+          toRight ? X(Math.log10(t)) + 10 : Math.max(X(Math.log10(t)) - 10, x0 + lw + 4),
+          clamp(Y(cross) + 4, y0 + 14, y1 - 6),
           { font: handS, color: C[k], align: toRight ? 'left' : 'right', halo: C.surface });
       }
     });
@@ -531,6 +580,7 @@ a { color: var(--sun-ink); }
   }
 
   // ---------- 4. the oval ----------
+  let OVAL = null;
   function drawOval() {
     const { ctx, w, h } = cv.oval;
     if (!w) return;
@@ -556,34 +606,28 @@ a { color: var(--sun-ink); }
         { font: uiFont, color: C.muted, halo: C.surface });
     });
 
-    // the oval: a band of constant magnetic latitude, drawn in geographic coordinates
+    // the ring's outline only moves when the storm does, so trace it once per storm level
     const lo = ovalEdge(state.kp), hi = lo + OVAL_WIDTH;
-    for (let band = 0; band < 2; band++) {
-      const target = band ? hi : lo;
-      const pts = [];
-      for (let lon = -180; lon <= 180; lon += 2) {
-        let best = null, bestD = 9;
-        for (let lat = 20; lat <= 89.5; lat += 0.25) {
-          const d = Math.abs(geomagLat(lat, lon) - target);
-          if (d < bestD) { bestD = d; best = lat; }
+    const okey = lo.toFixed(2);
+    if (!OVAL || OVAL.key !== okey) {
+      const trace = target => {
+        const out = [];
+        for (let lon = -180; lon <= 180; lon += 2) {
+          let best = null, bestD = 9;
+          for (let lat = 20; lat <= 89.5; lat += 0.25) {
+            const dd = Math.abs(geomagLat(lat, lon) - target);
+            if (dd < bestD) { bestD = dd; best = lat; }
+          }
+          if (best !== null) out.push([best, lon]);
         }
-        if (best !== null) pts.push(P(best, lon));
-      }
-      poly(ctx, pts); ctx.closePath();
-      if (band === 0) { ctx.fillStyle = 'rgba(70,255,150,.16)'; ctx.fill(); }
-      ctx.strokeStyle = C.green; ctx.lineWidth = band ? 1 : 1.75; ctx.stroke();
+        return out;
+      };
+      OVAL = { key: okey, outer: trace(lo), inner: trace(hi) };
     }
-    // punch the hole inside the poleward edge so it reads as a ring
-    const inner = [];
-    for (let lon = -180; lon <= 180; lon += 2) {
-      let best = null, bestD = 9;
-      for (let lat = 20; lat <= 89.5; lat += 0.25) {
-        const d = Math.abs(geomagLat(lat, lon) - hi);
-        if (d < bestD) { bestD = d; best = lat; }
-      }
-      if (best !== null) inner.push(P(best, lon));
-    }
-    poly(ctx, inner); ctx.closePath();
+    poly(ctx, OVAL.outer.map(([la, lo2]) => P(la, lo2))); ctx.closePath();
+    ctx.fillStyle = 'rgba(70,255,150,.16)'; ctx.fill();
+    ctx.strokeStyle = C.green; ctx.lineWidth = 1.75; ctx.stroke();
+    poly(ctx, OVAL.inner.map(([la, lo2]) => P(la, lo2))); ctx.closePath();
     ctx.fillStyle = C.surface; ctx.fill();
     ctx.strokeStyle = C.green; ctx.lineWidth = 1; ctx.stroke();
 
@@ -624,30 +668,31 @@ a { color: var(--sun-ink); }
     const st = stopAlt(state.energy);
     let redFloor = null;
     for (let z = 80; z <= 400; z += 1) if (survive('red', z) > 0.25) { redFloor = z; break; }
-    const dist = d.inside ? 60 : d.km;
-    let lowest = null, highest = null;
-    for (let e = 0; e < 70; e += 0.5) {
-      const z = altAtElev(e, dist);
-      if (z === null) continue;
-      const col = colourAt(z);
-      if (col && col.strength > 0.004) { if (lowest === null) lowest = z; highest = z; }
+    let lowest = null;
+    for (let e = 0; e < 90; e += 0.5) {
+      const col = skyAtElev(e);
+      if (col && col.strength > 0.004) {
+        const z = altAtElev(e, d.inside ? 20 : d.km);
+        if (lowest === null && z !== null) lowest = z;
+      }
     }
     $('rSee').textContent = lowest === null ? 'nothing'
       : d.inside ? 'curtains overhead'
         : lowest > 200 ? 'only the red tops' : lowest > 140 ? 'red, with green just showing' : 'the full curtain';
     $('rEdge').textContent = `${ovalEdge(state.kp).toFixed(0)}° magnetic`;
     $('rGeo').textContent = `${d.geo.toFixed(1)}°`;
-    $('rDist').textContent = d.inside ? 'you are under it' : `${Math.round(d.km).toLocaleString('en-GB')} km`;
+    $('rDist').textContent = d.inside ? 'you are under it'
+      : `${Math.round(d.km).toLocaleString('en-GB')} km ${d.facing}`;
     $('rStop').textContent = `${Math.round(st)} km`;
     $('rRed').textContent = redFloor ? `${redFloor} km` : '—';
     $('kpOut').textContent = `Kp ${state.kp.toFixed(1)}`;
     $('latOut').textContent = `${state.lat.toFixed(1)}° N, ${Math.abs(state.lon).toFixed(1)}° ${state.lon < 0 ? 'W' : 'E'}`;
     $('energyOut').textContent = `${state.energy.toFixed(1)} keV`;
     $('rSum').textContent = lowest === null
-      ? `The oval's lower edge is at ${ovalEdge(state.kp).toFixed(0)}° magnetic and you are at ${d.geo.toFixed(1)}°, so the whole thing is below your horizon.`
+      ? `The ring runs from ${ovalEdge(state.kp).toFixed(0)}° to ${(ovalEdge(state.kp) + OVAL_WIDTH).toFixed(0)}° magnetic and you are at ${d.geo.toFixed(1)}°, ${Math.round(d.km).toLocaleString('en-GB')} km to its ${d.facing === 'north' ? 'south' : 'north'}, so the whole thing is below your horizon.`
       : d.inside
         ? `You are under the oval, so the curtain is overhead and you would see it all: violet at the bottom edge, green through the body, red above ${redFloor} km.`
-        : `The oval is ${Math.round(d.km).toLocaleString('en-GB')} km away, so everything below ${Math.round(lowest)} km is hidden by the curve of the Earth. That is why it looks ${lowest > 200 ? 'red' : 'mostly red'} from here rather than green.`;
+        : `The ring is ${Math.round(d.km).toLocaleString('en-GB')} km to your ${d.facing}, so everything below ${Math.round(lowest)} km is hidden by the curve of the Earth. That is why it looks ${lowest > 200 ? 'red' : 'mostly red'} from here rather than green.`;
     els.sky.setAttribute('aria-label', `The aurora from ${state.lat.toFixed(1)} degrees north with Kp ${state.kp.toFixed(1)}.`);
     els.curtain.setAttribute('aria-label', `Emission against altitude with ${state.energy.toFixed(1)} keV electrons.`);
     els.quench.setAttribute('aria-label', 'Time between collisions against altitude, with the two emission lifetimes.');
