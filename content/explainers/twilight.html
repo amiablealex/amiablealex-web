@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Earth's own shadow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20);
+  --sky: rgba(104, 146, 184, .16); --ground: rgba(98, 112, 64, .2); --horizon: #4B5731;
+  --shadow: #46566B; --belt: #C08A86; --ozone: #5E7FA8;
+  --civil: rgba(235, 162, 27, .22); --naut: rgba(104, 146, 184, .24); --astro: rgba(70, 86, 107, .26);
+  --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16);
+    --sky: rgba(120, 164, 210, .14); --ground: rgba(122, 142, 82, .18); --horizon: #A9B97C;
+    --shadow: #8FA3BC; --belt: #DDA9A4; --ozone: #8FB2D8;
+    --civil: rgba(242, 181, 68, .20); --naut: rgba(120, 164, 210, .20); --astro: rgba(143, 163, 188, .20);
+    --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16);
+  --sky: rgba(120, 164, 210, .14); --ground: rgba(122, 142, 82, .18); --horizon: #A9B97C;
+  --shadow: #8FA3BC; --belt: #DDA9A4; --ozone: #8FB2D8;
+  --civil: rgba(242, 181, 68, .20); --naut: rgba(120, 164, 210, .20); --astro: rgba(143, 163, 188, .20);
+  --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.4rem, 8.5vw, 3.4rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#east { aspect-ratio: 4 / 3; }
+#geom { aspect-ratio: 4 / 3; }
+#drain { aspect-ratio: 5 / 4; }
+#year { aspect-ratio: 5 / 3; }
+@media (min-width: 640px) {
+  #east { aspect-ratio: 16 / 9; }
+  #geom { aspect-ratio: 16 / 8; }
+  #drain { aspect-ratio: 16 / 8; }
+  #year { aspect-ratio: 16 / 6; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Earth's own shadow</h1>
+    <p class="lede">On a clear evening, turn your back on the sunset. Low in the east there is a dark blue-grey band with a softer, brighter one above it, and the dark band climbs as you watch. That band is the shadow of the planet you are standing on, twelve and a half thousand kilometres of it, thrown onto our own air. Almost nobody looks.</p>
+  </header>
+
+  <figure>
+    <h2>Looking east, as the sun goes down</h2>
+    <p class="hint">Every colour is worked out from the sunlight that actually reaches each parcel of air, not painted on.</p>
+    <canvas id="east" role="img" aria-label="The eastern sky during twilight, with Earth's shadow rising"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Top of the shadow</dt><dd id="rTop">–</dd></div>
+    <div><dt>Sun is</dt><dd id="rSun">–</dd></div>
+    <div><dt>Shadow climbs at</dt><dd id="rRate">–</dd></div>
+    <div><dt>Sky brightness</dt><dd id="rBright">–</dd></div>
+    <div><dt>Stage</dt><dd id="rStage">–</dd></div>
+    <div><dt>Ozone overhead</dt><dd id="rOzone">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Sun controls">
+    <div class="play">
+      <button class="btn" id="play" aria-pressed="false">Play the dusk</button>
+    </div>
+    <div class="ctl">
+      <label for="sun">How far the sun has sunk <output id="sunOut" for="sun"></output></label>
+      <input type="range" id="sun" min="-20" max="3" step="0.1">
+      <div class="chips" role="group" aria-label="Sun presets">
+        <button class="chip" data-sun="0">Sunset</button>
+        <button class="chip" data-sun="-6">Civil, −6°</button>
+        <button class="chip" data-sun="-12">Nautical, −12°</button>
+        <button class="chip" data-sun="-18">Astronomical, −18°</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="o3">How much ozone is overhead <output id="o3Out" for="o3"></output></label>
+      <input type="range" id="o3" min="0" max="500" step="5">
+      <div class="chips" role="group" aria-label="Ozone presets">
+        <button class="chip" data-o3="0">None at all</button>
+        <button class="chip" data-o3="120">Ozone hole</button>
+        <button class="chip" data-o3="300">As it is</button>
+        <button class="chip" data-o3="460">Richest</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>What you are actually looking at</h2>
+    <p class="hint">The same moment from the side. The shadow you see is where your line of sight stops finding sunlit air.</p>
+    <canvas id="geom" role="img" aria-label="Side view of Earth, the terminator and the observer's line of sight"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>The light drains away</h2>
+    <p class="hint">Sky brightness against how far the sun has sunk, on a scale where each step is ten times darker. The strips show the colour the model gives, with ozone and without it.</p>
+    <canvas id="drain" role="img" aria-label="Sky brightness against solar depression, with and without ozone"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Where night never comes</h2>
+    <p class="hint">Every hour of the year, sorted into day, the three twilights, and true night.</p>
+    <canvas id="year" role="img" aria-label="Twilight stages through the year at the chosen latitude"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Place control">
+    <div class="ctl">
+      <label for="lat">Latitude <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="-90" max="90" step="0.5">
+      <div class="chips" role="group" aria-label="Latitude presets">
+        <button class="chip" data-lat="0">Equator</button>
+        <button class="chip" data-lat="53">UK 53° N</button>
+        <button class="chip" data-lat="-33.9">Sydney 34° S</button>
+        <button class="chip" data-lat="90">North Pole</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>A shadow you can measure</h2>
+    <p>Earth blocks sunlight, so it casts a shadow, and that shadow is a cone stretching a million and a half kilometres out into space. You are standing inside the near end of it from sunset to sunrise. What makes it visible is that our own air is in the way: the shadow falls across the atmosphere to your east, and the air inside it has nothing to scatter towards you while the air above it still catches the sun.</p>
+    <p>So the dark band has a top edge, and that edge is a real, measurable thing. It first appears at the eastern horizon at the moment of sunset and climbs as the sun sinks further. The climb starts fast, a degree or two of sky for each degree the sun drops, then accelerates sharply: by the time the sun is six degrees down the shadow's edge has reached about ten degrees of elevation, and shortly after that it sweeps over the zenith and the whole sky is inside it. Watch the readout as you drag the sun down.</p>
+    <p>Two details worth knowing before you go outside. The edge is curved, gently, because it is the shadow of a sphere, and on a wide clear horizon over the sea you can see the curve. And the band is bluish-grey rather than black, because the air inside the shadow is still lit by light scattered down from the sunlit air above it. What you are seeing is not the absence of light but a deficit.</p>
+
+    <h2>The bright band above it</h2>
+    <p>Directly above the shadow sits a brighter, softer band, usually called the Belt of Venus. It is the lowest air still in sunlight, and the sunlight reaching it has grazed the whole thickness of the atmosphere on its way over the horizon, so it has been stripped of its blue exactly as described on <a href="red-moon-blue-sky.html">the red moon page</a>. That is why the belt is the warmest part of the twilight sky and why photographs show it as rose or salmon.</p>
+    <p>An honest note about this page's colours. The model here follows sunlight scattering once, from the sun to a parcel of air to your eye, and that is enough to place the shadow, the bright band and the brightness collapse correctly. It is not enough to reproduce the belt's full rosiness, which depends on light that has bounced more than once before it reaches you. So the band comes out bright and barely warm rather than pink. Everything else on the page is what the model gives, and I would rather show you that than tint it by hand and call it physics.</p>
+
+    <h2>Why the blue hour is blue, and it isn't what you think</h2>
+    <p>Here is the part that surprised me. The daytime sky is blue because air scatters short wavelengths more strongly. That explanation does not work for twilight. Twilight light has crossed an enormous thickness of air on its way past the horizon, which strips out the blue and should leave the sky yellow-orange, the way it leaves a low moon orange.</p>
+    <p>So take the ozone out. The second slider does exactly that, and at a sun a degree or two down the sky turns cream and tan, which is what a purely scattering atmosphere would give you. Put it back to the 300 Dobson units really up there and it goes blue again. The effect is strongest in the first few degrees: drag the sun deeper and the ozone slider stops mattering, because by then the light reaching you has come from air above the layer altogether. Ozone sits in a layer around twenty-five kilometres up and absorbs broadly across the orange and red through what is called the Chappuis band. The slider runs from nothing to about 460 Dobson units, which covers the real range: the global average is near 300, the tropics run lower, and the Antarctic hole drops below 120, which is the setting worth trying. It hardly matters when the sun is high and the path through the layer is short. In twilight the light travels nearly horizontally through that layer for hundreds of kilometres, the absorption becomes severe, and what survives is blue. The blue hour is an absorption colour, not a scattering colour, and it is a different blue from the daytime sky for a genuinely different reason.</p>
+
+    <h2>Three twilights, and the nights we never get</h2>
+    <p>The stages are conventions with real content behind them. Civil twilight ends when the sun is six degrees down and you can no longer comfortably read outside. Nautical ends at twelve, which is roughly when the sea horizon stops being sharp enough to take a star sight against. Astronomical ends at eighteen, the point where the last of the sunlit air has dropped below the horizon and the sky stops getting darker at all.</p>
+    <p>How long that takes depends on the angle at which the sun's path meets the horizon, which is the same geometry as <a href="crossing-the-horizon.html">crossing the horizon</a>. At the equator the sun drops almost vertically and the whole sequence is over in about seventy minutes. At 53° north in June it never finishes: the sun only reaches about fourteen degrees below the horizon at midnight, so from 16 May to 27 July there is no astronomical night at all in the UK, only a sky that thins to nautical twilight and brightens again. Drag the latitude on the last panel and watch the black band close up entirely.</p>
+
+    <h2>Small print</h2>
+    <p class="small">Sky colours come from a single-scattering model: for each direction, the line of sight is walked out to 120 km in 2 km steps, each parcel is tested against the geometric terminator with an allowance for refraction, and the sunlight reaching it is attenuated by the Rayleigh column along its grazing path, computed from the tangent height with the Chapman formula, plus ozone absorption through a layer centred at 22 km with a 300 Dobson unit column. The surviving spectrum is scattered towards the eye in proportion to the Rayleigh coefficient, summed along the ray, and converted through the CIE 1931 functions to sRGB. Brightness is shown relative to the moment of sunset. Single scattering overstates how fast the light goes after nautical twilight, because by then most of what is left has bounced more than once, so treat the far end of that curve as a lower bound. Multiple scattering is not modelled, which is the limitation described above; the faint glow inside the shadow is a stand-in for it, set at a few per cent of the sunlit sky. Twilight timings use the sun's declination and hour angle without refraction at the horizon, so real-world times run a minute or two later.</p>
+    <p class="small"><a href="index.html">All thirteen visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const sind = x => Math.sin(x * DEG), cosd = x => Math.cos(x * DEG);
+  const R = 6371, H = 8.5;
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const MDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const MSTART = [];
+  MDAYS.reduce((a, n, i) => (MSTART[i] = a, a + n), 0);
+
+  const state = { sun: -2, o3: 300, lat: 53, play: false };
+
+  // ---------- light ----------
+  const WL = []; for (let l = 400; l <= 700; l += 20) WL.push(l);
+  const planck = (nm, T) => { const x = nm * 1e-9; return 1 / (Math.pow(x, 5) * (Math.exp(1.4388e-2 / (x * T)) - 1)); };
+  const SRC = WL.map(l => planck(l, 5778));
+  const TAU = WL.map(l => 0.0973 * Math.pow(550 / l, 4));
+  const SIG3 = WL.map(l => 4.5e-21 * Math.exp(-Math.pow((l - 600) / 90, 2)));
+  const O3COL = 8.1e18;
+  function cie(nm) {
+    const g = (x, mu, s1, s2) => { const t = (x - mu) * (x < mu ? 1 / s1 : 1 / s2); return Math.exp(-0.5 * t * t); };
+    return [
+      1.056 * g(nm, 599.8, 37.9, 31.0) + 0.362 * g(nm, 442.0, 16.0, 26.7) - 0.065 * g(nm, 501.1, 20.4, 26.2),
+      0.821 * g(nm, 568.8, 46.9, 40.5) + 0.286 * g(nm, 530.9, 16.3, 31.1),
+      1.217 * g(nm, 437.0, 11.8, 36.0) + 0.681 * g(nm, 459.0, 26.0, 13.8)
+    ];
+  }
+  const CMF = WL.map(cie);
+  const O3F = [];
+  for (let k = 0; k <= 60; k++) O3F.push(Math.exp(-Math.pow((k - 22) / 8, 2)));
+  const O3SUM = O3F.reduce((a, b) => a + b, 0);
+  const o3Above = z => { let s = 0; for (let k = Math.ceil(z); k <= 60; k++) s += O3F[k]; return s / O3SUM; };
+  const dip = z => Math.acos(R / (R + z)) / DEG;
+  const REFR = 0.6, BEND = 4;
+
+  // brightness and colour of the anti-sun sky at a given elevation
+  // ozone given as a Dobson-unit column; 300 is roughly what is really up there
+  function skySpec(hSun, elev, du) {
+    const spec = new Float64Array(WL.length);
+    const stepKm = 2;
+    for (let d = 1; d < 700; d += stepKm) {
+      const z = Math.sqrt(R * R + d * d + 2 * R * d * sind(elev)) - R;
+      if (z > 120) break;
+      const theta = Math.asin(d * cosd(elev) / (R + z)) / DEG;
+      const hL = hSun - theta + dip(z);
+      if (hL <= -REFR) continue;
+      const hEff = Math.max(hL, 0.02);
+      let ztan = Math.max(0, (R + z) * cosd(hEff) - R);
+      if (hL < REFR) ztan = Math.max(0, ztan - BEND * (1 - hL / REFR));
+      const chap = Math.sqrt(Math.PI * (R + ztan) / H / 2);
+      const sec = Math.min(1 / sind(hEff), chap);
+      const m = Math.exp(-ztan / H) * sec;
+      const rho = Math.exp(-z / H);
+      const o3 = O3COL * (du / 300) * o3Above(ztan) * Math.min(1 / sind(hEff), 40);
+      for (let i = 0; i < WL.length; i++) {
+        spec[i] += SRC[i] * rho * TAU[i] * Math.exp(-TAU[i] * m - SIG3[i] * o3) * stepKm;
+      }
+    }
+    return spec;
+  }
+  function toXYZ(spec) {
+    let X = 0, Y = 0, Z = 0;
+    for (let i = 0; i < WL.length; i++) { X += spec[i] * CMF[i][0]; Y += spec[i] * CMF[i][1]; Z += spec[i] * CMF[i][2]; }
+    return [X, Y, Z];
+  }
+  function toRgb(spec, scale) {
+    const [X, Y, Z] = toXYZ(spec);
+    let r = 3.2406 * X - 1.5372 * Y - 0.4986 * Z;
+    let g = -0.9689 * X + 1.8758 * Y + 0.0415 * Z;
+    let b = 0.0557 * X - 0.2040 * Y + 1.0570 * Z;
+    const gm = c => { const x = clamp(c * scale, 0, 1); return Math.round(255 * (x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055)); };
+    return [gm(r), gm(g), gm(b)];
+  }
+  // one profile per sun depth, kept because it is the expensive thing on the page
+  const PROF = new Map();
+  const REF_Y = (() => { const [, Y] = toXYZ(skySpec(0, 20, 300)); return Y; })();
+  function profile(hSun, du) {
+    const o3 = Math.round((du === undefined ? state.o3 : du) / 20) * 20;
+    const key = (Math.round(hSun * 4) / 4).toFixed(2) + '|' + o3;
+    let p = PROF.get(key);
+    if (p) return p;
+    const hs = Number(key.split('|')[0]);
+    const elevs = [], rows = [];
+    for (let e = 0; e <= 90; e += 1.5) {
+      const sp = skySpec(hs, e, o3);
+      const [, Y] = toXYZ(sp);
+      elevs.push(e); rows.push({ e, sp, Y });
+    }
+    let top = null;
+    for (const r of rows) if (r.Y > REF_Y * 1e-7) { top = r.e; break; }
+    // a crude stand-in for light that has bounced: the shadow glows faintly with the sky's own colour
+    const litRows = rows.filter(r => r.Y > 0);
+    if (litRows.length) {
+      const avg = new Float64Array(WL.length);
+      litRows.forEach(r => { for (let i = 0; i < WL.length; i++) avg[i] += r.sp[i] / litRows.length; });
+      rows.forEach(r => {
+        for (let i = 0; i < WL.length; i++) r.sp[i] += avg[i] * 0.035;
+        r.Y = toXYZ(r.sp)[1];
+      });
+    }
+    const zenith = rows[rows.length - 1];
+    p = { hs, rows, top, zenithY: zenith.Y, maxY: Math.max(...rows.map(r => r.Y)) };
+    if (PROF.size > 200) PROF.clear();
+    PROF.set(key, p);
+    return p;
+  }
+  // exposure: the eye adapts, so scale each scene by its own brightest patch
+  const exposureOf = p =>
+    (0.85 / Math.max(p.maxY, 1e-12)) * Math.pow(clamp(p.maxY / REF_Y, 1e-9, 1), 0.28);
+
+  // ---------- the sun through the year ----------
+  function declOf(day) {
+    const n = 9497 + day, g = (357.528 + 0.9856003 * n) * DEG;
+    const L = 280.460 + 0.9856474 * n;
+    const lam = (L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * DEG;
+    return Math.asin(sind(23.44) * Math.sin(lam)) / DEG;
+  }
+  const sunAlt = (day, hour, lat) => {
+    const d = declOf(day) * DEG, p = lat * DEG, Hh = (hour - 12) * 15 * DEG;
+    return Math.asin(Math.sin(p) * Math.sin(d) + Math.cos(p) * Math.cos(d) * Math.cos(Hh)) / DEG;
+  };
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'sky', 'ground', 'horizon', 'shadow', 'belt', 'ozone', 'civil', 'naut', 'astro', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { east: $('east'), geom: $('geom'), drain: $('drain'), year: $('year') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+
+  // ---------- 1. the eastern sky ----------
+  function drawEast() {
+    const { ctx, w, h } = cv.east;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const gy = h * 0.86, top = 12;
+    const MAXE = 30;
+    const Y = e => gy - e / MAXE * (gy - top);
+    const p = profile(state.sun), ex = exposureOf(p);
+    const grad = ctx.createLinearGradient(0, top, 0, gy);
+    for (let i = p.rows.length - 1; i >= 0; i--) {
+      const r = p.rows[i];
+      if (r.e > MAXE) continue;
+      const c = toRgb(r.sp, ex);
+      grad.addColorStop(clamp((MAXE - r.e) / MAXE, 0, 1), `rgb(${c[0]},${c[1]},${c[2]})`);
+    }
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, top, w, gy - top);
+    ctx.fillStyle = C.bg; ctx.fillRect(0, 0, w, top);
+    if (Math.abs(state.o3 - 300) > 10) {
+      text(ctx, state.o3 < 300 ? `ozone down to ${Math.round(state.o3)} Dobson units` : `ozone up at ${Math.round(state.o3)} Dobson units`,
+        10, top + 18, { font: uiFont, color: '#fff', halo: 'rgba(20,30,45,.55)' });
+    }
+
+    // ground and horizon
+    ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, h - gy);
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25;
+    line(ctx, 0, gy, w, gy);
+    text(ctx, 'east', w - 10, gy + 20, { font: uiFont, color: C.muted, align: 'right' });
+
+    // the shadow's edge, gently curved because it is the shadow of a ball
+    if (p.top !== null && p.top < MAXE) {
+      const pts = [];
+      for (let x = 0; x <= w; x += 8) {
+        const f = (x / w - 0.5) * 2;
+        pts.push([x, Y(p.top) + f * f * (small ? 9 : 13)]);
+      }
+      ctx.save();
+      ctx.setLineDash([6, 5]); ctx.lineWidth = 1.5; ctx.strokeStyle = C.bg; ctx.globalAlpha = .55;
+      poly(ctx, pts); ctx.stroke();
+      ctx.restore();
+      text(ctx, `shadow edge, ${p.top.toFixed(1)}° up`, w - 10, Y(p.top) + 18,
+        { font: handS, color: '#fff', align: 'right', halo: 'rgba(20,30,45,.5)' });
+      const beltY = Y(Math.min(p.top + 4.5, MAXE - 2));
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1;
+      line(ctx, w - 118, beltY, w - 96, beltY);
+      ctx.restore();
+      text(ctx, 'the Belt of Venus', w - 124, beltY + 5,
+        { font: uiFont, color: '#fff', align: 'right', halo: 'rgba(20,30,45,.5)' });
+    } else if (p.top === null) {
+      text(ctx, 'the shadow now covers the whole sky', 10, Y(MAXE * 0.5),
+        { font: handS, color: C.bg, halo: 'rgba(20,30,45,.45)' });
+    }
+
+    [10, 20, 30, 40].forEach(e => {
+      ctx.save(); ctx.globalAlpha = .35; ctx.strokeStyle = C.bg; ctx.lineWidth = 1;
+      line(ctx, 0, Y(e), 18, Y(e)); ctx.restore();
+      text(ctx, e + '°', 22, Y(e) + 4, { font: uiFont, color: C.bg, halo: 'rgba(20,30,45,.35)' });
+    });
+    text(ctx, state.sun >= 0 ? `sun ${state.sun.toFixed(1)}° up` : `sun ${Math.abs(state.sun).toFixed(1)}° below the horizon`,
+      10, h - 10, { font: handS, color: C.muted, halo: true });
+  }
+
+  // ---------- 2. the geometry ----------
+  // a slice of air east of you: heights measured from your own horizontal plane,
+  // so the ground curves away and the shadow's roof climbs
+  function drawGeom() {
+    const { ctx, w, h } = cv.geom;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    // late on, the shadow's roof is far higher and further out, so the frame steps back
+    const far = state.sun <= -7;
+    const XKM = far ? 2400 : 900, ZLO = far ? -470 : -68, ZHI = far ? 420 : 120;
+    const XT = far ? [0, 800, 1600, 2400] : [0, 300, 600, 900];
+    const ZT = far ? [0, 150, 300] : [0, 40, 80];
+    const x0 = 46, x1 = w - 10, y0 = 12, y1 = h - 26;
+    const X = km => x0 + km / XKM * (x1 - x0);
+    const Y = z => y1 - (z - ZLO) / (ZHI - ZLO) * (y1 - y0);
+    const drop = km => km * km / (2 * R);                       // how far the surface falls away
+    const roof = km => {                                        // top of the shadow at that distance
+      const needed = (km / R) / DEG + Math.max(-state.sun, 0);
+      return R * (1 / cosd(Math.min(needed, 32)) - 1) - drop(km);
+    };
+
+    ctx.fillStyle = C.sky; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+
+    // the air that is still lit, and the shadow beneath it
+    const lit = [], shade = [];
+    for (let km = 0; km <= XKM; km += 8) { lit.push([X(km), Y(roof(km))]); shade.push([X(km), Y(-drop(km))]); }
+    poly(ctx, lit);
+    for (let i = shade.length - 1; i >= 0; i--) ctx.lineTo(shade[i][0], shade[i][1]);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(20,30,45,.34)'; ctx.fill();
+
+    // the ground
+    poly(ctx, shade);
+    ctx.lineTo(X(XKM), y1); ctx.lineTo(X(0), y1); ctx.closePath();
+    ctx.fillStyle = C.ground; ctx.fill();
+    poly(ctx, shade); ctx.strokeStyle = C.horizon; ctx.lineWidth = 2; ctx.stroke();
+
+    // the roof of the shadow
+    poly(ctx, lit); ctx.lineWidth = 1.75; ctx.strokeStyle = C.sun; ctx.stroke();
+
+    // sunlight, arriving at the angle the sun actually stands
+    ctx.strokeStyle = C.sun; ctx.fillStyle = C.sun; ctx.lineWidth = 1.5;
+    for (let k = 0; k < 4; k++) {
+      const yy = y0 + 16 + k * 22;
+      ctx.save(); ctx.globalAlpha = .7;
+      const dx = 74;
+      // the sun is below your horizon, so its light climbs as it passes you
+      const dy = -dx * Math.tan(Math.max(-state.sun, 0) * DEG) * ((y1 - y0) / (ZHI - ZLO)) / ((x1 - x0) / XKM);
+      line(ctx, x0 + 6, yy - dy, x0 + 6 + dx, yy);
+      ctx.restore();
+    }
+    text(ctx, 'sunlight', x0 + 8, y0 + 12, { font: uiFont, color: C['sun-ink'], halo: C.sky });
+
+    // you, and where your line of sight first finds sunlit air
+    const p = profile(state.sun);
+    ctx.fillStyle = C.ink;
+    ctx.beginPath(); ctx.arc(X(0), Y(0), 4.5, 0, 2 * Math.PI); ctx.fill();
+    text(ctx, 'you', X(0) + 7, Y(0) + 14, { font: uiFont, color: C.ink, halo: true });
+    if (p.top !== null) {
+      let hit = null;
+      for (let km = 4; km <= XKM * 1.6; km += 2) {
+        if (km * Math.tan(p.top * DEG) >= roof(km)) { hit = km; break; }
+      }
+      const endKm = hit || XKM;
+      ctx.save();
+      ctx.setLineDash([5, 4]); ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+      line(ctx, X(0), Y(0), X(endKm), Y(endKm * Math.tan(p.top * DEG)));
+      ctx.restore();
+      if (hit) {
+        ctx.fillStyle = C['sun-bright'];
+        ctx.beginPath(); ctx.arc(X(hit), Y(roof(hit)), 5, 0, 2 * Math.PI); ctx.fill();
+        ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+        const lab = `first sunlit air: ${Math.round(hit)} km out, ${Math.round(roof(hit) + drop(hit))} km up`;
+        ctx.font = handS;
+        const lw = ctx.measureText(lab).width;
+        const toRight = X(hit) + 10 + lw < x1;
+        text(ctx, lab, toRight ? X(hit) + 10 : Math.max(X(hit) - 10, x0 + lw + 2), Y(roof(hit)) - 12,
+          { font: handS, color: C.ink, align: toRight ? 'left' : 'right', halo: C.sky });
+      }
+    }
+
+    text(ctx, 'in shadow', X(XKM * 0.24), Y(roof(XKM * 0.24)) + 26, { font: uiFont, color: C.bg, align: 'center' });
+    text(ctx, 'still in sunlight', X(XKM * 0.76), Y(roof(XKM * 0.76)) - 18, { font: uiFont, color: C['sun-ink'], align: 'center', halo: C.sky });
+    XT.forEach(km => text(ctx, km + (km ? '' : ' km'), X(km), h - 8, { font: uiFont, color: C.muted, align: 'center' }));
+    ZT.forEach(z => text(ctx, String(z), x0 - 5, Y(z), { font: uiFont, color: C.muted, align: 'right', base: 'middle' }));
+    text(ctx, 'km up', x0 - 5, Y(ZHI * 0.93), { font: uiFont, color: C.muted, align: 'right', base: 'middle' });
+    text(ctx, 'heights exaggerated about five times', x1 - 4, y1 - 6, { font: uiFont, color: C.muted, align: 'right', halo: C.sky });
+  }
+
+  // ---------- 3. the light drains away ----------
+  let DRAIN = null;
+  const D_PAD = { L: 46, R: 12, T: 16, B: 74 };
+  function drawDrain() {
+    const { ctx, w, h } = cv.drain;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = D_PAD.L, x1 = w - D_PAD.R, y0 = D_PAD.T, y1 = h - D_PAD.B;
+    const X = s => x0 + (3 - s) / 21 * (x1 - x0);         // +3 on the left, -18 on the right
+    const Y = lg => y1 - (lg + 7) / 7 * (y1 - y0);        // log10 relative brightness, 0 to -7
+
+    // the three twilights
+    [[0, -6, C.civil, 'civil'], [-6, -12, C.naut, 'nautical'], [-12, -18, C.astro, 'astronomical']].forEach(([a, b, col, lab]) => {
+      ctx.fillStyle = col;
+      ctx.fillRect(X(a), y0, X(b) - X(a), y1 - y0);
+      text(ctx, lab, (X(a) + X(b)) / 2, y0 + 13, { font, color: C.muted, align: 'center' });
+    });
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+    for (let lg = 0; lg >= -7; lg--) {
+      line(ctx, x0, Y(lg), x1, Y(lg));
+      text(ctx, lg === 0 ? '1' : `10${String(lg).replace('-', '⁻').replace(/\d/g, d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d])}`,
+        x0 - 5, Y(lg), { font, color: C.muted, align: 'right', base: 'middle' });
+    }
+    [0, -6, -12, -18].forEach(s => text(ctx, s + '°', X(s), y1 + 14, { font, color: C.muted, align: 'center' }));
+
+    // the curve and the strips never change, so they are worked out once
+    const dkey = String(Math.round(state.o3 / 20) * 20);
+    if (!DRAIN || DRAIN.key !== dkey) {
+      const curve = DRAIN ? DRAIN.curve : [];
+      const strips = [[], DRAIN ? DRAIN.strips[1] : []];
+      for (let s = 3; s >= -20; s -= 0.5) {
+        if (!DRAIN) {
+          curve.push([s, clamp(Math.log10(Math.max(profile(s, 300).zenithY / REF_Y, 1e-8)), -7, 0)]);
+          const sp0 = skySpec(Math.round(s * 4) / 4, 60, 0);
+          strips[1].push([s, toRgb(sp0, 0.85 / Math.max(toXYZ(sp0)[1], 1e-12))]);
+        }
+        const sp = skySpec(Math.round(s * 4) / 4, 60, Math.round(state.o3 / 20) * 20);
+        strips[0].push([s, toRgb(sp, 0.85 / Math.max(toXYZ(sp)[1], 1e-12))]);
+      }
+      DRAIN = { key: dkey, curve, strips };
+    }
+    const pts = DRAIN.curve.map(([s, lg]) => [X(s), Y(lg)]);
+    poly(ctx, pts); ctx.lineWidth = 2.5; ctx.strokeStyle = C.ink; ctx.lineJoin = 'round'; ctx.stroke();
+
+    // the colour overhead, with ozone and without
+    const sh = 15, gap = 4;
+    [`ozone at ${Math.round(state.o3)} Dobson units`, 'no ozone at all'].forEach((lab, i) => {
+      const yy = y1 + 20 + i * (sh + gap + 9);
+      DRAIN.strips[i].forEach(([s, c]) => {
+        ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+        ctx.fillRect(X(s), yy, Math.abs(X(s - 0.5) - X(s)) + 1, sh);
+      });
+      ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+      ctx.strokeRect(x0, yy, x1 - x0, sh);
+      text(ctx, lab, x0 + 4, yy + sh + 11, { font, color: C.muted, halo: true });
+    });
+
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(state.sun), y0, X(state.sun), y1);
+    const pn = profile(state.sun);
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(X(state.sun), Y(clamp(Math.log10(Math.max(pn.zenithY / REF_Y, 1e-8)), -7, 0)), 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    text(ctx, 'brightness overhead', x0 + 8, y1 - 10, { font: handS, color: C.ink, halo: C.surface });
+  }
+
+  // ---------- 4. where night never comes ----------
+  let YEAR = null;
+  const Y_PAD = { L: 42, R: 10, T: 12, B: 22 };
+  function drawYear() {
+    const { ctx, w, h } = cv.year;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = Y_PAD.L, x1 = w - Y_PAD.R, y0 = Y_PAD.T, y1 = h - Y_PAD.B;
+    const X = d => x0 + d / 365 * (x1 - x0);
+    const Y = t => y0 + t / 24 * (y1 - y0);
+    // the map only depends on latitude, so paint it once and keep the bitmap
+    const key = `${state.lat.toFixed(1)}|${Math.round(x1 - x0)}x${Math.round(y1 - y0)}|${C.shadow}`;
+    if (!YEAR || YEAR.key !== key) {
+      const off = document.createElement('canvas');
+      const wpx = Math.max(2, Math.round(x1 - x0)), hpx = Math.max(2, Math.round(y1 - y0));
+      off.width = wpx; off.height = hpx;
+      const oc = off.getContext('2d');
+      const stepD = 3, stepT = 0.3;
+      let darkDays = 0;
+      for (let d = 0; d < 365; d += stepD) {
+        let anyNight = false;
+        for (let t = 0; t < 24; t += stepT) {
+          const a = sunAlt(d, t + stepT / 2, state.lat);
+          let col;
+          if (a > 0) col = C['sun-fill'];
+          else if (a > -6) col = C.civil;
+          else if (a > -12) col = C.naut;
+          else if (a > -18) col = C.astro;
+          else { col = C.shadow; anyNight = true; }
+          oc.fillStyle = col;
+          oc.fillRect(d / 365 * wpx, t / 24 * hpx, stepD / 365 * wpx + 1, stepT / 24 * hpx + 1);
+        }
+        if (anyNight) darkDays += stepD;
+      }
+      YEAR = { key, off, darkDays };
+    }
+    const darkDays = YEAR.darkDays;
+    ctx.drawImage(YEAR.off, x0, y0, x1 - x0, y1 - y0);
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+    ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    [0, 6, 12, 18, 24].forEach(t => text(ctx, (t < 10 ? '0' : '') + t + ':00', x0 - 5, Y(t),
+      { font, color: C.muted, align: 'right', base: 'middle' }));
+    MSTART.forEach((s, i) => text(ctx, MONTHS[i][0], X(s + MDAYS[i] / 2), h - 6, { font, color: C.muted, align: 'center' }));
+    text(ctx, darkDays >= 364 ? 'true night every night of the year'
+      : darkDays === 0 ? 'the sky never reaches true night'
+        : `true night on ${Math.round(darkDays)} nights of the year`,
+      x0 + 6, y0 + 16, { font: handS, color: C.ink, halo: C.surface });
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { sun: $('sun'), o3: $('o3'), lat: $('lat') };
+  const chipsSun = [...document.querySelectorAll('[data-sun]')];
+  const chipsO3 = [...document.querySelectorAll('[data-o3]')];
+  const chipsLat = [...document.querySelectorAll('[data-lat]')];
+  const stageOf = s => s > 0 ? 'daylight' : s > -6 ? 'civil twilight' : s > -12 ? 'nautical twilight'
+    : s > -18 ? 'astronomical twilight' : 'night';
+
+  function updateText() {
+    const p = profile(state.sun);
+    const pPrev = profile(state.sun + 1);
+    $('rTop').textContent = p.top === null ? 'the whole sky' : `${p.top.toFixed(1)}° up`;
+    $('rSun').textContent = state.sun >= 0 ? `${state.sun.toFixed(1)}° up` : `${Math.abs(state.sun).toFixed(1)}° down`;
+    const rate = (p.top === null || pPrev.top === null) ? null : p.top - pPrev.top;
+    $('rRate').textContent = rate === null ? '—' : `${rate.toFixed(1)}° per degree of sun`;
+    const lg = Math.log10(Math.max(p.zenithY / REF_Y, 1e-9));
+    $('rBright').textContent = lg > -0.3 ? 'as at sunset' : `${Math.pow(10, -lg) < 1e4 ? Math.round(Math.pow(10, -lg)).toLocaleString('en-GB') : Math.pow(10, -lg).toExponential(0)}× dimmer`;
+    $('rStage').textContent = stageOf(state.sun);
+    $('rOzone').textContent = `${Math.round(state.o3)} DU` +
+      (Math.abs(state.o3 - 300) < 11 ? ', as it is' : state.o3 < 160 ? ', hole territory' : '');
+    $('sunOut').textContent = state.sun >= 0 ? `${state.sun.toFixed(1)}° above the horizon` : `${Math.abs(state.sun).toFixed(1)}° below`;
+    $('o3Out').textContent = state.o3 < 5 ? 'none at all' : `${Math.round(state.o3)} Dobson units`;
+    $('latOut').textContent = Math.abs(state.lat) < 0.5 ? '0° (equator)'
+      : `${Math.abs(state.lat).toFixed(1)}° ${state.lat > 0 ? 'N' : 'S'}`;
+    $('rSum').textContent = state.sun > 0
+      ? 'The sun is still up, so there is no shadow to see: the air to your east is lit all the way down to the horizon.'
+      : p.top === null
+        ? `The sun is ${Math.abs(state.sun).toFixed(0)}° down and the shadow has swept past the zenith. What little light is left comes from air more than eighty kilometres up.`
+        : `The sun is ${Math.abs(state.sun).toFixed(1)}° below the horizon, so the top of Earth's shadow stands ${p.top.toFixed(1)}° above the eastern horizon, with the brightest air just above it.`;
+    els.east.setAttribute('aria-label', `The eastern sky with the sun ${Math.abs(state.sun).toFixed(1)} degrees below the horizon.`);
+    els.geom.setAttribute('aria-label', 'Side view of Earth, its shadow and the observer.');
+    els.drain.setAttribute('aria-label', 'Sky brightness against solar depression, with and without ozone.');
+    els.year.setAttribute('aria-label', `Twilight stages through the year at ${Math.abs(state.lat)} degrees ${state.lat < 0 ? 'south' : 'north'}.`);
+  }
+
+  function syncInputs() {
+    if (Number(inputs.sun.value) !== state.sun) inputs.sun.value = state.sun;
+    if (Number(inputs.o3.value) !== state.o3) inputs.o3.value = state.o3;
+    if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    chipsSun.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.sun - Number(b.dataset.sun)) < 0.05));
+    chipsO3.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.o3 - Number(b.dataset.o3)) < 3));
+    chipsLat.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - Number(b.dataset.lat)) < 0.26));
+  }
+
+  let raf = 0, last = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const dt = state.play && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.play) {
+      state.sun -= dt * 2.2;
+      if (state.sun < -20) state.sun = 3;
+    }
+    last = state.play ? ts : 0;
+    syncInputs(); updateText();
+    drawEast(); drawGeom(); drawDrain(); drawYear();
+    if (state.play) render();
+  }
+  function setPlay(on) {
+    if (state.play === on) return;
+    state.play = on;
+    $('play').setAttribute('aria-pressed', on);
+    $('play').textContent = on ? 'Pause' : 'Play the dusk';
+    render();
+  }
+  $('play').addEventListener('click', () => setPlay(!state.play));
+  inputs.sun.addEventListener('input', e => { setPlay(false); state.sun = Number(e.target.value); render(); });
+  inputs.o3.addEventListener('input', e => { state.o3 = Number(e.target.value); render(); });
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
+  chipsSun.forEach(b => b.addEventListener('click', () => { setPlay(false); state.sun = Number(b.dataset.sun); render(); }));
+  chipsO3.forEach(b => b.addEventListener('click', () => { state.o3 = Number(b.dataset.o3); render(); }));
+  chipsLat.forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); render(); }));
+
+  readColors();
+  const ro = new ResizeObserver(() => {
+    Object.values(cv).forEach(fit);
+    drawEast(); drawGeom(); drawDrain(); drawYear();
+  });
+  Object.values(els).forEach(el => ro.observe(el));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
