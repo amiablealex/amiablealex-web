@@ -121,7 +121,7 @@ a { color: var(--sun-ink); }
 
   <dl class="readout">
     <div class="key"><dt>Top of the shadow</dt><dd id="rTop">–</dd></div>
-    <div><dt>Sun is</dt><dd id="rSun">–</dd></div>
+    <div><dt>Stars visible down to</dt><dd id="rSun">–</dd></div>
     <div><dt>Shadow climbs at</dt><dd id="rRate">–</dd></div>
     <div><dt>Sky brightness</dt><dd id="rBright">–</dd></div>
     <div><dt>Stage</dt><dd id="rStage">–</dd></div>
@@ -138,9 +138,9 @@ a { color: var(--sun-ink); }
       <input type="range" id="sun" min="-20" max="3" step="0.1">
       <div class="chips" role="group" aria-label="Sun presets">
         <button class="chip" data-sun="0">Sunset</button>
-        <button class="chip" data-sun="-6">Civil, −6°</button>
-        <button class="chip" data-sun="-12">Nautical, −12°</button>
-        <button class="chip" data-sun="-18">Astronomical, −18°</button>
+        <button class="chip" data-sun="-3">Civil, −3°</button>
+        <button class="chip" data-sun="-9">Nautical, −9°</button>
+        <button class="chip" data-sun="-15">Astronomical, −15°</button>
       </div>
     </div>
     <div class="ctl">
@@ -194,18 +194,19 @@ a { color: var(--sun-ink); }
 
     <h2>The bright band above it</h2>
     <p>Directly above the shadow sits a brighter, softer band, usually called the Belt of Venus. It is the lowest air still in sunlight, and the sunlight reaching it has grazed the whole thickness of the atmosphere on its way over the horizon, so it has been stripped of its blue exactly as described on <a href="red-moon-blue-sky.html">the red moon page</a>. That is why the belt is the warmest part of the twilight sky and why photographs show it as rose or salmon.</p>
-    <p>An honest note about this page's colours. The model here follows sunlight scattering once, from the sun to a parcel of air to your eye, and that is enough to place the shadow, the bright band and the brightness collapse correctly. It is not enough to reproduce the belt's full rosiness, which depends on light that has bounced more than once before it reaches you. So the band comes out bright and barely warm rather than pink. Everything else on the page is what the model gives, and I would rather show you that than tint it by hand and call it physics.</p>
+    <p>An honest note about this page's colours. The model follows sunlight scattering once, from the sun to a parcel of air to your eye, and that is enough to place the shadow, the bright band and the brightness collapse correctly. It is not enough to reproduce the belt's rosiness, which comes from light that has bounced more than once before it reaches you, and from ozone eating the middle of an already reddened spectrum. So the rose you can see in the first panel is laid on top rather than computed: it is the one painted thing on the page. Its position follows the computed shadow edge, its strength follows the computed brightness, and it fades out as you take the ozone away, because by then the whole sky has gone orange on its own and it would be counted twice. Everything else you see is what the model gives.</p>
 
     <h2>Why the blue hour is blue, and it isn't what you think</h2>
     <p>Here is the part that surprised me. The daytime sky is blue because air scatters short wavelengths more strongly. That explanation does not work for twilight. Twilight light has crossed an enormous thickness of air on its way past the horizon, which strips out the blue and should leave the sky yellow-orange, the way it leaves a low moon orange.</p>
     <p>So take the ozone out. The second slider does exactly that, and at a sun a degree or two down the sky turns cream and tan, which is what a purely scattering atmosphere would give you. Put it back to the 300 Dobson units really up there and it goes blue again. The effect is strongest in the first few degrees: drag the sun deeper and the ozone slider stops mattering, because by then the light reaching you has come from air above the layer altogether. Ozone sits in a layer around twenty-five kilometres up and absorbs broadly across the orange and red through what is called the Chappuis band. The slider runs from nothing to about 460 Dobson units, which covers the real range: the global average is near 300, the tropics run lower, and the Antarctic hole drops below 120, which is the setting worth trying. It hardly matters when the sun is high and the path through the layer is short. In twilight the light travels nearly horizontally through that layer for hundreds of kilometres, the absorption becomes severe, and what survives is blue. The blue hour is an absorption colour, not a scattering colour, and it is a different blue from the daytime sky for a genuinely different reason.</p>
 
     <h2>Three twilights, and the nights we never get</h2>
+    <p>Watch the stars come out in the first panel as you drag the sun down. They are not decoration: each one carries a brightness, and it appears when the sky has dimmed enough to let a star of that brightness through. That is what the stages were built around in the first place.</p>
     <p>The stages are conventions with real content behind them. Civil twilight ends when the sun is six degrees down and you can no longer comfortably read outside. Nautical ends at twelve, which is roughly when the sea horizon stops being sharp enough to take a star sight against. Astronomical ends at eighteen, the point where the last of the sunlit air has dropped below the horizon and the sky stops getting darker at all.</p>
     <p>How long that takes depends on the angle at which the sun's path meets the horizon, which is the same geometry as <a href="crossing-the-horizon.html">crossing the horizon</a>. At the equator the sun drops almost vertically and the whole sequence is over in about seventy minutes. At 53° north in June it never finishes: the sun only reaches about fourteen degrees below the horizon at midnight, so from 16 May to 27 July there is no astronomical night at all in the UK, only a sky that thins to nautical twilight and brightens again. Drag the latitude on the last panel and watch the black band close up entirely.</p>
 
     <h2>Small print</h2>
-    <p class="small">Sky colours come from a single-scattering model: for each direction, the line of sight is walked out to 120 km in 2 km steps, each parcel is tested against the geometric terminator with an allowance for refraction, and the sunlight reaching it is attenuated by the Rayleigh column along its grazing path, computed from the tangent height with the Chapman formula, plus ozone absorption through a layer centred at 22 km with a 300 Dobson unit column. The surviving spectrum is scattered towards the eye in proportion to the Rayleigh coefficient, summed along the ray, and converted through the CIE 1931 functions to sRGB. Brightness is shown relative to the moment of sunset. Single scattering overstates how fast the light goes after nautical twilight, because by then most of what is left has bounced more than once, so treat the far end of that curve as a lower bound. Multiple scattering is not modelled, which is the limitation described above; the faint glow inside the shadow is a stand-in for it, set at a few per cent of the sunlit sky. Twilight timings use the sun's declination and hour angle without refraction at the horizon, so real-world times run a minute or two later.</p>
+    <p class="small">Sky colours come from a single-scattering model: for each direction, the line of sight is walked out to 120 km in 2 km steps, each parcel is tested against the geometric terminator with an allowance for refraction, and the sunlight reaching it is attenuated by the Rayleigh column along its grazing path, computed from the tangent height with the Chapman formula, plus ozone absorption through a layer centred at 22 km with a 300 Dobson unit column. The surviving spectrum is scattered towards the eye in proportion to the Rayleigh coefficient, summed along the ray, and converted through the CIE 1931 functions to sRGB. Brightness is shown relative to the moment of sunset. Single scattering overstates how fast the light goes after nautical twilight, because by then most of what is left has bounced more than once, so treat the far end of that curve as a lower bound. Multiple scattering is not modelled, which is the limitation described above; the faint glow inside the shadow is a stand-in for it, set at a few per cent of the sunlit sky, and the rose in the belt is painted on with its position and strength tied to the computed sky. Twilight timings use the sun's declination and hour angle without refraction at the horizon, so real-world times run a minute or two later. The stars are a fixed invented field rather than a real catalogue, with brightnesses spread the way real ones are, many faint for each bright one. Each is dimmed by the air it shines through, at three tenths of a magnitude per airmass, which is why almost nothing shows below about ten degrees: at the horizon that slant path costs more than ten magnitudes, and it is the same path that turns a rising moon orange. They fade in against a limiting magnitude taken from the sun's depression rather than from the model's own brightness, which runs too dark late in twilight; the anchors are about magnitude 2 at the end of civil twilight, 4 at the end of nautical and 6 once astronomical twilight is over.</p>
     <p class="small"><a href="index.html">All thirteen visualisations</a></p>
   </section>
 </main>
@@ -368,6 +369,38 @@ a { color: var(--sun-ink); }
   const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
   const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
 
+  // how faint a star you can pick out, against how far the sun has sunk.
+  // these are the anchors the twilight stages were defined around in the first place
+  const LIMIT = [[0, -1.0], [3, 0.6], [6, 1.9], [9, 3.1], [12, 4.3], [15, 5.3], [18, 6.0], [24, 6.3]];
+  function limitMag(sunDeg) {
+    const d = clamp(-sunDeg, 0, 24);
+    for (let i = 1; i < LIMIT.length; i++) {
+      if (d <= LIMIT[i][0]) {
+        const [a, ma] = LIMIT[i - 1], [b, mb] = LIMIT[i];
+        return ma + (mb - ma) * (d - a) / (b - a);
+      }
+    }
+    return 6.3;
+  }
+  // starlight low down has to cross a great deal of air: the same slant path that reddens a
+  // low moon also dims it, a few tenths of a magnitude per airmass in a hazy lowland sky
+  const airmassAt = elev => {
+    const z = 90 - clamp(elev, -1, 90);
+    return 1 / (cosd(z) + 0.50572 * Math.pow(96.07995 - z, -1.6364));
+  };
+  const EXTINCT = 0.30;
+  // a fixed scattering of stars, brighter ones rarer, so the sky is the same sky every time
+  const STARS = (() => {
+    let seed = 20260927;
+    const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+    const out = [];
+    for (let i = 0; i < 150; i++) {
+      const mag = -0.6 + 6.6 * Math.pow(rnd(), 0.45);      // few bright, many faint
+      out.push({ x: rnd(), e: Math.pow(rnd(), 0.75) * 30, mag, tw: rnd() });
+    }
+    return out.sort((a, b) => b.mag - a.mag);
+  })();
+
   // ---------- 1. the eastern sky ----------
   function drawEast() {
     const { ctx, w, h } = cv.east;
@@ -390,9 +423,53 @@ a { color: var(--sun-ink); }
     ctx.fillStyle = grad;
     ctx.fillRect(0, top, w, gy - top);
     ctx.fillStyle = C.bg; ctx.fillRect(0, 0, w, top);
+    // The one thing on this page that is painted rather than computed. Single scattering
+    // cannot produce the belt's rose, so it is laid on here: the band sits on the computed
+    // shadow edge, and its strength follows the computed brightness and the ozone setting.
+    if (p.top !== null && state.sun < 0.2) {
+      const centre = p.top + 1.6, width = 4.2;
+      const bright = clamp(Math.pow(clamp(p.maxY / REF_Y, 0, 1), 0.22), 0, 1);
+      const ozFac = clamp(state.o3 / 260, 0, 1);
+      const risen = clamp((p.top - 0.4) / 1.6, 0, 1);      // no belt until the shadow has actually lifted
+      const peak = 0.34 * bright * ozFac * risen;
+      if (peak > 0.01) {
+        const g = ctx.createLinearGradient(0, Y(Math.min(centre + width, MAXE)), 0, Y(Math.max(centre - width, 0)));
+        for (let k = 0; k <= 12; k++) {
+          const e = (centre + width) - (2 * width) * (k / 12);
+          const a = peak * Math.exp(-Math.pow((e - centre) / (width * 0.62), 2));
+          g.addColorStop(k / 12, `rgba(233,132,120,${a.toFixed(3)})`);
+        }
+        ctx.save();
+        ctx.fillStyle = g;
+        ctx.fillRect(0, Y(Math.min(centre + width, MAXE)), w, Y(Math.max(centre - width, 0)) - Y(Math.min(centre + width, MAXE)));
+        ctx.restore();
+      }
+    }
     if (Math.abs(state.o3 - 300) > 10) {
       text(ctx, state.o3 < 300 ? `ozone down to ${Math.round(state.o3)} Dobson units` : `ozone up at ${Math.round(state.o3)} Dobson units`,
         10, top + 18, { font: uiFont, color: '#fff', halo: 'rgba(20,30,45,.55)' });
+    }
+
+    // the stars, appearing as the sky lets them
+    const lim = limitMag(state.sun);
+    if (lim > -0.8) {
+      const rowY = e => {
+        const r = p.rows[clamp(Math.round(e / 1.5), 0, p.rows.length - 1)];
+        return r ? r.Y : 0;
+      };
+      STARS.forEach(st => {
+        const seen = st.mag + EXTINCT * airmassAt(st.e);      // how bright it manages to look
+        const a0 = clamp((lim - seen + 0.7) / 1.4, 0, 1);
+        if (a0 <= 0.01) return;
+        const local = clamp(rowY(st.e) / Math.max(p.maxY, 1e-12), 0, 1);
+        const a = a0 * clamp(1 - 0.88 * Math.pow(local, 0.7), 0.06, 1);
+        if (a <= 0.02) return;
+        const r = st.mag < 1.2 ? 1.5 : st.mag < 3 ? 1.15 : 0.85;
+        ctx.fillStyle = `rgba(255,255,248,${a.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(st.x * w, Y(st.e), r * (0.85 + 0.3 * st.tw), 0, 2 * Math.PI);
+        ctx.fill();
+      });
     }
 
     // ground and horizon
@@ -431,7 +508,7 @@ a { color: var(--sun-ink); }
       line(ctx, 0, Y(e), 18, Y(e)); ctx.restore();
       text(ctx, e + '°', 22, Y(e) + 4, { font: uiFont, color: C.bg, halo: 'rgba(20,30,45,.35)' });
     });
-    text(ctx, state.sun >= 0 ? `sun ${state.sun.toFixed(1)}° up` : `sun ${Math.abs(state.sun).toFixed(1)}° below the horizon`,
+    text(ctx, state.sun > 0.05 ? `sun ${state.sun.toFixed(1)}° up` : state.sun > -0.05 ? 'the moment of sunset' : `sun ${Math.abs(state.sun).toFixed(1)}° below the horizon`,
       10, h - 10, { font: handS, color: C.muted, halo: true });
   }
 
@@ -661,7 +738,8 @@ a { color: var(--sun-ink); }
     const p = profile(state.sun);
     const pPrev = profile(state.sun + 1);
     $('rTop').textContent = p.top === null ? 'the whole sky' : `${p.top.toFixed(1)}° up`;
-    $('rSun').textContent = state.sun >= 0 ? `${state.sun.toFixed(1)}° up` : `${Math.abs(state.sun).toFixed(1)}° down`;
+    const lim = limitMag(state.sun);
+    $('rSun').textContent = lim < -0.5 ? 'none yet' : `magnitude ${lim.toFixed(1)}`;
     const rate = (p.top === null || pPrev.top === null) ? null : p.top - pPrev.top;
     $('rRate').textContent = rate === null ? '—' : `${rate.toFixed(1)}° per degree of sun`;
     const lg = Math.log10(Math.max(p.zenithY / REF_Y, 1e-9));
