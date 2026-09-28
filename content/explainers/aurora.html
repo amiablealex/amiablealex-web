@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The colour of the aurora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20);
+  --green: #1F9E63; --red: #C0453C; --violet: #6A63B8;
+  --night: #0B1420; --ground: rgba(98, 112, 64, .22); --horizon: #4B5731;
+  --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16);
+    --green: #4FD79A; --red: #E88078; --violet: #A099E0;
+    --night: #060C14; --ground: rgba(122, 142, 82, .20); --horizon: #A9B97C;
+    --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16);
+  --green: #4FD79A; --red: #E88078; --violet: #A099E0;
+  --night: #060C14; --ground: rgba(122, 142, 82, .20); --horizon: #A9B97C;
+  --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.4rem, 8.5vw, 3.4rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#sky { aspect-ratio: 4 / 3; }
+#curtain { aspect-ratio: 4 / 3; }
+#quench { aspect-ratio: 5 / 4; }
+#oval { aspect-ratio: 1 / 1; }
+@media (min-width: 640px) {
+  #sky { aspect-ratio: 16 / 9; }
+  #curtain { aspect-ratio: 16 / 8; }
+  #quench { aspect-ratio: 16 / 8; }
+  #oval { aspect-ratio: 16 / 9; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>The colour of the aurora</h1>
+    <p class="lede">Green and red aurora come from the same atom. What separates them is time: the red light takes nearly two minutes to leave the atom, so it can only escape where the air is thin enough that nothing bumps into it first. The colours you see are a direct readout of how crowded the air is, painted across the sky.</p>
+  </header>
+
+  <figure>
+    <h2>What you would see from here</h2>
+    <p class="hint">Looking north. How much of the curtain clears your horizon depends on how far away the oval is.</p>
+    <canvas id="sky" role="img" aria-label="The aurora as seen from the chosen latitude"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>From here you would see</dt><dd id="rSee">–</dd></div>
+    <div><dt>Oval reaches down to</dt><dd id="rEdge">–</dd></div>
+    <div><dt>Your magnetic latitude</dt><dd id="rGeo">–</dd></div>
+    <div><dt>Distance to the oval</dt><dd id="rDist">–</dd></div>
+    <div><dt>Electrons stop at</dt><dd id="rStop">–</dd></div>
+    <div><dt>Lowest red light</dt><dd id="rRed">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Controls">
+    <div class="ctl">
+      <label for="kp">Storm strength <output id="kpOut" for="kp"></output></label>
+      <input type="range" id="kp" min="0" max="9" step="0.1">
+      <div class="chips" role="group" aria-label="Storm presets">
+        <button class="chip" data-kp="1">Quiet, Kp 1</button>
+        <button class="chip" data-kp="5">Active, Kp 5</button>
+        <button class="chip" data-kp="7">Storm, Kp 7</button>
+        <button class="chip" data-kp="9">Severe, Kp 9</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="lat">Where you are <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="35" max="78" step="0.5">
+      <div class="chips" role="group" aria-label="Place presets">
+        <button class="chip" data-place="53.2,-0.5">UK 53° N</button>
+        <button class="chip" data-place="53.5,-113.5">Canada 53° N</button>
+        <button class="chip" data-place="62,129.7">Siberia 62° N</button>
+        <button class="chip" data-place="69.6,18.9">Norway 70° N</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="energy">How hard the electrons come in <output id="energyOut" for="energy"></output></label>
+      <input type="range" id="energy" min="0.3" max="40" step="0.1">
+      <div class="chips" role="group" aria-label="Energy presets">
+        <button class="chip" data-energy="0.8">Soft, 0.8 keV</button>
+        <button class="chip" data-energy="4">Typical, 4 keV</button>
+        <button class="chip" data-energy="15">Hard, 15 keV</button>
+        <button class="chip" data-energy="35">Fierce, 35 keV</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>The curtain, side on</h2>
+    <p class="hint">Where each colour is made, worked out from where the electrons stop and what survives up there.</p>
+    <canvas id="curtain" role="img" aria-label="Emission against altitude for the three auroral colours"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Why red can only live up high</h2>
+    <p class="hint">How long an excited atom is left alone, against how long each colour takes to emit.</p>
+    <canvas id="quench" role="img" aria-label="Time between collisions against altitude, with the emission lifetimes marked"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>A ring, and not around the pole you think</h2>
+    <p class="hint">Looking down on the north. The oval is centred on the magnetic pole, off in northern Canada.</p>
+    <canvas id="oval" role="img" aria-label="The auroral oval around the geomagnetic pole"></canvas>
+  </figure>
+
+  <section class="notes">
+    <h2>One atom, two colours, and a stopwatch</h2>
+    <p>Almost all of the aurora is oxygen, and the two famous colours come from the same oxygen atom in two different excited states. An electron from space slams into it, knocks it into one of those states, and the atom then has to shed the energy as light. The question is whether it gets the chance.</p>
+    <p>The green line at 558 nanometres comes from a state that takes about three quarters of a second to emit. The red line at 630 nanometres comes from a state that takes around a hundred and ten seconds. Both are what physicists call forbidden transitions, meaning they are so unlikely that the atom sits there holding the energy for an absurdly long time by atomic standards, where an ordinary transition is over in a hundred-millionth of a second.</p>
+    <p>That delay is the whole story. If another molecule collides with the atom while it is still holding the energy, the energy goes into the collision instead and no photon is ever made. So each colour can only exist where the air is thin enough to leave the atom alone for long enough. Below about ninety-five kilometres even three quarters of a second is too long and the green is snuffed out. The red needs a hundred and ten seconds of peace, which it does not get until around two hundred kilometres up. The violet fringe along the bottom of a bright curtain is nitrogen rather than oxygen, and it emits in tens of nanoseconds, so nothing can stop it and it appears wherever the electrons reach.</p>
+    <p>Look at the middle panels together and it comes out as a rule: green in the body of the curtain, red above it, violet along the bottom edge when the electrons are hard enough to drive down that far. The colour is telling you the altitude, and the altitude is telling you the density.</p>
+
+    <h2>Hard electrons dig deeper</h2>
+    <p>Where the curtain sits is set by how much energy the incoming electrons carry. A one-kilovolt electron is stopped by the thin air around a hundred and fifty kilometres up, which is red territory, so weak drizzly aurora tend to be red and diffuse. A fifteen-kilovolt electron drives down to about a hundred kilometres, deep in the green, and the hardest ones punch below that and light the nitrogen violet. Drag the energy control and watch the whole curtain slide down its scale and change colour as it goes.</p>
+
+    <h2>A ring around the wrong pole</h2>
+    <p>Aurora do not sit in a cap over the North Pole. They form a ring, because the field lines that carry the incoming particles are the ones that stretch back into the tail of Earth's magnetic field, and those touch down in a band rather than at the pole. Inside the ring, over the pole itself, the field lines are open and lead nowhere useful, so the sky there is often quieter than it is a thousand kilometres further south.</p>
+    <p>And the ring is centred on the geomagnetic pole, which currently sits off in northern Canada rather than at the geographic pole. That single fact rearranges the map of who sees aurora. The UK, at 53° north, sits at 55.1° magnetic. Western Canada at the same geographic latitude is at 60.0° magnetic, nearly five degrees better off. Eastern Siberia at 62° north is nine degrees further north than the UK and yet sits at 53.2° magnetic, which is worse. Siberia is a poor place to watch the northern lights and Canada a superb one, for no reason other than where the magnetic pole happens to be. Step through the four places above and watch your marker move in and out of the ring without your latitude changing much at all.</p>
+    <p>When a storm arrives, the ring swells southward. Quiet nights put its lower edge around 66° magnetic; a strong storm drags it to 55°, which is the latitude of the UK, and a severe one to below 50°.</p>
+
+    <h2>Why it is always red from down here</h2>
+    <p>The best part, and it ties the two halves of the page together. A curtain is a tall thing, running from about 100 km at its base to 300 or 400 km at the top, and Earth is curved. From a thousand kilometres away the base of the curtain is already below your horizon while the top is still well clear of it. Since the top is the part that glows red and the base is the part that glows green, distance filters the colours.</p>
+    <p>This is why aurora seen from England are so often reported as a red glow low in the north, while the same display photographed from Scotland is green. You are not seeing a different aurora. You are seeing the top two hundred kilometres of the same one, with the green part hidden behind the curve of the planet. Push the latitude slider down from northern Norway towards the UK and watch the green sink below the horizon.</p>
+
+    <h2>Small print</h2>
+    <p class="small">Air density comes from a standard thermosphere table interpolated in log space. Electron penetration uses the usual range law, energy to the power 1.65 in grams per square centimetre, matched against the mass column from above; it puts a 10 keV electron at about 103 km against a textbook 110, which is close enough for the shapes here. The survival of each excited state is the radiative rate divided by the radiative rate plus the collision rate, with the collision coefficients calibrated so that green half-survives at 95 km and red at 220 km, which is what observations show. The three emissions are real spectral lines and are drawn in their true colours: 558 nm green and 630 nm red from atomic oxygen, 428 nm violet from ionised nitrogen. The oval is a circle about the geomagnetic pole at 80.7° north, 72.7° west, with its lower edge at 66.5° minus two degrees per unit of Kp, which is a rule of thumb rather than a model, and the real oval is fatter and pushed further from the pole on the midnight side. Visibility over the horizon is exact geometry for a spherical Earth with no refraction.</p>
+    <p class="small"><a href="index.html">All fourteen visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const sind = x => Math.sin(x * DEG), cosd = x => Math.cos(x * DEG);
+  const R = 6371;
+
+  const state = { kp: 5, lat: 53.2, lon: -0.5, energy: 4 };
+
+  // ---------- the air up there ----------
+  const DEN = [[80, 4.0e20], [90, 7.0e19], [100, 1.2e19], [110, 2.4e18], [120, 6.0e17], [140, 1.0e17],
+  [160, 3.6e16], [180, 1.6e16], [200, 7.0e15], [250, 1.8e15], [300, 6.0e14], [350, 2.5e14],
+  [400, 1.1e14], [500, 2.5e13], [600, 8.0e12]];
+  function nAt(z) {
+    if (z <= DEN[0][0]) return DEN[0][1];
+    for (let i = 1; i < DEN.length; i++) {
+      if (z <= DEN[i][0]) {
+        const [z0, n0] = DEN[i - 1], [z1, n1] = DEN[i];
+        return Math.exp(Math.log(n0) + (Math.log(n1) - Math.log(n0)) * (z - z0) / (z1 - z0));
+      }
+    }
+    return DEN[DEN.length - 1][1];
+  }
+  const COL = [];                                        // mass column above each km, g/cm²
+  (() => {
+    let s = 0;
+    for (let z = 600; z >= 70; z -= 1) { s += nAt(z) * 3.32e-24; COL[z] = s; }
+  })();
+  const colAbove = z => COL[clamp(Math.round(z), 70, 600)] || 0;
+  const rangeOf = E => 4.3e-6 * Math.pow(E, 1.65);
+  function stopAlt(E) {
+    const r = rangeOf(E);
+    for (let z = 500; z > 70; z -= 1) if (colAbove(z) >= r) return z;
+    return 70;
+  }
+  // a single electron energy dumps its energy in one layer
+  function depositOne(z, E) {
+    const r = rangeOf(E), c = colAbove(z);
+    const x = c / r;
+    if (x > 1.6) return 0;
+    return Math.exp(-Math.pow((x - 0.85) / 0.45, 2));
+  }
+  // but a real aurora arrives with a spread of energies, roughly Maxwellian about the
+  // characteristic one, which is why a curtain is green low down and red high up at the same time
+  const ESAMP = [];
+  for (let k = 0; k < 14; k++) ESAMP.push(0.12 + k * 0.32);       // multiples of the characteristic energy
+  let DEP = null, DEP_KEY = '';
+  function depositProfile() {
+    const key = state.energy.toFixed(2);
+    if (DEP_KEY === key) return DEP;
+    const green = new Float64Array(521), red = new Float64Array(521), violet = new Float64Array(521);
+    for (const f of ESAMP) {
+      const E = f * state.energy;
+      const wgt = f * Math.exp(-f);                                 // Maxwellian in energy
+      // gentle electrons favour the red state, brisk ones the green and the nitrogen violet
+      const wR = wgt * Math.pow(E, -0.7), wG = wgt * Math.pow(E, 0.25), wV = wgt * Math.pow(E, 0.7);
+      for (let z = 80; z <= 520; z += 1) {
+        const dep = depositOne(z, E);
+        if (dep <= 0) continue;
+        green[z] += wG * dep; red[z] += wR * dep; violet[z] += wV * dep;
+      }
+    }
+    const norm = a => { let m = 1e-30; for (const v of a) m = Math.max(m, v); return m; };
+    const mg = norm(green), mr = norm(red), mv = norm(violet);
+    for (let z = 0; z <= 520; z++) { green[z] /= mg; red[z] /= mr; violet[z] /= mv; }
+    DEP = { green, red, violet }; DEP_KEY = key;
+    return DEP;
+  }
+  const deposit = (k, z) => {
+    const a = depositProfile()[k];
+    const i = clamp(Math.round(z), 80, 520);
+    return a[i] || 0;
+  };
+  // an excited atom emits only if nothing collides with it first
+  const TAU = { green: 0.74, red: 110, violet: 6e-8 };
+  const KQ = {
+    green: 1 / (TAU.green * nAt(95)),
+    red: 1 / (TAU.red * nAt(220)),
+    violet: 0
+  };
+  const survive = (k, z) => 1 / (1 + KQ[k] * nAt(z) * TAU[k]);
+  const YIELD = { green: 1.0, red: 0.95, violet: 0.13 };
+  const emit = (k, z) => deposit(k, z) * survive(k, z) * YIELD[k];
+  const LINE = { green: [70, 255, 150], red: [255, 72, 66], violet: [130, 120, 255] };
+
+  // colour of the curtain at a given altitude, and how bright
+  let EMAX = 1;
+  function colourAt(z) {
+    const g = emit('green', z), r = emit('red', z), v = emit('violet', z);
+    const tot = g + r + v;
+    if (tot <= 0) return null;
+    const mix = [0, 1, 2].map(i => (g * LINE.green[i] + r * LINE.red[i] + v * LINE.violet[i]) / tot);
+    return { rgb: mix.map(c => Math.round(c)), strength: tot / EMAX };
+  }
+  function rescale() {
+    EMAX = 1e-12;
+    for (let z = 80; z <= 500; z += 2) {
+      const t = emit('green', z) + emit('red', z) + emit('violet', z);
+      EMAX = Math.max(EMAX, t);
+    }
+  }
+
+  // ---------- where the ring is, and where you are ----------
+  const POLE = { lat: 80.7, lon: -72.7 };
+  const geomagLat = (lat, lon) =>
+    Math.asin(sind(lat) * sind(POLE.lat) + cosd(lat) * cosd(POLE.lat) * cosd(lon - POLE.lon)) / DEG;
+  const ovalEdge = kp => 66.5 - 2.0 * kp;                 // equatorward boundary, magnetic degrees
+  const OVAL_WIDTH = 5;
+  function distanceToOval() {
+    const g = geomagLat(state.lat, state.lon), lo = ovalEdge(state.kp), hi = lo + OVAL_WIDTH;
+    if (g < lo) return { km: (lo - g) * 111.2, inside: false, geo: g };
+    if (g > hi) return { km: (g - hi) * 111.2, inside: false, geo: g, north: true };
+    return { km: 0, inside: true, geo: g };
+  }
+  // what altitude do you see at a given elevation, for a curtain that far away
+  function altAtElev(elevDeg, distKm) {
+    const th = distKm / R, den = Math.cos(th) - Math.tan(elevDeg * DEG) * Math.sin(th);
+    if (den <= 0) return null;
+    const h = R / den - R;
+    return h > 0 && h < 600 ? h : null;
+  }
+  const horizonReach = h => R * Math.acos(R / (R + h));
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'green', 'red', 'violet', 'night', 'ground', 'horizon', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { sky: $('sky'), curtain: $('curtain'), quench: $('quench'), oval: $('oval') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+
+  // ---------- 1. the sky from here ----------
+  function drawSky() {
+    const { ctx, w, h } = cv.sky;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const gy = h * 0.84;
+    const d0 = distanceToOval();
+    const dTop = d0.inside ? 60 : d0.km;
+    let topE = 8;
+    for (let e = 1; e < 88; e += 1) {
+      const z = altAtElev(e, dTop);
+      if (z === null) continue;
+      const c = colourAt(z);
+      if (c && c.strength > 0.004) topE = e;
+    }
+    const MAXE = clamp(topE * 1.35, 22, 88);
+    const Y = e => gy - e / MAXE * (gy - 10);
+    ctx.fillStyle = C.night; ctx.fillRect(0, 0, w, gy);
+
+    const d = d0;
+    const dist = dTop;
+    // paint the sky column by column of elevation
+    const stepE = 0.5;
+    let anyLight = false, lowest = null, highest = null;
+    for (let e = 0; e < MAXE; e += stepE) {
+      const z = altAtElev(e + stepE / 2, dist);
+      if (z === null) continue;
+      const col = colourAt(z);
+      if (!col || col.strength < 0.004) continue;
+      anyLight = true;
+      if (lowest === null) lowest = z;
+      highest = z;
+      const a = clamp(Math.pow(col.strength, 0.55) * (d.inside ? 0.95 : 0.85), 0, 1);
+      ctx.fillStyle = `rgba(${col.rgb[0]},${col.rgb[1]},${col.rgb[2]},${a.toFixed(3)})`;
+      ctx.fillRect(0, Y(e + stepE), w, Y(e) - Y(e + stepE) + 1);
+    }
+    // a hint of curtain structure
+    if (anyLight) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      for (let k = 0; k < 14; k++) {
+        const x = ((k * 173 + 31) % 100) / 100 * w;
+        const wid = w * (0.02 + 0.05 * (((k * 53) % 5) / 5));
+        const g = ctx.createLinearGradient(x, 0, x + wid, 0);
+        const a = 0.06 + 0.12 * (((k * 37) % 7) / 7);
+        g.addColorStop(0, 'rgba(0,0,0,0)');
+        g.addColorStop(0.5, `rgba(0,0,0,${a.toFixed(3)})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x, 0, wid, gy);
+      }
+      ctx.restore();
+    }
+
+    ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, h - gy);
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25;
+    line(ctx, 0, gy, w, gy);
+    text(ctx, 'north', w - 10, gy + 20, { font: uiFont, color: C.muted, align: 'right' });
+    [MAXE > 55 ? 20 : 10, MAXE > 55 ? 40 : 20, MAXE > 55 ? 60 : 30].forEach(e => {
+      ctx.save(); ctx.globalAlpha = .35; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+      line(ctx, 0, Y(e), 16, Y(e)); ctx.restore();
+      text(ctx, e + '°', 20, Y(e) + 4, { font: uiFont, color: '#fff', halo: 'rgba(0,0,0,.4)' });
+    });
+    const label = !anyLight ? 'nothing above your horizon'
+      : d.inside ? 'right overhead'
+        : `you are seeing the curtain from ${Math.round(lowest)} km up`;
+    text(ctx, label, 10, h - 12, { font: handS, color: C.muted, halo: true });
+  }
+
+  // ---------- 2. the curtain side on ----------
+  const CU_PAD = { L: 52, R: 12, T: 14, B: 26 };
+  function drawCurtain() {
+    const { ctx, w, h } = cv.curtain;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = CU_PAD.L, x1 = w - CU_PAD.R, y0 = CU_PAD.T, y1 = h - CU_PAD.B;
+    const ZLO = 80, ZHI = 420;
+    const Y = z => y1 - (z - ZLO) / (ZHI - ZLO) * (y1 - y0);
+    const ribbon = x0 + (x1 - x0) * 0.62;
+
+    ctx.fillStyle = C.night; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    // the curtain itself, painted by altitude
+    for (let z = ZLO; z < ZHI; z += 2) {
+      const col = colourAt(z);
+      if (!col || col.strength < 0.004) continue;
+      ctx.fillStyle = `rgba(${col.rgb[0]},${col.rgb[1]},${col.rgb[2]},${clamp(Math.pow(col.strength, 0.6), 0, 1).toFixed(3)})`;
+      ctx.fillRect(ribbon, Y(z + 2), (x1 - ribbon) * 0.82, Y(z) - Y(z + 2) + 1);
+    }
+    // and the three lines that make it, as curves
+    ['green', 'red', 'violet'].forEach(k => {
+      const pts = [];
+      for (let z = ZLO; z <= ZHI; z += 2) pts.push([x0 + emit(k, z) / EMAX * (ribbon - x0) * 0.9, Y(z)]);
+      poly(ctx, pts);
+      ctx.lineWidth = 2; ctx.strokeStyle = C[k]; ctx.stroke();
+    });
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+    ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    [100, 150, 200, 300, 400].forEach(z => {
+      text(ctx, z + ' km', x0 - 5, Y(z), { font, color: C.muted, align: 'right', base: 'middle' });
+      ctx.save(); ctx.globalAlpha = .25; ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(z), x1, Y(z)); ctx.restore();
+    });
+    const st = stopAlt(state.energy);
+    ctx.save();
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = C['sun-bright']; ctx.lineWidth = 1.5;
+    line(ctx, x0, Y(clamp(st, ZLO, ZHI)), x1, Y(clamp(st, ZLO, ZHI)));
+    ctx.restore();
+    text(ctx, `electrons stop here, ${Math.round(st)} km`, x0 + 6, Y(clamp(st, ZLO, ZHI)) - 6,
+      { font: handS, color: C['sun-ink'], halo: C.night });
+    ['green', 'red', 'violet'].forEach((k, i) => {
+      text(ctx, k === 'violet' ? 'violet, nitrogen' : k === 'red' ? 'red, 630 nm' : 'green, 558 nm',
+        ribbon - 8, y0 + 16 + i * 15, { font, color: C[k], align: 'right', halo: C.night });
+    });
+  }
+
+  // ---------- 3. the stopwatch ----------
+  const Q_PAD = { L: 56, R: 12, T: 16, B: 44 };
+  function drawQuench() {
+    const { ctx, w, h } = cv.quench;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = Q_PAD.L, x1 = w - Q_PAD.R, y0 = Q_PAD.T, y1 = h - Q_PAD.B;
+    const ZLO = 80, ZHI = 420;
+    const Y = z => y1 - (z - ZLO) / (ZHI - ZLO) * (y1 - y0);
+    const LO = -3, HI = 4;                                  // log10 seconds
+    const X = lg => x0 + (clamp(lg, LO, HI) - LO) / (HI - LO) * (x1 - x0);
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    // how long an atom is left alone, per colour (the rates differ)
+    ['green', 'red'].forEach(k => {
+      const pts = [];
+      for (let z = ZLO; z <= ZHI; z += 2) pts.push([X(Math.log10(1 / (KQ[k] * nAt(z)))), Y(z)]);
+      poly(ctx, pts); ctx.lineWidth = 2.25; ctx.strokeStyle = C[k]; ctx.stroke();
+    });
+    // the time each colour needs
+    [['green', TAU.green, '0.74 s to emit'], ['red', TAU.red, '110 s to emit']].forEach(([k, t, lab]) => {
+      ctx.save();
+      ctx.setLineDash([5, 4]); ctx.strokeStyle = C[k]; ctx.lineWidth = 1.5; ctx.globalAlpha = .9;
+      line(ctx, X(Math.log10(t)), y0, X(Math.log10(t)), y1);
+      ctx.restore();
+      text(ctx, lab, X(Math.log10(t)) + 5, y0 + (k === 'green' ? 14 : 30),
+        { font, color: C[k], halo: C.surface });
+      // where the curve crosses that line is where the colour switches on
+      let cross = null;
+      for (let z = ZLO; z <= ZHI; z += 1) if (1 / (KQ[k] * nAt(z)) >= t) { cross = z; break; }
+      if (cross) {
+        ctx.fillStyle = C[k];
+        ctx.beginPath(); ctx.arc(X(Math.log10(t)), Y(cross), 5, 0, 2 * Math.PI); ctx.fill();
+        const lab2 = `${k} switches on at ${Math.round(cross)} km`;
+        ctx.font = handS;
+        const lw = ctx.measureText(lab2).width;
+        const toRight = X(Math.log10(t)) + 10 + lw < x1;
+        text(ctx, lab2, toRight ? X(Math.log10(t)) + 10 : X(Math.log10(t)) - 10, Y(cross) + 4,
+          { font: handS, color: C[k], align: toRight ? 'left' : 'right', halo: C.surface });
+      }
+    });
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+    ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    [100, 200, 300, 400].forEach(z => {
+      text(ctx, z + ' km', x0 - 5, Y(z), { font, color: C.muted, align: 'right', base: 'middle' });
+    });
+    [[-3, '1 ms'], [-1, '0.1 s'], [1, '10 s'], [3, '1000 s']].forEach(([lg, lab]) =>
+      text(ctx, lab, X(lg), y1 + 14, { font, color: C.muted, align: 'center' }));
+    text(ctx, 'time before something collides with it', (x0 + x1) / 2, h - 10,
+      { font, color: C.muted, align: 'center' });
+  }
+
+  // ---------- 4. the oval ----------
+  function drawOval() {
+    const { ctx, w, h } = cv.oval;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const Rpx = Math.min(w, h) * 0.42;
+    const cx = w * 0.5, cy = h * 0.52;
+    // straight down on the geographic north pole; latitude maps to radius
+    const P = (lat, lon) => {
+      const r = (90 - lat) / 55 * Rpx;
+      return [cx + r * sind(lon), cy - r * cosd(lon)];
+    };
+    ctx.beginPath(); ctx.arc(cx, cy, Rpx, 0, 2 * Math.PI);
+    ctx.fillStyle = C.surface; ctx.fill();
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1; ctx.stroke();
+    [50, 60, 70, 80].forEach(lat => {
+      ctx.save(); ctx.globalAlpha = .5; ctx.setLineDash([2, 4]); ctx.strokeStyle = C.ghost;
+      ctx.beginPath(); ctx.arc(cx, cy, (90 - lat) / 55 * Rpx, 0, 2 * Math.PI); ctx.stroke();
+      ctx.restore();
+      if (lat % 20 === 0) text(ctx, lat + '°', cx + 3, cy - (90 - lat) / 55 * Rpx + 12,
+        { font: uiFont, color: C.muted, halo: C.surface });
+    });
+
+    // the oval: a band of constant magnetic latitude, drawn in geographic coordinates
+    const lo = ovalEdge(state.kp), hi = lo + OVAL_WIDTH;
+    for (let band = 0; band < 2; band++) {
+      const target = band ? hi : lo;
+      const pts = [];
+      for (let lon = -180; lon <= 180; lon += 2) {
+        let best = null, bestD = 9;
+        for (let lat = 20; lat <= 89.5; lat += 0.25) {
+          const d = Math.abs(geomagLat(lat, lon) - target);
+          if (d < bestD) { bestD = d; best = lat; }
+        }
+        if (best !== null) pts.push(P(best, lon));
+      }
+      poly(ctx, pts); ctx.closePath();
+      if (band === 0) { ctx.fillStyle = 'rgba(70,255,150,.16)'; ctx.fill(); }
+      ctx.strokeStyle = C.green; ctx.lineWidth = band ? 1 : 1.75; ctx.stroke();
+    }
+    // punch the hole inside the poleward edge so it reads as a ring
+    const inner = [];
+    for (let lon = -180; lon <= 180; lon += 2) {
+      let best = null, bestD = 9;
+      for (let lat = 20; lat <= 89.5; lat += 0.25) {
+        const d = Math.abs(geomagLat(lat, lon) - hi);
+        if (d < bestD) { bestD = d; best = lat; }
+      }
+      if (best !== null) inner.push(P(best, lon));
+    }
+    poly(ctx, inner); ctx.closePath();
+    ctx.fillStyle = C.surface; ctx.fill();
+    ctx.strokeStyle = C.green; ctx.lineWidth = 1; ctx.stroke();
+
+    // the two poles, and you
+    const gp = P(POLE.lat, POLE.lon);
+    ctx.fillStyle = C.ink;
+    ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, 2 * Math.PI); ctx.fill();
+    text(ctx, 'north pole', cx + 7, cy + 14, { font: uiFont, color: C.muted, halo: C.surface });
+    ctx.fillStyle = C.violet;
+    ctx.beginPath(); ctx.arc(gp[0], gp[1], 4.5, 0, 2 * Math.PI); ctx.fill();
+    text(ctx, 'magnetic pole', gp[0] + 7, gp[1] + 4, { font: uiFont, color: C.violet, halo: C.surface });
+
+    // which way is which, so the offset means something
+    [[0, 'Greenwich'], [90, '90° E'], [180, '180°'], [-90, '90° W']].forEach(([lon, lab]) => {
+      const p2 = P(35, lon);
+      text(ctx, lab, p2[0], p2[1] + 4, { font: uiFont, color: C.faint, align: 'center', halo: C.bg });
+    });
+
+    const me = P(state.lat, state.lon);
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(me[0], me[1], 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    text(ctx, 'you', me[0] + 8, me[1] + 4, { font: handS, color: C['sun-ink'], halo: C.surface });
+
+    text(ctx, `storm Kp ${state.kp.toFixed(1)}: the ring reaches ${lo.toFixed(0)}° magnetic`, 10, h - 12,
+      { font: handS, color: C.green, halo: true });
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { kp: $('kp'), lat: $('lat'), energy: $('energy') };
+  const chipsKp = [...document.querySelectorAll('[data-kp]')];
+  const chipsPlace = [...document.querySelectorAll('[data-place]')];
+  const chipsEnergy = [...document.querySelectorAll('[data-energy]')];
+
+  function updateText() {
+    rescale();
+    const d = distanceToOval();
+    const st = stopAlt(state.energy);
+    let redFloor = null;
+    for (let z = 80; z <= 400; z += 1) if (survive('red', z) > 0.25) { redFloor = z; break; }
+    const dist = d.inside ? 60 : d.km;
+    let lowest = null, highest = null;
+    for (let e = 0; e < 70; e += 0.5) {
+      const z = altAtElev(e, dist);
+      if (z === null) continue;
+      const col = colourAt(z);
+      if (col && col.strength > 0.004) { if (lowest === null) lowest = z; highest = z; }
+    }
+    $('rSee').textContent = lowest === null ? 'nothing'
+      : d.inside ? 'curtains overhead'
+        : lowest > 200 ? 'only the red tops' : lowest > 140 ? 'red, with green just showing' : 'the full curtain';
+    $('rEdge').textContent = `${ovalEdge(state.kp).toFixed(0)}° magnetic`;
+    $('rGeo').textContent = `${d.geo.toFixed(1)}°`;
+    $('rDist').textContent = d.inside ? 'you are under it' : `${Math.round(d.km).toLocaleString('en-GB')} km`;
+    $('rStop').textContent = `${Math.round(st)} km`;
+    $('rRed').textContent = redFloor ? `${redFloor} km` : '—';
+    $('kpOut').textContent = `Kp ${state.kp.toFixed(1)}`;
+    $('latOut').textContent = `${state.lat.toFixed(1)}° N, ${Math.abs(state.lon).toFixed(1)}° ${state.lon < 0 ? 'W' : 'E'}`;
+    $('energyOut').textContent = `${state.energy.toFixed(1)} keV`;
+    $('rSum').textContent = lowest === null
+      ? `The oval's lower edge is at ${ovalEdge(state.kp).toFixed(0)}° magnetic and you are at ${d.geo.toFixed(1)}°, so the whole thing is below your horizon.`
+      : d.inside
+        ? `You are under the oval, so the curtain is overhead and you would see it all: violet at the bottom edge, green through the body, red above ${redFloor} km.`
+        : `The oval is ${Math.round(d.km).toLocaleString('en-GB')} km away, so everything below ${Math.round(lowest)} km is hidden by the curve of the Earth. That is why it looks ${lowest > 200 ? 'red' : 'mostly red'} from here rather than green.`;
+    els.sky.setAttribute('aria-label', `The aurora from ${state.lat.toFixed(1)} degrees north with Kp ${state.kp.toFixed(1)}.`);
+    els.curtain.setAttribute('aria-label', `Emission against altitude with ${state.energy.toFixed(1)} keV electrons.`);
+    els.quench.setAttribute('aria-label', 'Time between collisions against altitude, with the two emission lifetimes.');
+    els.oval.setAttribute('aria-label', `The auroral oval reaching down to ${ovalEdge(state.kp).toFixed(0)} degrees magnetic.`);
+  }
+
+  function syncInputs() {
+    if (Number(inputs.kp.value) !== state.kp) inputs.kp.value = state.kp;
+    if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    if (Number(inputs.energy.value) !== state.energy) inputs.energy.value = state.energy;
+    chipsKp.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.kp - Number(b.dataset.kp)) < 0.06));
+    chipsEnergy.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.energy - Number(b.dataset.energy)) < 0.06));
+    chipsPlace.forEach(b => {
+      const [la, lo] = b.dataset.place.split(',').map(Number);
+      b.setAttribute('aria-pressed', Math.abs(state.lat - la) < 0.26 && Math.abs(state.lon - lo) < 0.26);
+    });
+  }
+
+  let raf = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame() {
+    raf = 0;
+    syncInputs(); updateText();
+    drawSky(); drawCurtain(); drawQuench(); drawOval();
+  }
+  inputs.kp.addEventListener('input', e => { state.kp = Number(e.target.value); render(); });
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
+  inputs.energy.addEventListener('input', e => { state.energy = Number(e.target.value); render(); });
+  chipsKp.forEach(b => b.addEventListener('click', () => { state.kp = Number(b.dataset.kp); render(); }));
+  chipsEnergy.forEach(b => b.addEventListener('click', () => { state.energy = Number(b.dataset.energy); render(); }));
+  chipsPlace.forEach(b => b.addEventListener('click', () => {
+    const [la, lo] = b.dataset.place.split(',').map(Number);
+    state.lat = la; state.lon = lo; render();
+  }));
+
+  readColors();
+  const ro = new ResizeObserver(() => {
+    Object.values(cv).forEach(fit);
+    drawSky(); drawCurtain(); drawQuench(); drawOval();
+  });
+  Object.values(els).forEach(el => ro.observe(el));
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
