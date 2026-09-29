@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The morning star</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20);
+  --venus: #C9A227; --venus-lit: #FFF6DC; --venus-dark: #8A8570;
+  --earth: #2F6E9E; --orbit: #7A8892;
+  --sky: rgba(104, 146, 184, .16); --ground: rgba(98, 112, 64, .22); --horizon: #4B5731;
+  --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16);
+    --venus: #E3C55E; --venus-lit: #FFF8E4; --venus-dark: #4A4838;
+    --earth: #79B2DD; --orbit: #72838F;
+    --sky: rgba(120, 164, 210, .14); --ground: rgba(122, 142, 82, .18); --horizon: #A9B97C;
+    --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16);
+  --venus: #E3C55E; --venus-lit: #FFF8E4; --venus-dark: #4A4838;
+  --earth: #79B2DD; --orbit: #72838F;
+  --sky: rgba(120, 164, 210, .14); --ground: rgba(122, 142, 82, .18); --horizon: #A9B97C;
+  --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.4rem, 8.5vw, 3.4rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#sky { aspect-ratio: 4 / 3; }
+#plan { aspect-ratio: 1 / 1; }
+#cycle { aspect-ratio: 5 / 4; }
+#penta { aspect-ratio: 1 / 1; }
+@media (min-width: 640px) {
+  #sky { aspect-ratio: 16 / 9; }
+  #plan { aspect-ratio: 16 / 10; }
+  #cycle { aspect-ratio: 16 / 8; }
+  #penta { aspect-ratio: 16 / 10; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 16px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.hint.sub { margin: 8px 0 0; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>The morning star</h1>
+    <p class="lede">Venus is the brightest thing in the sky after the sun and moon, and you can only ever see it near dawn or dusk. It is never overhead at midnight, never opposite the sun, never more than about three hours from one horizon or the other. That restriction is pure geometry, and it comes with a bonus: Venus has phases, they run backwards from what you would guess, and one of them killed a fourteen-hundred-year-old model of the universe.</p>
+  </header>
+
+  <figure>
+    <h2>Where it stands in the twilight</h2>
+    <p class="hint">The sky when the sun is six degrees down, from your latitude. The disc is magnified hugely; to the eye it is a point.</p>
+    <canvas id="sky" role="img" aria-label="Venus in the twilight sky at the chosen date"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Angle from the sun</dt><dd id="rElong">–</dd></div>
+    <div><dt>Lit fraction</dt><dd id="rPhase">–</dd></div>
+    <div><dt>Apparent size</dt><dd id="rSize">–</dd></div>
+    <div><dt>Brightness</dt><dd id="rMag">–</dd></div>
+    <div><dt>Distance</dt><dd id="rDist">–</dd></div>
+    <div><dt>Visible</dt><dd id="rWhen">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Controls">
+    <div class="play">
+      <button class="btn play-btn" id="play" aria-pressed="false">Play the years</button>
+      <button class="btn" id="toElong">Greatest elongation ▶</button>
+      <button class="btn" id="toBright">Brightest ▶</button>
+    </div>
+    <div class="ctl">
+      <label for="date">Date <output class="date-out" id="dateOut" for="date"></output></label>
+      <input class="date-range" type="range" id="date" min="0" max="2920" step="1">
+    </div>
+    <div class="ctl">
+      <label for="lat">Latitude <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="-60" max="70" step="0.5">
+      <div class="chips" role="group" aria-label="Latitude presets">
+        <button class="chip" data-lat="0">Equator</button>
+        <button class="chip" data-lat="53">UK 53° N</button>
+        <button class="chip" data-lat="-33.9">Sydney 34° S</button>
+        <button class="chip" data-lat="65">65° N</button>
+      </div>
+      <p class="hint sub">Latitude changes the twilight view only. The other three panels look the same from anywhere on Earth.</p>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>Why it can never wander far</h2>
+    <p class="hint">Looking down on both orbits. The two tangent lines from Earth are as far from the sun as Venus can ever appear.</p>
+    <canvas id="plan" role="img" aria-label="Earth and Venus orbits with the elongation limit"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Brightest as a crescent</h2>
+    <p class="hint">Lit fraction, apparent size and brightness through one cycle. The two fight each other, and the winner is a surprise.</p>
+    <canvas id="cycle" role="img" aria-label="Phase, size and magnitude of Venus through a synodic cycle"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Eight years, five points</h2>
+    <p class="hint">Where Venus passes between us and the sun. The ring is a calendar: at a pass Venus lies in the sun's direction, and that direction is fixed by the date alone. Play the years and each pass draws the side that arrives at it, stepping about 144° round the ring each time — so five steps go round twice, and the fifth side has to wait for the sixth pass, eight years after the first, to close the figure.</p>
+    <canvas id="penta" role="img" aria-label="Inferior conjunctions of Venus tracing a pentagram"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Pentagram controls">
+    <div class="play">
+      <button class="btn play-btn" id="play2" aria-pressed="false">Play the years</button>
+      <button class="btn" id="toPass">Next pass ▶</button>
+    </div>
+    <div class="ctl">
+      <label for="date2">Date <output class="date-out" id="dateOut2" for="date2"></output></label>
+      <input class="date-range" type="range" id="date2" min="0" max="2920" step="1">
+      <div class="chips" role="group" aria-label="Pentagram options">
+        <button class="chip" id="optCross" aria-pressed="false">Earth at every pass</button>
+        <button class="chip" id="optNear" aria-pressed="false">Join by nearest</button>
+      </div>
+      <p class="hint sub">The second joins the same five points by position instead of by date, which gives a pentagon. The star is a property of the order, not of the sky.</p>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>Tied to the sun by geometry</h2>
+    <p>Venus orbits closer to the sun than we do, at 0.72 of our distance. Draw a line from Earth that just grazes its orbit and you have the furthest from the sun it can ever appear, and the angle is simply the inverse sine of 0.72, which is 46 degrees. Its orbit is slightly lopsided, so in practice the greatest elongations run between about 45 and 47 degrees.</p>
+    <p>Forty-six degrees is roughly three hours of sky rotation. So Venus rises at most three hours before the sun, or sets at most three hours after it, and there is no possible arrangement of the solar system in which you see it at midnight. Every ancient culture that watched the sky noticed this, and several concluded there were two objects rather than one: a morning star and an evening star. The Greeks called them Phosphorus and Hesperus and it took them a while to work out they were the same thing.</p>
+    <p>Mercury is worse off still, at 0.39 of our distance, giving a limit of 23 degrees. That is why most people have never knowingly seen it, and why Copernicus is said to have died without ever having done so.</p>
+
+    <h2>A good apparition and a bad one</h2>
+    <p>The 46 degrees is measured along the ecliptic, the line the sun and planets follow through the sky. What you actually see is height above your horizon, and the exchange rate between the two is not fixed: it depends on the angle the ecliptic makes with the horizon at the moment you are looking, and that changes through the year and with your latitude. The same 46 degrees can put Venus 40 degrees up, or barely 10.</p>
+    <p>From northern latitudes the ecliptic stands steepest against the western horizon after sunset in early spring, and steepest against the eastern horizon before sunrise in early autumn. So the best evening apparitions are the ones peaking around March and April, and the best morning ones around September and October; an evening apparition peaking in September is the same 46 degrees and hardly worth the trouble. Nearer the equator the ecliptic is steep all year and every apparition is a good one, which is part of why Venus mattered so much to civilisations in the tropics. Drag the latitude slider under the first panel and watch the same date move Venus up and down the sky. The mechanism behind it is the axial tilt, worked through on <a href="sun-arc.html">the sun's real arc</a>.</p>
+
+    <h2>The phases run backwards</h2>
+    <p>Venus goes through phases like the moon, and Galileo was the first to see them, in 1610. But they behave in a way that catches people out. When Venus is full, it is on the far side of the sun from us, nearly two astronomical units away, so it is tiny — about ten arcseconds across. When it is a thin crescent it is on our side of the sun, six times closer, and about sixty arcseconds across. The phase and the size are locked together and they pull in opposite directions.</p>
+    <p>So which arrangement is brightest? Multiply the illuminated area by the inverse square of the distance and the answer comes out at neither end. Venus is at its most brilliant as a fat crescent about a quarter lit, roughly 39 degrees from the sun and about five weeks either side of passing between us and the sun. The cycle panel shows the two curves crossing and the brightness peaking between them. At that moment it reaches magnitude −4.8, bright enough to cast a shadow on snow, and bright enough that it is the single most common object reported as a UFO.</p>
+
+    <h2>The observation that broke the old model</h2>
+    <p>Here is why the phases mattered so much. In Ptolemy's system, which stood for fourteen centuries, Venus rode on an epicycle whose centre was fixed on the line between Earth and the sun, always on our side of it. That arrangement can reproduce the elongation limit perfectly well, which is why it survived so long. But it has a consequence its authors never had the means to check: if Venus is always between us and the sun, its lit face is always mostly turned away, and it can only ever show us crescents and thin ones at that.</p>
+    <p>Galileo pointed a telescope at it and saw a full Venus, and a gibbous one, and a small one when it was full. There is no arrangement of epicycles in front of the sun that produces that. Venus must pass behind the sun as well as in front of it, which means it goes round the sun rather than round us. One observation, and the model was finished. It is a rare case of a single measurement being genuinely fatal, and it pairs with the epicycle problem described on <a href="retrograde.html">the retrograde page</a>.</p>
+
+    <h2>Five points in eight years</h2>
+    <p>This is also the answer to the odd looping motion you get by playing the years on the first panel. Venus climbs out to one side of the sun, swings back through it, climbs out the other side, and repeats — but each apparition happens with Earth somewhere different in its orbit, so the tilt of the ecliptic against your horizon is different each time and the same 46 degrees of elongation buys a different altitude. Five apparitions later it starts repeating. Venus passes between us and the sun every 584 days. Eight of our years are 2,922 days and five of those passes are 2,920, which is a coincidence of arithmetic with no deep cause behind it, but a very tidy one. It means that after eight years Venus returns to almost exactly the same place in the sky at almost exactly the same date, two days early.</p>
+    <p>But why should that put Venus back in the same part of the sky? Because of what an inferior conjunction is. At that moment Venus lies directly between us and the sun, so the direction from Earth to Venus is the same as the direction from Earth to the sun — and that direction depends on nothing except where Earth is in its own orbit. The place on the ecliptic where a pass happens is simply Earth's position at the time. That is what the crosses in the last panel are: where Earth stood each time Venus lapped it, with the spoke running out to the longitude it marked. Five passes take Earth almost exactly eight times round, so on the sixth it is standing within a couple of degrees of the first cross, pointing at the same stars.</p>
+    <p>Each pass happens about 144 degrees round the ecliptic from the last, so joining five successive passes in order draws a five-pointed star. The last panel plots them. Over decades the figure slowly rotates, because those two days a cycle accumulate, but for a human lifetime it is a near-perfect pentagram written on the sky by a planet. The Maya built calendar cycles around the 584-day period, and were tracking it accurately enough to predict Venus's reappearance to within a couple of hours.</p>
+
+    <h2>The pass that usually misses</h2>
+    <p>Venus passes between us and the sun five times in eight years, and almost every time it misses. Its orbit is tilted 3.4 degrees to ours, so at a pass it usually sits a little north or south of the sun rather than on it — from 0.28 AU away that is up to about eight degrees, sixteen times the width of the sun itself. The two points where the orbits cross are the only places a pass can land on the disc, and Earth goes past that line in early June and early December. It is the same node geometry that decides <a href="eclipse-seasons.html">when eclipses can happen</a>, running on a 584-day period instead of a monthly one.</p>
+    <p>When a pass does land near a node you get a transit of Venus: a black dot crossing the sun for six hours. Because the eight-year cycle so nearly repeats, transits come in pairs eight years apart, and then the drift carries the pattern off the node for either 105 or 121 years. The last pair was 2004 and 2012. The next is December 2117. Halley worked out in 1716 that timing a transit from widely separated places would give the true scale of the solar system, and the expeditions sent out for the 1761 and 1769 pair — Cook's voyage to Tahiti among them — were the first international scientific collaboration on that scale.</p>
+
+    <h2>Small print</h2>
+    <p class="small">Positions come from the standard Keplerian elements with their per-century rates, solved through Kepler's equation, the same source the retrograde page uses. Phase angle, lit fraction and distance follow from the triangle of sun, Venus and Earth. Apparent diameter takes Venus as 12,104 km across; brightness uses the standard magnitude expression with its phase-angle terms and reproduces the accepted peak near magnitude −4.8. The twilight panel places Venus at the moment the sun is six degrees below the horizon, computing both positions properly for the date and latitude, but ignoring refraction and treating the sky as clear. Greatest elongations in this model run between 45 and 47 degrees, matching the real spread, and at greatest elongation the model returns Venus exactly half lit, which is the geometric signature of the sun-Venus-Earth angle being a right angle. In the first panel the disc is magnified about two thousand times and fades out below fifteen degrees of altitude, where haze and the long air path would really take it. The pentagram is drawn from the actual inferior conjunctions the model finds, and it picks them out by distance as well as by elongation, because Venus also passes nearly in line with the sun when it is on the far side, 1.7 AU away and full. Only the near passes, at about 0.28 AU, count. The dates it produces for the current cycle are 25 October 2026, 1 June 2028, 6 January 2030, 11 August 2031 and 21 March 2033, which are the real ones. The month labels on that ring are the sun's own longitude on the first of each month, from the same model, which is what makes the ring a calendar rather than a coordinate.</p>
+    <p class="small"><a href="index.html">All fifteen visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const sind = x => Math.sin(x * DEG), cosd = x => Math.cos(x * DEG);
+  const wrap = x => ((x % 360) + 540) % 360 - 180;
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // ---------- orbits ----------
+  const PL = {
+    venus: { a: .72333566, e: .00677672, i: 3.39467605, L: 181.97909950, w: 131.60246718, O: 76.67984255, da: .00000390, de: -.00004107, di: -.00078890, dL: 58517.81538729, dw: .00268329, dO: -.27769418 },
+    earth: { a: 1.00000261, e: .01671123, i: -.00001531, L: 100.46457166, w: 102.93768193, O: 0, da: .00000562, de: -.00004392, di: -.01294668, dL: 35999.37244981, dw: .32327364, dO: 0 }
+  };
+  function helio(p, t) {
+    const T = t / 36525;
+    const a = p.a + p.da * T, e = p.e + p.de * T, I = (p.i + p.di * T) * DEG;
+    const L = p.L + p.dL * T, w = p.w + p.dw * T, O = (p.O + p.dO * T) * DEG;
+    let M = wrap(L - w) * DEG, E = M;
+    for (let k = 0; k < 8; k++) E -= (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+    const nu = 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
+    const r = a * (1 - e * Math.cos(E)), u = nu + w * DEG - O;
+    return [
+      r * (Math.cos(O) * Math.cos(u) - Math.sin(O) * Math.sin(u) * Math.cos(I)),
+      r * (Math.sin(O) * Math.cos(u) + Math.cos(O) * Math.sin(u) * Math.cos(I)),
+      r * Math.sin(u) * Math.sin(I)
+    ];
+  }
+  function view(t) {
+    const E = helio(PL.earth, t), V = helio(PL.venus, t);
+    const d = [V[0] - E[0], V[1] - E[1], V[2] - E[2]];
+    const D = Math.hypot(d[0], d[1], d[2]), r = Math.hypot(V[0], V[1], V[2]), rE = Math.hypot(E[0], E[1], E[2]);
+    const elong = Math.acos(clamp((D * D + rE * rE - r * r) / (2 * D * rE), -1, 1)) / DEG;
+    const phase = Math.acos(clamp((D * D + r * r - rE * rE) / (2 * D * r), -1, 1)) / DEG;
+    const sunLon = Math.atan2(-E[1], -E[0]) / DEG;
+    const vLon = Math.atan2(d[1], d[0]) / DEG;
+    const vLat = Math.asin(d[2] / D) / DEG;
+    return {
+      E, V, d, elong, phase, k: (1 + cosd(phase)) / 2, dist: D,
+      diam: 16.68 / D,
+      mag: -4.384 + 5 * Math.log10(r * D) + 0.0103 * phase + 5.7e-5 * phase * phase + 1.3e-7 * Math.pow(phase, 3),
+      east: wrap(vLon - sunLon) > 0,
+      sunLon: (sunLon + 360) % 360, lon: (vLon + 360) % 360, lat: vLat
+    };
+  }
+  // ecliptic longitude and latitude to right ascension and declination
+  const EPS = 23.4393;
+  function eq(lon, lat) {
+    const l = lon * DEG, b = lat * DEG, e = EPS * DEG;
+    return {
+      ra: ((Math.atan2(Math.sin(l) * Math.cos(e) - Math.tan(b) * Math.sin(e), Math.cos(l)) / DEG) % 360 + 360) % 360,
+      dec: Math.asin(Math.sin(b) * Math.cos(e) + Math.cos(b) * Math.sin(e) * Math.sin(l)) / DEG
+    };
+  }
+  const altaz = (dec, H, lat) => {
+    const alt = Math.asin(sind(lat) * sind(dec) + cosd(lat) * cosd(dec) * cosd(H)) / DEG;
+    const az = Math.atan2(-cosd(dec) * sind(H), sind(dec) * cosd(lat) - cosd(dec) * sind(lat) * cosd(H)) / DEG;
+    return { alt, az: (az + 360) % 360 };
+  };
+
+  const jan1 = y => {
+    const yy = y + 4799, mm = 10;
+    return 1 + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045 - 0.5 - 2451545.0;
+  };
+  const now = new Date();
+  const T0 = jan1(now.getUTCFullYear());
+  const today = Math.floor((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - Date.UTC(2000, 0, 1)) / 86400000) - 0.5 - T0;
+  const state = { d: clamp(today, 0, 2900), lat: 53, play: false };
+  const T = () => T0 + state.d;
+  const asDate = t => new Date((t + 2451545.0 - 2440587.5) * 86400000);
+  const ymd = t => { const dt = asDate(t); return `${dt.getUTCDate()} ${MON[dt.getUTCMonth()]} ${dt.getUTCFullYear()}`; };
+  const dm = t => { const dt = asDate(t); return `${dt.getUTCDate()} ${MON[dt.getUTCMonth()]}`; };
+  // every panel asks for the same whole days over and over, so keep them
+  const VMEMO = new Map();
+  const vAt = d => { let v = VMEMO.get(d); if (!v) { v = view(T0 + d); VMEMO.set(d, v); } return v; };
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'venus', 'venus-lit', 'venus-dark', 'earth', 'orbit', 'sky', 'ground', 'horizon', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { sky: $('sky'), plan: $('plan'), cycle: $('cycle'), penta: $('penta') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+  // a disc lit from one side. The lit part runs from the limb across to the terminator,
+  // which sits at x = k·√(r²−y²) with k = cos(phase): k=1 fills the disc, k=0 halves it, k=−1 empties it
+  function phaseDisc(ctx, x, y, r, phaseDeg, lightFromLeft) {
+    const k = cosd(phaseDeg);
+    ctx.save();
+    ctx.translate(x, y);
+    if (!lightFromLeft) ctx.scale(-1, 1);
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 2 * Math.PI);
+    ctx.fillStyle = C['venus-dark']; ctx.fill();
+    const N = 36, pts = [];
+    for (let i = 0; i <= N; i++) {                       // down the lit limb
+      const yy = -r + 2 * r * i / N, hx = Math.sqrt(Math.max(r * r - yy * yy, 0));
+      pts.push([-hx, yy]);
+    }
+    for (let i = N; i >= 0; i--) {                       // back up the terminator
+      const yy = -r + 2 * r * i / N, hx = Math.sqrt(Math.max(r * r - yy * yy, 0));
+      pts.push([k * hx, yy]);
+    }
+    poly(ctx, pts); ctx.closePath();
+    ctx.fillStyle = C['venus-lit']; ctx.fill();
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.strokeStyle = C.venus; ctx.lineWidth = 1.1; ctx.stroke();
+  }
+
+  // ---------- 1. the twilight sky ----------
+  function drawSky() {
+    const { ctx, w, h } = cv.sky;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const v = view(T());
+    const gy = h * 0.80, MAXE = 50;
+    const AZ = 120;                                    // degrees of azimuth across the frame
+    const Y = e => gy - e / MAXE * (gy - 10);
+
+    // the sun six degrees down, and Venus wherever it is then
+    const s = eq(v.sunLon, 0), p = eq(v.lon, v.lat);
+    const cosH = (sind(-6) - sind(state.lat) * sind(s.dec)) / (cosd(state.lat) * cosd(s.dec));
+    const hasTwilight = Math.abs(cosH) <= 1;
+    // where there is no moment of six-degree twilight, show the sun at its lowest instead
+    const H0 = hasTwilight ? Math.acos(clamp(cosH, -1, 1)) / DEG : 180;
+    const Hsun = v.east ? H0 : -H0;                    // evening star: sun setting in the west
+    const Hven = Hsun + (s.ra - p.ra);
+    const sunPos = altaz(s.dec, Hsun, state.lat);
+    const venPos = altaz(p.dec, wrap(Hven), state.lat);
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, w, gy); ctx.clip();      // nothing draws below the horizon
+    const grad = ctx.createLinearGradient(0, 10, 0, gy);
+    grad.addColorStop(0, '#0d1a2b'); grad.addColorStop(0.55, '#2b4562'); grad.addColorStop(1, '#8a6a52');
+    ctx.fillStyle = grad; ctx.fillRect(0, 10, w, gy - 10);
+    ctx.fillStyle = C.bg; ctx.fillRect(0, 0, w, 10);
+
+    const X = az => {
+      const off = wrap(az - sunPos.az);
+      return w / 2 + off / AZ * w;
+    };
+    // the sun, below the horizon
+    const sx = X(sunPos.az), sy = Y(sunPos.alt);
+    const glow = ctx.createRadialGradient(sx, sy, 2, sx, sy, Math.min(w, h) * 0.42);
+    glow.addColorStop(0, 'rgba(255,190,110,.55)'); glow.addColorStop(1, 'rgba(255,190,110,0)');
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, w, gy);
+
+    ctx.restore();
+    ctx.fillStyle = C.ground; ctx.fillRect(0, gy, w, h - gy);
+    ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25;
+    line(ctx, 0, gy, w, gy);
+    text(ctx, v.east ? 'west' : 'east', w - 10, gy + 20, { font: uiFont, color: C.muted, align: 'right' });
+    text(ctx, 'the sun, 6° down', clamp(sx, 60, w - 10), gy + 20,
+      { font: uiFont, color: C['sun-ink'], align: 'center' });
+    ctx.save();
+    ctx.setLineDash([3, 4]); ctx.strokeStyle = C.sun; ctx.lineWidth = 1; ctx.globalAlpha = .8;
+    line(ctx, sx, gy, sx, gy + 8);
+    ctx.restore();
+
+    [10, 20, 30, 40].forEach(e => {
+      ctx.save(); ctx.globalAlpha = .3; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+      line(ctx, 0, Y(e), 16, Y(e)); ctx.restore();
+      text(ctx, e + '°', 20, Y(e) + 4, { font: uiFont, color: '#fff', halo: 'rgba(0,0,0,.45)' });
+    });
+
+    if (!hasTwilight) {
+      const midnightSun = altaz(s.dec, 180, state.lat).alt > -6;
+      text(ctx, midnightSun ? 'the sun never gets this low here today, so there is no real darkness'
+        : 'the sun never rises this high here today', 12, h - 12,
+        { font: handS, color: C.muted, halo: true });
+    }
+    const vx = X(venPos.az), vy = Y(venPos.alt);
+    const inFrame = Math.abs(wrap(venPos.az - sunPos.az)) < AZ / 2;
+    const fade = clamp((venPos.alt - 4) / 10, 0, 1);    // murk and extinction near the horizon
+    if (inFrame && fade > 0.02) {
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, 0, w, gy); ctx.clip();
+      ctx.globalAlpha = fade;
+      const R = clamp(v.diam * 0.16, 2.5, 11);          // magnified, but not absurdly
+      const halo = ctx.createRadialGradient(vx, vy, R * 0.8, vx, vy, R * 5);
+      halo.addColorStop(0, 'rgba(255,248,224,.45)'); halo.addColorStop(1, 'rgba(255,248,224,0)');
+      ctx.fillStyle = halo;
+      ctx.beginPath(); ctx.arc(vx, vy, R * 5, 0, 2 * Math.PI); ctx.fill();
+      phaseDisc(ctx, vx, vy, R, v.phase, !v.east);
+      ctx.font = handS;
+      const vlab = `Venus, ${venPos.alt.toFixed(0)}° up`;
+      const vlw = ctx.measureText(vlab).width;
+      const toRight = vx + R + 12 + vlw < w - 6;
+      text(ctx, vlab, toRight ? vx + R + 12 : vx - R - 12, vy + 5,
+        { font: handS, color: '#fff', align: toRight ? 'left' : 'right', halo: 'rgba(0,0,0,.5)' });
+      ctx.restore();
+    }
+    const note = !inFrame || venPos.alt < -1 ? 'Venus is below the horizon just now'
+      : fade <= 0.02 ? `Venus is only ${venPos.alt.toFixed(0)}° up, lost in the horizon murk` : '';
+    text(ctx, v.east ? 'evening star, after sunset' : 'morning star, before sunrise', 12, h - 12,
+      { font: handS, color: C['sun-ink'], halo: true });
+    if (note) text(ctx, note, w - 10, gy - 10, { font: handS, color: '#fff', align: 'right', halo: 'rgba(0,0,0,.5)' });
+  }
+
+  // ---------- 2. the plan view ----------
+  function drawPlan() {
+    const { ctx, w, h } = cv.plan;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const v = view(T());
+    const S = Math.min((w - 40) / 2, (h - 40) / 2) / 1.12;
+    const cx = w / 2, cy = h / 2;
+    const XY = p => [cx + p[0] * S, cy - p[1] * S];
+
+    [['venus', C.venus], ['earth', C.earth]].forEach(([nm, col]) => {
+      const per = 36525 * 360 / PL[nm].dL, pts = [];
+      for (let k = 0; k <= 120; k++) pts.push(XY(helio(PL[nm], T() + per * k / 120)));
+      poly(ctx, pts); ctx.closePath();
+      ctx.strokeStyle = col; ctx.lineWidth = 1.25; ctx.globalAlpha = .55; ctx.stroke(); ctx.globalAlpha = 1;
+    });
+    const sp = XY([0, 0]);
+    ctx.fillStyle = 'rgba(235,162,27,.30)';
+    ctx.beginPath(); ctx.arc(sp[0], sp[1], 14, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(sp[0], sp[1], 7, 0, 2 * Math.PI); ctx.fill();
+
+    const ep = XY(v.E), vp = XY(v.V);
+    // the two tangents: the furthest from the sun Venus can ever look
+    const rE = Math.hypot(v.E[0], v.E[1]), aV = 0.7233;
+    const baseAng = Math.atan2(-v.E[1], -v.E[0]);
+    const half = Math.asin(clamp(aV / rE, -1, 1));
+    [half, -half].forEach(off => {
+      const dir = baseAng + off;
+      const L = Math.sqrt(Math.max(rE * rE - aV * aV, 0));
+      ctx.save();
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = C.venus; ctx.lineWidth = 1.25; ctx.globalAlpha = .9;
+      line(ctx, ep[0], ep[1], ep[0] + Math.cos(dir) * L * S, ep[1] - Math.sin(dir) * L * S);
+      ctx.restore();
+    });
+    ctx.save();
+    ctx.setLineDash([2, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+    line(ctx, ep[0], ep[1], sp[0], sp[1]);
+    ctx.restore();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.5;
+    line(ctx, ep[0], ep[1], vp[0], vp[1]);
+
+    ctx.fillStyle = C.earth;
+    ctx.beginPath(); ctx.arc(ep[0], ep[1], small ? 5 : 6, 0, 2 * Math.PI); ctx.fill();
+    text(ctx, 'Earth', ep[0] + 9, ep[1] + 4, { font: uiFont, color: C.earth, halo: true });
+    ctx.fillStyle = C.venus;
+    ctx.beginPath(); ctx.arc(vp[0], vp[1], small ? 4.5 : 5.5, 0, 2 * Math.PI); ctx.fill();
+    text(ctx, 'Venus', vp[0] + 9, vp[1] + 4, { font: uiFont, color: C.venus, halo: true });
+
+    text(ctx, `${(half / DEG).toFixed(1)}° is as far from the sun as it can ever look`, 10, h - 12,
+      { font: handS, color: C.venus, halo: true });
+    text(ctx, `now ${v.elong.toFixed(1)}° from the sun`, 10, 22, { font: handS, color: C.ink, halo: true });
+  }
+
+  // ---------- 3. the cycle ----------
+  const CY = { L: 44, R: 46, T: 34, B: 42 };
+  function drawCycle() {
+    const { ctx, w, h } = cv.cycle;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = CY.L, x1 = w - CY.R, y0 = CY.T, y1 = h - CY.B;
+    // one synodic cycle centred on the current date
+    const half = 292;
+    const D0 = state.d - half, D1 = state.d + half;
+    const X = d => x0 + (d - D0) / (D1 - D0) * (x1 - x0);
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    const rows = [];
+    for (let d = Math.round(D0); d <= Math.round(D1); d += 3) rows.push({ d, v: vAt(d) });
+    const at = f => rows[clamp(Math.round(f * (rows.length - 1)), 0, rows.length - 1)];
+    // fixed scales: the curves must not rescale themselves as the date runs
+    const maxD = 66, magLo = -4.9, magHi = -2.8;
+
+    const Yk = k => y1 - k * (y1 - y0) * 0.86;
+    const Yd = dd => y1 - clamp(dd / maxD, 0, 1) * (y1 - y0) * 0.86;
+    const Ym = m => y1 - clamp((magHi - m) / (magHi - magLo), 0, 1) * (y1 - y0) * 0.86;
+
+    poly(ctx, rows.map(r => [X(r.d), Yk(r.v.k)]));
+    ctx.lineWidth = 2; ctx.strokeStyle = C.ghost; ctx.stroke();
+    poly(ctx, rows.map(r => [X(r.d), Yd(r.v.diam)]));
+    ctx.lineWidth = 2; ctx.strokeStyle = C.venus; ctx.stroke();
+    poly(ctx, rows.map(r => [X(r.d), Ym(r.v.mag)]));
+    ctx.lineWidth = 2.75; ctx.strokeStyle = C['sun-ink']; ctx.stroke();
+
+    // the brightest moment in this window
+    let best = rows[0];
+    rows.forEach(r => { if (r.v.mag < best.v.mag) best = r; });
+    ctx.save();
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = C['sun-bright']; ctx.lineWidth = 1.5;
+    line(ctx, X(best.d), y0, X(best.d), y1);
+    ctx.restore();
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(X(best.d), Ym(best.v.mag), 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
+    const lab = `brightest: ${(100 * best.v.k).toFixed(0)}% lit, ${best.v.elong.toFixed(0)}° out`;
+    ctx.font = handS;
+    const lw = ctx.measureText(lab).width;
+    text(ctx, lab, clamp(X(best.d) + 8, x0, x1 - lw - 4), y0 - 12,
+      { font: handS, color: C['sun-ink'] });
+
+    // little discs along the top showing the shape at that moment
+    for (let k = 0; k <= 6; k++) {
+      const r = at(k / 6);
+      phaseDisc(ctx, X(r.d), y1 + 14, clamp(r.v.diam * 0.16, 3.5, 11), r.v.phase, !r.v.east);
+    }
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1;
+    ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    // name each curve where it sits, rather than at the edges
+    const nameAt = (frac, yFn, val, lab, col) => {
+      const d = D0 + (D1 - D0) * frac;
+      text(ctx, lab, X(d), yFn(val) - 7, { font, color: col, align: 'center', halo: C.surface });
+    };
+    nameAt(0.06, Yk, at(0.06).v.k, small ? 'lit fraction, 0–100%' : 'lit fraction, 0 to 100%', C.ghost);
+    nameAt(0.30, Yd, at(0.30).v.diam, small ? 'size, 10–66″' : 'apparent size, 10″ to 66″', C.venus);
+    nameAt(0.80, Ym, at(0.80).v.mag, small ? 'brightness, up = brighter' : 'brightness, upwards is brighter', C['sun-ink']);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(state.d), y0, X(state.d), y1);
+  }
+
+  // ---------- 4. the pentagram ----------
+  const SPAN = 2921;                                   // days the slider covers: eight years
+  // The ring is ecliptic longitude, but nobody thinks in ecliptic longitude. At a pass Venus
+  // lies in the sun's direction, and the sun's direction is decided by the date alone, so the
+  // ring is really a calendar and is labelled as one.
+  let MONTHS = null;
+  function monthRing() {
+    if (MONTHS) return MONTHS;
+    const y = asDate(T0 + 1).getUTCFullYear();
+    MONTHS = MON.map((name, m) => ({
+      name, lon: vAt(Math.round((Date.UTC(y, m, 1) - Date.UTC(y, 0, 1)) / 86400000)).sunLon
+    }));
+    return MONTHS;
+  }
+  // Every turning point in the model, found once at load: the buttons, the summary and the star
+  // all read from it. These curves are smooth over a 584-day cycle, so a coarse sweep brackets
+  // each extremum and a day-by-day pass inside the bracket pins it down, which is a third of
+  // the work of walking all nine years a day at a time.
+  let EV = null;
+  function extrema(of, wantMin, keep) {
+    const N = 3340, S = 4, hits = [];
+    for (let d = S; d < N; d += S) {
+      const a = of(vAt(d - S)), b = of(vAt(d)), c = of(vAt(d + S));
+      if (wantMin ? !(b <= a && b <= c) : !(b >= a && b >= c)) continue;
+      let best = d;
+      for (let k = d - S; k <= d + S; k++) {
+        if (wantMin ? of(vAt(k)) < of(vAt(best)) : of(vAt(k)) > of(vAt(best))) best = k;
+      }
+      // neighbouring brackets can land on the same turning point; the real ones are never
+      // this close, not even the two brightness peaks either side of a pass
+      if (keep(vAt(best)) && (!hits.length || best - hits[hits.length - 1] > 20)) hits.push(best);
+    }
+    return hits;
+  }
+  function events() {
+    if (EV) return EV;
+    // elongation dips to nearly zero twice a cycle: once passing in front, once behind.
+    // only the near one counts, so check the distance as well
+    const pass = extrema(v => v.elong, true, v => v.elong < 12 && v.dist < 0.5)
+      .map(d => ({ d, lon: vAt(d).lon, dist: vAt(d).dist }));
+    EV = {
+      elong: extrema(v => v.elong, false, v => v.elong > 40),
+      bright: extrema(v => v.mag, true, v => v.mag < -4.3),
+      pass
+    };
+    return EV;
+  }
+  const conjunctions = () => events().pass;
+  // the next one of something, wrapping round the end of the slider
+  function nextEvent(list) {
+    const at = x => (typeof x === 'object' ? x.d : x);
+    let hit = list.find(x => at(x) > state.d + 0.5), wrapped = false;
+    if (hit === undefined) { hit = list[0]; wrapped = true; }
+    const d = at(hit);
+    return { d, days: Math.max(0, Math.round(d - state.d + (wrapped ? SPAN : 0))) };
+  }
+
+  // The figure belongs to the passes, not to the ends of the slider. A side is drawn by the
+  // pass that arrives at its far end, so the fifth side cannot be drawn when the fourth is:
+  // it waits for the sixth pass, which lands back on the first point eight years on. In a loop
+  // this length that is the first point coming round again, so the star closes after the wrap,
+  // holds, fades, and the very same pass starts the next one.
+  const DRAW = 46, HOLD = 130, FADE = 70, CLOSED = DRAW + HOLD + FADE;
+  let STAR = null;
+  function starPlan() {
+    if (STAR) return STAR;
+    const cs = conjunctions();
+    const n = Math.min(cs.length, 5);
+    // how far round the ring each side steps, always the short way, which is always clockwise
+    const STEP = [];
+    for (let j = 0; j < n; j++) STEP.push(((cs[j].lon - cs[(j + 1) % n].lon) % 360 + 360) % 360);
+    STAR = { n, D0: cs[0].d, AT: cs.slice(0, n).map(c => c.d - cs[0].d), STEP };
+    return STAR;
+  }
+  // days since the pass that began the figure now on screen, carrying on through the wrap
+  const starProg = () => ((state.d - starPlan().D0) % SPAN + SPAN) % SPAN;
+
+  function drawPenta() {
+    const { ctx, w, h } = cv.penta;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 10 : 12}px ${UI}`;
+    const tiny = `${small ? 9 : 10}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const R = Math.min(w, h) * 0.33;
+    const cx = w / 2, cy = h / 2;
+    const P = (lon, rad) => [cx + (rad || R) * cosd(lon), cy - (rad || R) * sind(lon)];
+
+    // the ring, labelled as the calendar it is
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+    ctx.strokeStyle = C.rule; ctx.lineWidth = 1.25; ctx.stroke();
+    monthRing().forEach(m => {
+      const a = P(m.lon), b = P(m.lon, R - 7);
+      ctx.strokeStyle = C.ghost; ctx.globalAlpha = .55; ctx.lineWidth = 1;
+      line(ctx, a[0], a[1], b[0], b[1]);
+      ctx.globalAlpha = 1;
+      const t = P(m.lon, R - 17);
+      text(ctx, m.name, t[0], t[1] + 3, { font: tiny, color: C.muted, align: 'center' });
+    });
+
+    // Earth's orbit, live, inside the ring: the crosses sit on it
+    const S = R * 0.42;
+    const v = view(T());
+    const XY = p2 => [cx + p2[0] * S, cy - p2[1] * S];
+    const per = 36525 * 360 / PL.earth.dL, ring = [];
+    for (let k = 0; k <= 90; k++) ring.push(XY(helio(PL.earth, T() + per * k / 90)));
+    poly(ctx, ring); ctx.closePath();
+    ctx.strokeStyle = C.earth; ctx.lineWidth = 1; ctx.globalAlpha = .4; ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillStyle = C['sun-bright'];
+    ctx.beginPath(); ctx.arc(cx, cy, 4, 0, 2 * Math.PI); ctx.fill();
+
+    const cs = conjunctions();
+    const pts = cs.map(c => P(c.lon));
+    const { n, AT, STEP } = starPlan();
+    const prog = starProg();
+    // for a while after the closing pass the finished figure is still there: it draws its last
+    // side, holds, then fades, leaving the point that both closed it and starts the next one
+    const oldA = prog >= CLOSED ? 0
+      : prog < DRAW + HOLD ? 1
+        : clamp(1 - (prog - DRAW - HOLD) / FADE, 0, 1);
+    // a side is drawn by the pass at its far end and sweeps across; the closing side is drawn
+    // by the sixth pass, which in this loop is the first point coming round again at prog 0
+    const side = j => j === n - 1
+      ? { f: clamp(prog / DRAW, 0, 1), a: oldA }
+      : prog >= AT[j + 1] ? { f: clamp((prog - AT[j + 1]) / DRAW, 0, 1), a: 1 }
+        : { f: 1, a: oldA };
+    const solid = i => opt.near ? 1 : i === 0 ? 1 : prog >= AT[i] ? 1 : oldA;
+    const sides = [];
+    for (let j = 0; j < n; j++) sides.push(side(j));
+    let active = -1, travel = 0;
+    sides.forEach((sd, j) => {
+      if (sd.a <= 0) return;
+      travel += STEP[j] * sd.f;
+      if (sd.f > 0 && sd.f < 1) active = j;
+    });
+
+    // how far round the ring the figure has walked, spiralling out so the second lap is visible
+    if (!opt.near && travel > 1) {
+      const lon0 = cs[0].lon, rad = t => R + 7 + 5 * (t / 360), spi = [];
+      for (let t = 0; t <= travel; t += 2) spi.push(P(lon0 - t, rad(t)));
+      spi.push(P(lon0 - travel, rad(travel)));
+      ctx.save();
+      ctx.globalAlpha = .55 * (prog < CLOSED ? oldA : 1);
+      ctx.strokeStyle = C.venus; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+      poly(ctx, spi); ctx.stroke();
+      ctx.restore();
+      const end = P(lon0 - travel, rad(travel));
+      ctx.save();
+      ctx.globalAlpha = prog < CLOSED ? oldA : 1;
+      ctx.fillStyle = C.venus;
+      ctx.beginPath(); ctx.arc(end[0], end[1], 2.5, 0, 2 * Math.PI); ctx.fill();
+      text(ctx, `${travel.toFixed(0)}° round`, end[0] + (end[0] > cx ? 7 : -7), end[1] + 4,
+        { font: tiny, color: C.venus, align: end[0] > cx ? 'left' : 'right', halo: true });
+      ctx.restore();
+    }
+
+    // the sides: in the order the passes happen, or by position if asked
+    const order = cs.slice(0, n).map((c, i) => i).sort((a, b) => cs[b].lon - cs[a].lon);
+    ctx.save();
+    ctx.lineWidth = 2; ctx.strokeStyle = C.venus; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    if (opt.near) {
+      ctx.globalAlpha = .2;                            // the star, left underneath to compare
+      for (let j = 0; j < n; j++) {
+        const a = pts[j], b2 = pts[(j + 1) % n];
+        line(ctx, a[0], a[1], b2[0], b2[1]);
+      }
+      ctx.globalAlpha = .9;
+      for (let k = 0; k < n; k++) {
+        const a = pts[order[k]], b2 = pts[order[(k + 1) % n]];
+        line(ctx, a[0], a[1], b2[0], b2[1]);
+      }
+    } else {
+      sides.forEach((sd, j) => {
+        if (sd.a <= 0 || sd.f <= 0) return;
+        ctx.globalAlpha = 0.9 * sd.a;
+        const a = pts[j], b2 = pts[(j + 1) % n];
+        line(ctx, a[0], a[1], a[0] + (b2[0] - a[0]) * sd.f, a[1] + (b2[1] - a[1]) * sd.f);
+      });
+    }
+    ctx.restore();
+
+    cs.slice(0, n).forEach((c, i) => {
+      const eAt = XY(helio(PL.earth, T0 + c.d));
+      const on = solid(i);
+      const age = prog - AT[i];                        // days since this pass happened
+      // Earth's mark is the explanation, not the subject: by default only the freshest shows
+      const crossA = opt.near || opt.cross ? on
+        : age >= 0 && age < 140 ? on * clamp((140 - age) / 60, 0, 1) : 0;
+      const dot = (lit, alpha) => {
+        if (alpha <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = lit ? C.venus : C.ghost;
+        ctx.beginPath(); ctx.arc(pts[i][0], pts[i][1], lit ? 5 : 3.5, 0, 2 * Math.PI); ctx.fill();
+        ctx.restore();
+      };
+      const earthMark = (lit, alpha) => {
+        if (alpha <= 0) return;
+        ctx.save();
+        ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+        ctx.strokeStyle = lit ? C.venus : C.ghost; ctx.globalAlpha = alpha * (lit ? .85 : .3);
+        // Earth, through the sun, out to the ring: at a pass, Venus sits on this line
+        line(ctx, eAt[0], eAt[1], pts[i][0], pts[i][1]);
+        ctx.restore();
+        ctx.save();
+        // where Earth stood when Venus lapped it
+        ctx.strokeStyle = lit ? C.earth : C.ghost; ctx.lineWidth = 2;
+        ctx.globalAlpha = alpha * (lit ? 1 : .4);
+        const q = 4.5;
+        line(ctx, eAt[0] - q, eAt[1] - q, eAt[0] + q, eAt[1] + q);
+        line(ctx, eAt[0] - q, eAt[1] + q, eAt[0] + q, eAt[1] - q);
+        ctx.restore();
+      };
+      earthMark(false, (opt.cross || opt.near) ? 1 - on : 0);
+      earthMark(true, crossA);
+      dot(false, 1 - on);                              // the point it will land on
+      dot(true, on);                                   // and the pass itself
+      // a ring spreading out from a pass just made
+      if (!opt.near && on > 0 && age >= 0 && age < 70) {
+        const f = age / 70;
+        ctx.save();
+        ctx.globalAlpha = (1 - f) * 0.75 * on;
+        ctx.strokeStyle = C.venus; ctx.lineWidth = 2.5 * (1 - f) + 0.5;
+        ctx.beginPath(); ctx.arc(pts[i][0], pts[i][1], 6 + f * 26, 0, 2 * Math.PI); ctx.stroke();
+        ctx.restore();
+      }
+      // the dates repeat every eight years, so the point is labelled by day and month; the
+      // freshest pass gets its year as well
+      const fresh = !opt.near && age >= 0 && age < 400;
+      const rr = R + (i % 2 ? 40 : 27);
+      const out = P(c.lon, rr);
+      text(ctx, fresh ? ymd(T0 + c.d) : dm(T0 + c.d), out[0], out[1] + 4,
+        { font: uiFont, color: on > .5 ? C.ink : C.muted, align: 'center', halo: true });
+    });
+
+    // and where the two planets are right now
+    const ep = XY(v.E), vp = XY(v.V);
+    ctx.fillStyle = C.earth;
+    ctx.beginPath(); ctx.arc(ep[0], ep[1], 4, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = C.venus;
+    ctx.beginPath(); ctx.arc(vp[0], vp[1], 3.4, 0, 2 * Math.PI); ctx.fill();
+    ctx.save();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.globalAlpha = .7;
+    const sight = P(v.lon);
+    line(ctx, ep[0], ep[1], sight[0], sight[1]);
+    ctx.restore();
+
+    const finishing = prog < CLOSED;                  // the figure on screen is the completed one
+    const passed = finishing ? n : AT.filter(t => prog >= t).length;
+    const head = opt.near ? 'the same five points, joined by position'
+      : prog < DRAW ? 'the sixth pass closes the star'
+        : finishing ? 'eight years, five points'
+          : passed < n ? `${passed} of the five passes done`
+            : 'five done — the sixth will close it';
+    text(ctx, head, 10, 22, { font: handS, color: C.venus, halo: true });
+    text(ctx, 'a pass happens where the sun is that day, so the ring is a calendar', 10, 40,
+      { font: tiny, color: C.muted, halo: true });
+    // the eight in "eight years" is only believable if you can watch it count up
+    if (!opt.near) text(ctx, finishing
+      ? `Earth 8 times round · all ${n} passes done`
+      : `Earth ${(prog / 365.256).toFixed(1)} times round · ${passed} of ${n} passes`,
+      10, 56, { font: tiny, color: C.muted, halo: true });
+    if (oldA > 0 && oldA < 1 && !opt.near) text(ctx, 'and round again…', w - 10, 22,
+      { font: handS, color: C.muted, align: 'right', halo: true });
+
+    const drift = cs.length > 5 ? Math.abs(wrap(cs[5].lon - cs[0].lon)) : null;
+    const foot = opt.near ? 'a pentagon: the star comes from the order, not the sky'
+      : active >= 0 ? `a step of ${STEP[active].toFixed(0)}° round the ring`
+        : travel > 700 ? 'five steps of about 144°: twice round the ring'
+          : drift !== null ? `after five it lands ${drift.toFixed(1)}° from where it began` : '';
+    if (foot) text(ctx, foot, 10, h - 12, { font: handS, color: C.venus, halo: true });
+  }
+  // ---------- text and inputs ----------
+  const inputs = { lat: $('lat') };
+  const dateInputs = [...document.querySelectorAll('.date-range')];
+  const dateOuts = [...document.querySelectorAll('.date-out')];
+  const playBtns = [...document.querySelectorAll('.play-btn')];
+  const chipsLat = [...document.querySelectorAll('[data-lat]')];
+  const opt = { cross: false, near: false };
+
+  function updateText() {
+    const v = view(T());
+    $('rElong').textContent = `${v.elong.toFixed(1)}° ${v.east ? 'east' : 'west'}`;
+    $('rPhase').textContent = `${(100 * v.k).toFixed(0)}%`;
+    $('rSize').textContent = `${v.diam.toFixed(1)}″`;
+    $('rMag').textContent = v.mag.toFixed(2);
+    $('rDist').textContent = `${v.dist.toFixed(3)} AU`;
+    $('rWhen').textContent = v.elong < 8 ? 'lost in the glare' : v.east ? 'after sunset' : 'before sunrise';
+    dateOuts.forEach(o => { o.textContent = ymd(T()); });
+    $('latOut').textContent = Math.abs(state.lat) < 0.5 ? '0° (equator)' : `${Math.abs(state.lat).toFixed(0)}° ${state.lat > 0 ? 'N' : 'S'}`;
+    // the readout already has the numbers, so this says what is coming instead
+    const ev = events();
+    const when = n => n === 0 ? 'today' : n === 1 ? 'tomorrow' : `in ${n} days`;
+    const lead = v.elong < 8 ? 'Venus is lost in the sun\u2019s glare just now.'
+      : v.east ? 'An evening star, setting after the sun.' : 'A morning star, rising before it.';
+    const ahead = [
+      { what: 'greatest elongation', days: nextEvent(ev.elong).days },
+      { what: 'peak brightness', days: nextEvent(ev.bright).days },
+      { what: 'a pass between us and the sun', days: nextEvent(ev.pass).days }
+    ].sort((a, b) => a.days - b.days);
+    $('rSum').textContent = `${lead} Ahead: ${ahead.map(x => `${x.what} ${when(x.days)}`).join(', ')}.`;
+    els.sky.setAttribute('aria-label', `Venus ${v.elong.toFixed(0)} degrees from the sun on ${ymd(T())}.`);
+    els.plan.setAttribute('aria-label', 'Earth and Venus orbits with the elongation limit.');
+    els.cycle.setAttribute('aria-label', 'Lit fraction, size and brightness through one cycle.');
+    els.penta.setAttribute('aria-label', opt.near
+      ? 'The five inferior conjunctions joined by position, making a pentagon.'
+      : 'Inferior conjunctions tracing a pentagram on a ring labelled by month.');
+  }
+  function syncInputs() {
+    dateInputs.forEach(i => { if (Number(i.value) !== Math.floor(state.d)) i.value = Math.floor(state.d); });
+    if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    chipsLat.forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - Number(b.dataset.lat)) < 0.26));
+  }
+
+  // a panel scrolled out of sight is not worth the trigonometry
+  const DRAWERS = { sky: drawSky, plan: drawPlan, cycle: drawCycle, penta: drawPenta };
+  const seen = { sky: true, plan: true, cycle: true, penta: true };
+  const drawOne = k => { if (cv[k].w) DRAWERS[k](); };
+  const drawAll = () => Object.keys(DRAWERS).forEach(k => { if (seen[k]) drawOne(k); });
+
+  let raf = 0, last = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const dt = state.play && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.play) {
+      state.d += dt * 90;                              // the clock never stops: the star pauses
+      if (state.d >= SPAN) state.d -= SPAN;            // itself, by waiting for the closing pass
+    }
+    last = state.play ? ts : 0;
+    syncInputs(); updateText(); drawAll();
+    if (state.play) render();
+  }
+  function setPlay(on) {
+    if (state.play === on) return;
+    state.play = on;
+    playBtns.forEach(b => {
+      b.setAttribute('aria-pressed', on);
+      b.textContent = on ? 'Pause' : 'Play the years';
+    });
+    render();
+  }
+  playBtns.forEach(b => b.addEventListener('click', () => setPlay(!state.play)));
+  // the turning points are already indexed, so these are a lookup rather than a search
+  const goTo = list => { setPlay(false); state.d = nextEvent(list).d; render(); };
+  $('toElong').addEventListener('click', () => goTo(events().elong));
+  $('toBright').addEventListener('click', () => goTo(events().bright));
+  $('toPass').addEventListener('click', () => goTo(events().pass));
+  dateInputs.forEach(i => i.addEventListener('input', e => {
+    setPlay(false); state.d = Number(e.target.value); render();
+  }));
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
+  chipsLat.forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); render(); }));
+  [['optCross', 'cross'], ['optNear', 'near']].forEach(([id, key]) => {
+    const b = $(id);
+    b.addEventListener('click', () => {
+      opt[key] = !opt[key];
+      b.setAttribute('aria-pressed', opt[key]);
+      render();
+    });
+  });
+
+  readColors();
+  const ro = new ResizeObserver(() => { Object.values(cv).forEach(fit); drawAll(); });
+  Object.values(els).forEach(el => ro.observe(el));
+  if (window.IntersectionObserver) {
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      const k = e.target.id, was = seen[k];
+      seen[k] = e.isIntersecting;
+      if (!was && e.isIntersecting) drawOne(k);          // catch it up on the way in
+    }), { rootMargin: '150px 0px' });
+    Object.values(els).forEach(el => io.observe(el));
+  }
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`500 18px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
