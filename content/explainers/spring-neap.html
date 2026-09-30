@@ -302,9 +302,25 @@ a { color: var(--sun-ink); }
     }
     return out;
   });
+  // The biggest and smallest water this latitude sees all year. Both charts are drawn against
+  // it rather than against their own contents, so a neap visibly is the small thing it is.
+  const envelope = () => memo('env', `${state.lat}`, () => {
+    let lo = 1e9, hi = -1e9;
+    for (let d = 0; d < 365; d += 1) {
+      for (let hh = 0; hh < 24; hh += 1) {
+        const r = tide(dayAt(d) + hh / 24, state.lat, hh, 'both');
+        if (r.total < lo) lo = r.total;
+        if (r.total > hi) hi = r.total;
+        if (r.moon < lo) lo = r.moon;              // the moon-alone trace can outrun the sum
+        if (r.moon > hi) hi = r.moon;
+      }
+    }
+    const pad = (hi - lo) * 0.09;
+    return { lo: lo - pad, hi: hi + pad };
+  });
   const monthData = () => memo('month', `${Math.floor(state.d)}|${state.lat}`, () => {
-    const from = Math.floor(state.d) - 15, rows = [];
-    for (let k = 0; k <= 30; k++) {
+    const from = Math.floor(state.d) - 16, rows = [];
+    for (let k = 0; k <= 32; k++) {
       const d = from + k;
       const ext = (body) => {
         const c = curve(d, state.lat, body, 25, 0.25);
@@ -518,14 +534,16 @@ a { color: var(--sun-ink); }
     const x0 = A_PAD.L, x1 = w - A_PAD.R, y0 = A_PAD.T, y1 = h - A_PAD.B;
     const c = addData();
     const hi = Math.max(...c.map(p => p.tot)), lo = Math.min(...c.map(p => p.tot));
-    const pad = Math.max((hi - lo) * 0.22, 0.05);
+    const env = envelope();
     const X = hh => x0 + hh / 48 * (x1 - x0);
-    const Y = v => y1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)) * (y1 - y0);
+    const Y = v => y1 - (v - env.lo) / (env.hi - env.lo) * (y1 - y0);
 
     ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
     ctx.lineWidth = 1;
-    for (let v = Math.ceil((lo - pad) * 4) / 4; v <= hi + pad; v += 0.25) {
-      ctx.strokeStyle = Math.abs(v) < 1e-9 ? C.ghost : C.rule;
+    const gStep = (env.hi - env.lo) > 1.6 ? 0.5 : 0.25;
+    for (let v = Math.ceil(env.lo / gStep) * gStep; v <= env.hi; v += gStep) {
+      const zero = Math.abs(v) < gStep * 0.01;
+      ctx.strokeStyle = zero ? C.ghost : C.rule;
       line(ctx, x0, Y(v), x1, Y(v));
       text(ctx, `${v > 0 ? '+' : ''}${v.toFixed(2)}`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
     }
@@ -575,9 +593,15 @@ a { color: var(--sun-ink); }
         clamp(X((cm.h + cs.h) / 2), x0 + 70, x1 - 70), y0 + (small ? 14 : 16),
         { font: handS, color: near < 1.6 ? C['sun-ink'] : near > 4.6 ? C['moon-ink'] : C.muted, align: 'center', halo: C.surface });
     }
+    // how much of the year's biggest tide today manages, on a scale that never moves
+    const frac = (hi - lo) / (envelope().hi - envelope().lo);
     text(ctx, `range ${(hi - lo).toFixed(2)} m`, x1 - 6, y1 - 8,
       { font: handS, color: C.sea, align: 'right', halo: C.surface });
+    text(ctx, `${(frac * 100).toFixed(0)}% of the biggest this year`, x1 - 6, y1 - (small ? 24 : 27),
+      { font, color: C.muted, align: 'right', halo: C.surface });
     text(ctx, 'metres above mean', x0 - 5, y0 + 6, { font, color: C.muted, align: 'right' });
+    // running the month steps this chart a whole day at a time, so name the day
+    text(ctx, fmtDate(state.d), x0 + 6, y1 - 8, { font, color: C.muted, halo: C.surface });
   }
 
   // ---------- 3. a month ----------
@@ -590,19 +614,24 @@ a { color: var(--sun-ink); }
     const font = `${small ? 10 : 12}px ${UI}`;
     const handS = `500 ${small ? 16 : 18}px ${HAND}`;
     const x0 = M_PAD.L, x1 = w - M_PAD.R, y0 = M_PAD.T, y1 = h - M_PAD.B;
-    const md = monthData(), from = md.from, N = 30, rows = md.rows;
-    const X = d => x0 + (d - from) / N * (x1 - x0);
-    const hi = Math.max(...rows.map(r => r.hi)), lo = Math.min(...rows.map(r => r.lo));
-    const pad = (hi - lo) * 0.14;
-    const Y = v => y1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad)) * (y1 - y0);
+    const md = monthData(), N = 30, rows = md.rows;
+    // The days themselves are whole days, but the window they sit in slides with the clock, so
+    // running the month scrolls rather than stepping.
+    const left = state.d - N / 2;
+    const X = d => x0 + (d - left) / N * (x1 - x0);
+    const env = envelope();
+    const Y = v => y1 - (v - env.lo) / (env.hi - env.lo) * (y1 - y0);
 
     ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
     ctx.lineWidth = 1;
-    for (let v = Math.ceil((lo - pad) * 2) / 2; v <= hi + pad; v += 0.5) {
-      ctx.strokeStyle = C.rule;
+    const gStep = (env.hi - env.lo) > 1.6 ? 0.5 : 0.25;
+    for (let v = Math.ceil(env.lo / gStep) * gStep; v <= env.hi; v += gStep) {
+      ctx.strokeStyle = Math.abs(v) < gStep * 0.01 ? C.ghost : C.rule;
       line(ctx, x0, Y(v), x1, Y(v));
-      text(ctx, `${v > 0 ? '+' : ''}${v.toFixed(1)}`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
+      text(ctx, `${v > 0 ? '+' : ''}${v.toFixed(2)}`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
     }
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x0, y0, x1 - x0, y1 - y0); ctx.clip();
     poly(ctx, rows.map(r => [X(r.d), Y(r.hi)]));
     rows.slice().reverse().forEach(r => ctx.lineTo(X(r.d), Y(r.lo)));
     ctx.closePath();
@@ -615,10 +644,12 @@ a { color: var(--sun-ink); }
       poly(ctx, rows.map(r => [X(r.d), Y(r[k])]));
       ctx.lineWidth = 2; ctx.strokeStyle = C.sea; ctx.stroke();
     });
+    ctx.restore();
 
     // the phases across the top
-    for (let k = 0; k <= N; k++) {
-      const d = from + k, ph = sky(dayAt(d)).phase;
+    for (const row of rows) {
+      const d = row.d, ph = sky(dayAt(d)).phase;
+      if (X(d) < x0 + 12 || X(d) > x1 - 12) continue;
       const near = [0, 90, 180, -90].some(p => Math.abs(wrap(ph - p)) < 6.2);
       if (!near) continue;
       const kind = [0, 90, 180, -90].find(p => Math.abs(wrap(ph - p)) < 6.2);
@@ -628,10 +659,12 @@ a { color: var(--sun-ink); }
       text(ctx, (kind === 0 || kind === 180) ? 'spring' : 'neap', X(d), y1 - 6,
         { font, color: (kind === 0 || kind === 180) ? C['sun-ink'] : C.muted, align: 'center', halo: C.surface });
     }
-    for (let d = from; d <= from + N; d++) {
+    for (const row of rows) {
+      const d = row.d;
       if (((d % 365) + 365) % 365 % 7 !== 0) continue;
+      if (X(d) < x0 + 20 || X(d) > x1 - 20) continue;
       text(ctx, fmtDate(d).split(' ')[0] + ' ' + fmtDate(d).split(' ')[1].slice(0, 3),
-        clamp(X(d), x0 + 22, x1 - 22), h - 8, { font, color: C.muted, align: 'center' });
+        X(d), h - 8, { font, color: C.muted, align: 'center' });
     }
     ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
     line(ctx, X(state.d), y0, X(state.d), y1);
@@ -767,7 +800,7 @@ a { color: var(--sun-ink); }
     raf = 0;
     const dt = state.playM && last ? Math.min((ts - last) / 1000, 0.1) : 0;
     if (state.playM) {
-      state.d += dt * 2.6;
+      state.d += dt * 1.8;                           // a day at a time, slow enough to read
       if (state.d > 364) state.d -= 365;
     }
     last = state.playM ? ts : 0;
