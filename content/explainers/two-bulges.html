@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nearer is stronger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20); --sun-glow: rgba(235, 162, 27, .30);
+  --moon: #5C7085; --moon-ink: #41566B; --moon-lit: #F2F6FA; --moon-dark: #BFCAD5;
+  --sea: #2F6E9E; --sea-fill: rgba(47, 110, 158, .18); --land: rgba(98, 112, 64, .22);
+  --pull: #7A5691;
+  --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+    --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+    --sea: #79B2DD; --sea-fill: rgba(121, 178, 221, .16); --land: rgba(122, 142, 82, .20);
+    --pull: #BB9AD6;
+    --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+  --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+  --sea: #79B2DD; --sea-fill: rgba(121, 178, 221, .16); --land: rgba(122, 142, 82, .20);
+  --pull: #BB9AD6;
+  --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.6rem, 9vw, 3.6rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#race { aspect-ratio: 4 / 5; }
+#gradient { aspect-ratio: 5 / 4; }
+#field { aspect-ratio: 1 / 1; }
+@media (min-width: 640px) {
+  #race { aspect-ratio: 16 / 9; }
+  #gradient { aspect-ratio: 16 / 8; }
+  #field { aspect-ratio: 16 / 8; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl .lab { font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.hint.sub { margin: 8px 0 0; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Nearer is stronger</h1>
+    <p class="lede">Gravity weakens with distance, so the moon pulls the near side of Earth harder than it pulls the middle, and the middle harder than it pulls the far side. That single sloping fact is the whole of the tide. The near water runs ahead, the far water is left behind, and Earth comes out stretched along the line to the moon — with a bulge at <em>both</em> ends.</p>
+  </header>
+
+  <figure>
+    <h2>Drop everything and watch</h2>
+    <p class="hint">Earth and eight parcels of water, released from rest and left to fall towards the moon. Nothing orbits, nothing spins. They do not fall together: the near ones are pulled hardest and win the race, the far ones are pulled least and lose it. Ride along with the middle and only the winning and losing is left.</p>
+    <canvas id="race" role="img" aria-label="Earth and eight water parcels falling freely towards the moon"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div><dt>Pull on the near side</dt><dd id="pNear">–</dd></div>
+    <div><dt>Pull at the centre</dt><dd id="pMid">–</dd></div>
+    <div><dt>Pull on the far side</dt><dd id="pFar">–</dd></div>
+    <div><dt>Earth has fallen</dt><dd id="rMid">–</dd></div>
+    <div class="key"><dt>Near water, ahead by</dt><dd id="rNear">–</dd></div>
+    <div><dt>Far water, behind by</dt><dd id="rFar">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Fall controls">
+    <div class="play">
+      <button class="btn" id="play" aria-pressed="false">Let them fall</button>
+      <button class="btn" id="reset">Back to the start</button>
+    </div>
+    <div class="ctl">
+      <label for="hours">Time they have been falling <output id="hoursOut" for="hours"></output></label>
+      <input type="range" id="hours" min="0" max="24" step="0.1">
+    </div>
+    <div class="ctl">
+      <label>Where you are watching from</label>
+      <div class="chips" role="group" aria-label="Point of view">
+        <button class="chip" id="viewOut" aria-pressed="false">Outside, at rest</button>
+        <button class="chip" id="viewEarth" aria-pressed="true">Riding on Earth</button>
+      </div>
+      <p class="hint sub">From outside you see three pulls that differ by three per cent and a whole lot of falling that everything does together. Ride along with the middle and the falling cancels, leaving the three per cent on its own.</p>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>The slope, drawn out</h2>
+    <p class="hint">The moon's pull plotted straight across Earth, from the far side to the near side. Measured from outside it is a line that barely tilts, sitting a long way above zero. Measure it from Earth's centre instead and the axis has to shrink thirteenfold to fit what is left — and the same line becomes a diagonal crossing zero in the middle. Positive on the near side means pulled towards the moon; negative on the far side means pulled away from it. From Earth's centre, both of those point outwards.</p>
+    <canvas id="gradient" role="img" aria-label="The moon's pull plotted across Earth, from outside and from Earth's own frame"></canvas>
+  </figure>
+
+  <section class="controls" aria-label="Reference frame">
+    <div class="ctl">
+      <label>Where you are measuring from</label>
+      <div class="chips" role="group" aria-label="Reference frame">
+        <button class="chip" id="frameOut" aria-pressed="false">From outside, at rest</button>
+        <button class="chip" id="frameEarth" aria-pressed="true">From Earth's centre</button>
+      </div>
+      <p class="hint sub">This switch drives the panel above and the one below. Measuring from Earth's centre means subtracting the pull Earth itself feels — which is exactly what falling freely does for you, at no charge.</p>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>The same switch, as arrows</h2>
+    <p class="hint">The moon's pull at sixteen places on Earth. From outside, sixteen arrows pointing the same way at very nearly the same length. From Earth's centre, the far-side arrows turn round and point away from the moon — and that is the far bulge, with a force behind it at last.</p>
+    <canvas id="field" role="img" aria-label="The moon's pull as arrows, from outside and from Earth's own frame"></canvas>
+  </figure>
+
+  <section class="notes">
+    <h2>The slope is everything</h2>
+    <p>Newton's law puts distance in the denominator, squared, so the strength of a pull depends on how far away you are standing. Earth is 12,742 km thick, and across that thickness the moon's grip changes measurably: 34.3 millionths of a metre per second squared on the near side, 33.2 in the middle, 32.1 on the far side. A three per cent slope from one side of the planet to the other. Everything on this page is that slope and nothing else.</p>
+    <p>Three per cent sounds like nothing, and as a <em>pull</em> it is. But a pull is not what an ocean can feel. Earth as a body is falling towards the moon, and everything falling together feels nothing at all — that is what weightlessness is. The 33.2 in the middle is the part everybody gets, and the part nobody notices. What is left over is the 1.1 on the near side and the −1.1 on the far side, and the leftovers are the only thing with anywhere to push.</p>
+    <p>Which is why the far bulge is not the puzzle it looks. The moon does not pull the far water away from Earth. It pulls Earth away from the far water, and the far water, lagging, ends up standing proud. Come back to the falling panel and let it run for a day: Earth's centre covers 124 kilometres, the near water 128 and the far water 120. The four kilometres at each end is the entire tide. The 124 in the middle does nothing, because everything does it together.</p>
+    <p>Around the sides the slope shows up as a turn rather than a stretch. Water at the flanks is aimed very slightly inwards, because each parcel points at the moon itself rather than straight down the axis, and the angle between those two directions is Earth's radius over the moon's distance. That leftover squeezes towards the axis at exactly half the strength of the stretch along it. Stretch one way, squeeze the other two, and the water has nowhere to go but the two ends.</p>
+
+    <h2>Is it centrifugal?</h2>
+    <p>You will often read that the far bulge is flung outwards by Earth's swing around the Earth–moon barycentre. That is not quite a myth, but it is a detour, and it is usually told wrongly. Done carefully, in the frame revolving with the two bodies, the inertial term is exactly the same size and direction at every point of Earth, because in a revolution without rotation every point traces an identical circle. Subtract that uniform term from the moon's non-uniform pull and you get the two bulges — which is the same arithmetic as subtracting the pull at Earth's centre, because that is precisely what the uniform term equals. It is the same switch as the one on the panels above, arrived at by a longer road.</p>
+    <p>The trouble is what people picture when they hear the word. They imagine something that varies across Earth, or they blame Earth's daily spin, and then they are explaining a real effect with a mechanism that is not doing the work. The panel at the top of this page is the test that settles it. Nothing in it is orbiting and nothing is spinning: the moon sits still, everything is dropped from rest, and both bulges appear anyway. The stretch comes from the pull being uneven, not from going round anything.</p>
+
+    <h2>A ten-millionth of gravity, moving an ocean</h2>
+    <p>What is left after the subtraction is pitiful. The moon's pull on you is about three hundredths of a millimetre per second squared; the leftover, after the shared part is gone, is a thousandth of a millimetre per second squared. That is roughly one ten-millionth of Earth's own gravity. It could never lift water. Drop a pebble and the moon changes where it lands by less than the width of an atom.</p>
+    <p>What saves it is direction. Almost everywhere on Earth the leftover does not point up or down but <em>along</em> the surface, and sideways is the one direction Earth's gravity does not resist. A force that could not lift a teaspoon can slide a whole ocean downhill towards the two ends of the axis, given six hours and no opposition. The bulge is not water being lifted. It is water arriving.</p>
+    <p>Two bulges standing still while Earth turns underneath gives you <a href="tides.html">two high waters a day, fifty minutes later each time</a>. The sun raises a second, smaller pair of its own, and where the two sets line up decides <a href="spring-neap.html">whether this fortnight's tides are big or feeble</a>. And the same egg, raised in rock rather than water, is what eventually <a href="tidal-locking.html">stopped the moon turning</a>.</p>
+
+    <h2>Small print</h2>
+    <p class="small">The slope panel plots the moon's pull at every point along the Earth–moon line across Earth's diameter, with nothing exaggerated: the flatness of the line when it is measured from outside is real, and so is the thirteenfold shrink of the axis needed to see what survives the subtraction. The arrow panel does the same subtraction at sixteen points on the surface, and states its own magnification as you switch frames. The falling panel uses the moon's mean distance, 384,400 km, and Earth's radius, 6,371 km, with the moon held fixed and every parcel released from rest. Displacements are computed from the real accelerations and then magnified against Earth's size by the factor shown, because at true scale a day of falling moves everything about one fiftieth of an Earth radius and the difference between the parcels is a thirtieth of that again. Within each view the same magnification applies to the falling and to the stretching, so the one really is the small fraction of the other that it looks; the two views use different factors, and each says which. The arrow panel subtracts the pull at Earth's centre from the pull at sixteen points on the surface, and states its own magnification as you step through it. Everything here is the tide-raising force, not the tide: what an ocean does with it is another matter, and a local one.</p>
+    <p class="small"><a href="index.html">All the visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const sind = x => Math.sin(x * DEG), cosd = x => Math.cos(x * DEG);
+
+  // ---------- the only physics on this page ----------
+  const G = 6.674e-11, MM = 7.342e22;          // the moon
+  const DM = 3.844e8, RE = 6.371e6;            // its mean distance, and Earth's radius, in metres
+  const MAXH = 24;
+  // "m" is how far the reference frame has swung from outside (0) to Earth's centre (1).
+  // It animates rather than switching, because the swing itself is the thing worth watching.
+  const state = { hours: 8, view: 'earth', play: false, m: 1, mTo: 1 };
+  const pullAt = d => G * MM / (d * d);                  // metres per second squared
+  const uM = a => (a * 1e6).toFixed(2);                  // millionths, which is where the digits are
+
+  // Every parcel is released from rest and falls towards a moon that is standing still.
+  // Over a day the pull changes by less than a part in a thousand along the way, so a
+  // constant acceleration taken at the starting point is good to a few metres.
+  const PTS = [];
+  for (let k = 0; k < 8; k++) PTS.push([cosd(k * 45), sind(k * 45)]);
+  function fallOf(px, py, secs) {
+    const X = DM - px * RE, Y = -py * RE;      // from the parcel to the moon
+    const d = Math.hypot(X, Y), a = G * MM / (d * d), s = 0.5 * a * secs * secs;
+    return [s * X / d, s * Y / d];
+  }
+  const fallState = hours => {
+    const secs = hours * 3600;
+    const mid = fallOf(0, 0, secs);
+    const par = PTS.map(p => fallOf(p[0], p[1], secs));
+    return { secs, mid, par, rel: par.map(v => [v[0] - mid[0], v[1] - mid[1]]) };
+  };
+  const km = m => `${(m / 1000).toFixed(m < 20000 ? 2 : 1)} km`;
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'sun-glow', 'moon', 'moon-ink', 'moon-lit', 'moon-dark', 'sea', 'sea-fill', 'land', 'pull', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { race: $('race'), gradient: $('gradient'), field: $('field') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+  function arrow(ctx, x, y, dx, dy, head) {
+    const L = Math.hypot(dx, dy);
+    if (L < 0.4) return;
+    line(ctx, x, y, x + dx, y + dy);
+    const ux = dx / L, uy = dy / L, s = Math.min(head, L * 0.6);
+    ctx.beginPath();
+    ctx.moveTo(x + dx, y + dy);
+    ctx.lineTo(x + dx - ux * s + uy * s * .45, y + dy - uy * s - ux * s * .45);
+    ctx.lineTo(x + dx - ux * s - uy * s * .45, y + dy - uy * s + ux * s * .45);
+    ctx.closePath(); ctx.fill();
+  }
+  function earthBody(ctx, cx, cy, R) {
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+    ctx.fillStyle = C.land; ctx.fill();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.1; ctx.stroke();
+  }
+  function moonAt(ctx, x, y, r) {
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.fillStyle = C['moon-lit']; ctx.fill();
+    ctx.strokeStyle = C.moon; ctx.lineWidth = 1.1; ctx.stroke();
+  }
+
+  // ---------- 1. the falling race ----------
+  function drawRace() {
+    const { ctx, w, h } = cv.race;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const outside = state.view === 'outside';
+
+    const R = Math.min(w * 0.16, h * 0.26);
+    const cy = h * 0.52;
+    const startX = outside ? w * 0.20 : w * 0.46;
+    // One magnification for everything that moves, so the stretch stays the small fraction
+    // of the fall that it really is. Set so a full day of falling crosses the frame.
+    const full = fallState(MAXH);
+    const span = outside ? w * 0.52 : R * 0.42;
+    const ref = outside ? full.mid[0] : Math.hypot(full.rel[0][0], full.rel[0][1]);
+    const MAG = span / (ref * (R / RE));
+    const s = MAG * R / RE;                     // metres of displacement to pixels
+
+    const f = fallState(state.hours);
+    const org = outside ? [startX + f.mid[0] * s, cy - f.mid[1] * s] : [startX, cy];
+
+    // the moon, off to the right, with the gap broken because it cannot be drawn to scale
+    const mx = w - (small ? 22 : 28);
+    moonAt(ctx, mx, cy, small ? 9 : 11);
+    ctx.save();
+    ctx.setLineDash([3, 5]); ctx.strokeStyle = C.moon; ctx.lineWidth = 1; ctx.globalAlpha = .6;
+    line(ctx, startX + R * 1.35, cy, mx - (small ? 15 : 18), cy);
+    ctx.restore();
+    text(ctx, small ? '60 Earth radii away' : 'the moon, 60 Earth radii away, standing still',
+      mx - (small ? 14 : 17), cy - (small ? 14 : 18), { font: uiFont, color: C.muted, align: 'right', halo: true });
+
+    // where everything started
+    ctx.save();
+    ctx.setLineDash([4, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1.2; ctx.globalAlpha = .8;
+    ctx.beginPath(); ctx.arc(outside ? startX : org[0], cy, R, 0, 2 * Math.PI); ctx.stroke();
+    ctx.restore();
+
+    if (!outside) earthBody(ctx, org[0], org[1], R);
+
+    // in Earth's own view, the path each parcel has swept out
+    if (!outside && state.hours > 0.3) {
+      const steps = [];
+      for (let k = 0; k <= 12; k++) steps.push(fallState(state.hours * k / 12));
+      ctx.save();
+      ctx.strokeStyle = C.sea; ctx.globalAlpha = .38; ctx.lineWidth = 1.2;
+      PTS.forEach((p, j) => {
+        poly(ctx, steps.map(g => [org[0] + p[0] * R + g.rel[j][0] * s, cy - p[1] * R - g.rel[j][1] * s]));
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    if (outside) {
+      earthBody(ctx, org[0], org[1], R);
+      ctx.save();
+      ctx.strokeStyle = C.ghost; ctx.globalAlpha = .5; ctx.lineWidth = 1;
+      line(ctx, startX, cy + R + 14, org[0], cy + R + 14);
+      ctx.restore();
+      text(ctx, state.hours > 0.4 ? 'how far everything has fallen' : 'released from rest',
+        (startX + org[0]) / 2, cy + R + (small ? 30 : 34),
+        { font: handS, color: C.muted, align: 'center', halo: true });
+      // the three pulls that make the race uneven, on the parcels they act on
+      const lab = (j, sgn) => {
+        const q = PTS[j];
+        const d = Math.hypot(DM - q[0] * RE, q[1] * RE);
+        const x = org[0] + q[0] * R + f.par[j][0] * s;
+        text(ctx, uM(pullAt(d)), x + sgn * (small ? 9 : 12), cy - (small ? 12 : 15),
+          { font: uiFont, color: C.pull, align: sgn > 0 ? 'left' : 'right', halo: true });
+      };
+      lab(0, 1); lab(4, -1);
+      text(ctx, uM(pullAt(DM)), org[0], cy - (small ? 12 : 15),
+        { font: uiFont, color: C.pull, align: 'center', halo: true });
+      text(ctx, 'millionths of a metre per second squared', org[0], cy - (small ? 26 : 31),
+        { font: uiFont, color: C.muted, align: 'center', halo: true });
+    }
+
+    // the parcels themselves
+    PTS.forEach((p, j) => {
+      const dx = outside ? f.par[j][0] : f.rel[j][0];
+      const dy = outside ? f.par[j][1] : f.rel[j][1];
+      const x = (outside ? startX : org[0]) + p[0] * R + dx * s;
+      const y = cy - p[1] * R - dy * s;
+      ctx.fillStyle = C.sea;
+      ctx.beginPath(); ctx.arc(x, y, small ? 4 : 4.8, 0, 2 * Math.PI); ctx.fill();
+    });
+
+    // the shape they now make, in Earth's own view
+    if (!outside && state.hours > 0.3) {
+      const pts = [];
+      for (let a = 0; a <= 360; a += 4) {
+        const v = fallOf(cosd(a), sind(a), f.secs);
+        const rx = v[0] - f.mid[0], ry = v[1] - f.mid[1];
+        pts.push([org[0] + cosd(a) * R + rx * s, cy - sind(a) * R - ry * s]);
+      }
+      poly(ctx, pts); ctx.closePath();
+      ctx.strokeStyle = C.sea; ctx.lineWidth = 1.75; ctx.globalAlpha = .9; ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    const cap = outside
+      ? (state.hours < 0.4 ? 'three pulls, three per cent apart'
+        : `the near water is winning by ${((f.par[0][0] - f.mid[0]) / 1000).toFixed(1)} km`)
+      : 'the same race, with the part everything shares taken out';
+    text(ctx, small ? (outside ? 'all falling together' : 'the leftovers, on their own') : cap,
+      10, 22, { font: handS, color: outside ? C.muted : C['sun-ink'], halo: true });
+    text(ctx, `movements magnified ×${MAG < 1000 ? MAG.toFixed(0) : (MAG / 1000).toFixed(1) + 'k'} against Earth's size`,
+      10, 40, { font: uiFont, color: C.muted, halo: true });
+    if (!outside && state.hours > 0.3) {
+      text(ctx, 'stretched', org[0] + R + (small ? 10 : 14), cy - 6,
+        { font: uiFont, color: C.sea, align: 'left', halo: true });
+      text(ctx, 'squeezed', org[0], cy - R - (small ? 12 : 16),
+        { font: uiFont, color: C.sea, align: 'center', halo: true });
+    }
+    if (outside && state.hours > 0.4) {
+      // both ends stand proud of Earth: the winner ahead of it, the loser behind
+      text(ctx, `${((f.par[0][0] - f.mid[0]) / 1000).toFixed(1)} km ahead`,
+        org[0] + R + (small ? 10 : 14), cy + (small ? 16 : 20),
+        { font: uiFont, color: C.sea, align: 'left', halo: true });
+      text(ctx, `${((f.mid[0] - f.par[4][0]) / 1000).toFixed(1)} km behind`,
+        org[0] - R - (small ? 10 : 14), cy + (small ? 16 : 20),
+        { font: uiFont, color: C.sea, align: 'right', halo: true });
+    }
+  }
+
+  // ---------- 2. the slope, drawn out ----------
+  // The moon's pull straight across Earth. Measured from outside it is a line that barely tilts,
+  // a long way above zero. Measured from Earth's centre the same line has to be plotted on an
+  // axis fourteen times smaller, and it crosses zero in the middle — which is the moment the far
+  // side stops being pulled towards the moon and starts being left behind by it.
+  const G_PAD = { L: 58, R: 14, T: 22, B: 40 };
+  function drawGradient() {
+    const { ctx, w, h } = cv.gradient;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = G_PAD.L, x1 = w - G_PAD.R, y0 = G_PAD.T, y1 = h - G_PAD.B;
+    const m = state.m;
+
+    const a0 = pullAt(DM);
+    const at = u => pullAt(DM - u * RE);                  // u runs −1 (far) to +1 (near)
+    const spread = at(1) - at(-1);
+    // the window follows the curve down and closes in on it as the frame swings
+    const H0 = 2.3 * a0, H1 = 2.4 * spread / 2 * 2.2;
+    const H = Math.exp(Math.log(H0) * (1 - m) + Math.log(H1) * m);
+    const cVal = a0 * (1 - m);
+    const lo = cVal - H / 2, hi = cVal + H / 2;
+    const X = u => x0 + (u + 1) / 2 * (x1 - x0);
+    const Y = v => y1 - (v - lo) / (hi - lo) * (y1 - y0);
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+
+    // a grid whose labels shrink with the window, so the zoom is legible
+    const nice = span => {
+      const raw = span / 5, p10 = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / p10;
+      return p10 * (r < 1.5 ? 1 : r < 3.5 ? 2 : r < 7.5 ? 5 : 10);
+    };
+    const step = nice(H);
+    ctx.lineWidth = 1;
+    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+      const zero = Math.abs(v) < step * 0.01;
+      ctx.strokeStyle = zero ? C.ink : C.rule;
+      ctx.globalAlpha = zero ? .8 : 1;
+      line(ctx, x0, Y(v), x1, Y(v));
+      ctx.globalAlpha = 1;
+      text(ctx, (v * 1e6).toFixed(Math.max(0, Math.min(2, -Math.floor(Math.log10(step * 1e6))))),
+        x0 - 6, Y(v), { font, color: zero ? C.ink : C.muted, align: 'right', base: 'middle' });
+    }
+
+    // Earth along the bottom, so it is clear what the axis is crossing
+    const eb = y1 + (small ? 12 : 15);
+    ctx.save();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2; ctx.globalAlpha = .7;
+    line(ctx, X(-1), eb, X(1), eb);
+    [-1, 0, 1].forEach(u => line(ctx, X(u), eb - 4, X(u), eb + 4));
+    ctx.restore();
+    text(ctx, small ? 'far' : 'far side', X(-1), eb + (small ? 14 : 16), { font, color: C.muted, align: 'left' });
+    text(ctx, 'centre', X(0), eb + (small ? 14 : 16), { font, color: C.muted, align: 'center' });
+    text(ctx, small ? 'near' : 'near side', X(1), eb + (small ? 14 : 16), { font, color: C.muted, align: 'right' });
+
+    // once the frame has swung, colour what each sign means — and it means the same thing twice
+    if (m > 0.4) {
+      const A = clamp((m - 0.4) / 0.6, 0, 1);
+      const yz = clamp(Y(0), y0, y1);
+      const yn = clamp(Y(at(1) - m * a0), y0, y1), yf = clamp(Y(at(-1) - m * a0), y0, y1);
+      ctx.save();
+      ctx.globalAlpha = 0.16 * A; ctx.fillStyle = C.pull;
+      ctx.fillRect(X(0), Math.min(yz, yn), X(1) - X(0), Math.abs(yz - yn));
+      ctx.fillRect(X(-1), Math.min(yz, yf), X(0) - X(-1), Math.abs(yz - yf));
+      ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = A;
+      text(ctx, small ? 'towards the moon' : 'what is left points at the moon',
+        X(1) - 6, clamp(yz - (small ? 10 : 14), y0 + 14, y1 - 6),
+        { font, color: C.pull, align: 'right', halo: C.surface });
+      text(ctx, small ? 'away from it' : 'what is left points away from it',
+        X(-1) + 6, clamp(yz + (small ? 18 : 22), y0 + 14, y1 - 6),
+        { font, color: C.pull, align: 'left', halo: C.surface });
+      text(ctx, small ? 'both are outward' : 'and from Earth\u2019s centre, both of those are outward',
+        (x0 + x1) / 2, y1 - 8, { font: handS, color: C['sun-ink'], align: 'center', halo: C.surface });
+      ctx.restore();
+    }
+
+    // the line itself
+    const pts = [];
+    for (let u = -1; u <= 1.0001; u += 0.02) pts.push([X(u), Y(at(u) - m * a0)]);
+    poly(ctx, pts);
+    ctx.lineWidth = 2.75; ctx.strokeStyle = C.pull; ctx.lineJoin = 'round'; ctx.stroke();
+
+    // the three readings, marked where they sit
+    [[-1, 'far'], [0, 'centre'], [1, 'near']].forEach(([u]) => {
+      const v = at(u) - m * a0;
+      ctx.fillStyle = C.pull;
+      ctx.beginPath(); ctx.arc(X(u), Y(v), 4, 0, 2 * Math.PI); ctx.fill();
+      text(ctx, (v * 1e6).toFixed(m > 0.5 ? 2 : 1), X(u) + (u > 0 ? -6 : 6), Y(v) - 10,
+        { font, color: C.ink, align: u > 0 ? 'right' : 'left', halo: C.surface });
+    });
+
+    text(ctx, m < 0.5 ? 'measured from outside: a line that hardly tilts'
+      : 'measured from Earth: the same line, crossing zero',
+      10, 16, { font: handS, color: m < 0.5 ? C.muted : C['sun-ink'], halo: true });
+    text(ctx, `millionths of a metre per second squared${m > 0.5 ? `, axis shrunk ×${(H0 / H1).toFixed(0)}` : ''}`,
+      x0 - 6, y0 - 8, { font, color: C.muted, align: 'left' });
+  }
+
+  // ---------- 3. the same switch, as arrows ----------
+  // The frame swings from outside to Earth's centre: the shared vector is taken off every arrow
+  // and the scale grows to suit what is left. The near arrows shorten and keep pointing at the
+  // moon; the far ones pass through nothing and come back out the other way.
+  const SAMP = [];
+  for (let k = 0; k < 16; k++) SAMP.push([cosd(k * 22.5), sind(k * 22.5)]);
+  function drawField() {
+    const { ctx, w, h } = cv.field;
+    if (!w) return;
+    const small = w < 480;
+    ctx.clearRect(0, 0, w, h);
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const m = state.m;
+
+    const R = Math.min(w * 0.19, h * 0.30);
+    const cx = w * 0.42, cy = h * 0.53;
+    const vecAt = ([px, py]) => {
+      const X = DM - px * RE, Y = -py * RE;
+      const d = Math.hypot(X, Y), a = G * MM / (d * d);
+      return [a * X / d, a * Y / d];
+    };
+    const aC = pullAt(DM);
+    const shared = [aC, 0];
+    const vecs = SAMP.map(p => vecAt(p));
+    const rest = vecs.map(v => [v[0] - shared[0], v[1] - shared[1]]);
+    const maxRest = Math.max(...rest.map(v => Math.hypot(v[0], v[1])));
+    const sPull = (R * 0.52) / aC;                    // arrows at the scale of the whole pull
+    const sRest = (R * 0.42) / maxRest;               // and at the scale of what survives
+    // the subtraction and the zoom happen together, so nothing ever vanishes on the way
+    const scale = Math.exp(Math.log(sPull) * (1 - m) + Math.log(sRest) * m);
+    const took = m;
+
+    // the moon's direction
+    const mx = w - (small ? 20 : 26);
+    moonAt(ctx, mx, cy, small ? 8 : 10);
+    ctx.save();
+    ctx.setLineDash([3, 5]); ctx.strokeStyle = C.moon; ctx.lineWidth = 1; ctx.globalAlpha = .55;
+    line(ctx, cx + R * 1.9, cy, mx - (small ? 13 : 16), cy);
+    ctx.restore();
+
+    // the water this field would raise, once there is something left to raise it
+    if (m > 0.45) {
+      const k = 0.26 * (m - 0.45) / 0.55;
+      const pts = [];
+      for (let a = 0; a <= 360; a += 4) pts.push([cx + cosd(a) * (1 + 2 * k) * R, cy - sind(a) * (1 - k) * R]);
+      poly(ctx, pts); ctx.closePath();
+      ctx.fillStyle = C['sea-fill']; ctx.fill();
+      ctx.strokeStyle = C.sea; ctx.lineWidth = 1.6; ctx.stroke();
+    }
+    earthBody(ctx, cx, cy, R);
+
+    SAMP.forEach((p, j) => {
+      const px = cx + p[0] * R, py = cy - p[1] * R;
+      const v = [vecs[j][0] - took * shared[0], vecs[j][1] - took * shared[1]];
+      const dx = v[0] * scale, dy = -v[1] * scale;
+      ctx.strokeStyle = C.pull; ctx.fillStyle = C.pull; ctx.lineWidth = 2;
+      arrow(ctx, px, py, dx, dy, 5.5);
+    });
+
+    // the arrow being taken away, drawn at Earth's centre where it belongs
+    ctx.save();
+    ctx.globalAlpha = 1 - m * 0.75;
+    ctx.strokeStyle = C.ghost; ctx.fillStyle = C.ghost; ctx.lineWidth = 2.5;
+    arrow(ctx, cx, cy, aC * scale * (1 - m), 0, 6);
+    ctx.restore();
+    if (m < 0.6) text(ctx, small ? 'what Earth gets' : 'what Earth as a whole gets',
+      cx + aC * scale * (1 - m) * 0.5, cy - (small ? 8 : 10),
+      { font: uiFont, color: C.muted, align: 'center', halo: true });
+
+    // the three readings again, on the arrows they belong to
+    if (m < 0.45) {
+      ctx.globalAlpha = 1 - m / 0.45;
+      [[0, 1], [8, -1]].forEach(([j, sgn]) => {
+        const q = SAMP[j];
+        text(ctx, uM(Math.hypot(vecs[j][0], vecs[j][1])),
+          cx + q[0] * (R + (sgn > 0 ? aC * scale + 10 : 10)), cy - q[1] * R - 8,
+          { font: uiFont, color: C.pull, align: sgn > 0 ? 'left' : 'right', halo: true });
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    // and where that pushes water, once it is the only thing left
+    if (m > 0.7) {
+      ctx.save();
+      ctx.globalAlpha = (m - 0.7) / 0.3 * 0.9;
+      ctx.strokeStyle = C.sea; ctx.fillStyle = C.sea; ctx.lineWidth = 1.6;
+      [40, 140, 220, 320].forEach(a => {
+        const rr = R * 1.06, sweep = a < 180 ? -16 : 16;
+        const bx = cx + cosd(a) * rr, by = cy - sind(a) * rr;
+        const tx = cx + cosd(a + sweep) * rr, ty = cy - sind(a + sweep) * rr;
+        arrow(ctx, bx, by, tx - bx, ty - by, 5);
+      });
+      ctx.restore();
+    }
+
+    text(ctx, m < 0.5 ? 'from outside: sixteen arrows, all pointing the same way'
+      : 'from Earth: the far side has turned round',
+      10, 22, { font: handS, color: m < 0.5 ? C.muted : C['sun-ink'], halo: true });
+    text(ctx, m < 0.5 ? 'the longest is three per cent longer than the shortest'
+      : `what is left, drawn ×${(sRest / sPull).toFixed(0)} larger so you can see it`,
+      10, 40, { font: uiFont, color: C.muted, halo: true });
+    if (m > 0.8) {
+      text(ctx, 'sideways, along the surface, for hours', 10, h - 12,
+        { font: handS, color: C.sea, halo: true });
+    }
+  }
+
+  // ---------- text and inputs ----------
+  function updateText() {
+    const f = fallState(state.hours);
+    const near = f.par[0], far = f.par[4];
+    const stretch = near[0] - f.mid[0], lag = f.mid[0] - far[0];
+    $('pNear').textContent = `${uM(pullAt(DM - RE))} µm/s²`;
+    $('pMid').textContent = `${uM(pullAt(DM))} µm/s²`;
+    $('pFar').textContent = `${uM(pullAt(DM + RE))} µm/s²`;
+    $('rMid').textContent = km(f.mid[0]);
+    $('rNear').textContent = state.hours < 0.05 ? '–' : km(stretch);
+    $('rFar').textContent = state.hours < 0.05 ? '–' : km(lag);
+    $('hoursOut').textContent = state.hours < 1
+      ? `${(state.hours * 60).toFixed(0)} minutes`
+      : `${state.hours.toFixed(1)} hours`;
+    $('rSum').textContent = state.hours < 0.05
+      ? 'Three pulls, three per cent apart, and nothing has moved yet. Let it fall.'
+      : `After ${state.hours.toFixed(1)} hours the near water has covered ${km(near[0])}, Earth's centre ${km(f.mid[0])} and the far water ${km(far[0])}. `
+      + `Both ends now stand proud of Earth — the near one because it won the race, the far one because it lost. `
+      + `The other ${km(f.mid[0])} is motion everything shares, and shared motion is felt by nobody.`;
+    els.race.setAttribute('aria-label', `Earth and eight water parcels after ${state.hours.toFixed(1)} hours of free fall towards the moon.`);
+    els.gradient.setAttribute('aria-label', state.mTo < 0.5
+      ? "The moon's pull across Earth, plotted from outside: nearly flat, far above zero."
+      : "The same pull measured from Earth's centre: a line crossing zero, positive on the near side and negative on the far side.");
+    els.field.setAttribute('aria-label', state.mTo < 0.5
+      ? "The moon's pull as sixteen arrows, all pointing at the moon."
+      : 'The same pull from Earth\u2019s frame: the far-side arrows point away from the moon.');
+    $('viewOut').setAttribute('aria-pressed', state.view === 'outside');
+    $('viewEarth').setAttribute('aria-pressed', state.view === 'earth');
+    $('frameOut').setAttribute('aria-pressed', state.mTo < 0.5);
+    $('frameEarth').setAttribute('aria-pressed', state.mTo >= 0.5);
+    if (Number($('hours').value) !== state.hours) $('hours').value = state.hours;
+  }
+
+  const DRAWERS = { race: drawRace, gradient: drawGradient, field: drawField };
+  const seen = { race: true, gradient: true, field: true };
+  const drawOne = k => { if (cv[k].w) DRAWERS[k](); };
+  const drawAll = () => Object.keys(DRAWERS).forEach(k => { if (seen[k]) drawOne(k); });
+
+  let raf = 0, last = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const dt = last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    let busy = false;
+    if (state.play) {
+      state.hours += dt * 3.2;
+      if (state.hours >= MAXH) { state.hours = MAXH; setPlay(false); }
+      busy = state.play;
+    }
+    if (Math.abs(state.m - state.mTo) > 0.002) {
+      state.m += (state.mTo - state.m) * Math.min(dt * 3.2, 1);
+      busy = true;
+    } else state.m = state.mTo;
+    last = busy ? ts : 0;
+    updateText(); drawAll();
+    if (busy) render();
+  }
+  function setPlay(on) {
+    if (state.play === on) return;
+    state.play = on;
+    $('play').setAttribute('aria-pressed', on);
+    $('play').textContent = on ? 'Pause' : 'Let them fall';
+    render();
+  }
+  $('play').addEventListener('click', () => {
+    if (!state.play && state.hours >= MAXH - 0.01) state.hours = 0;
+    setPlay(!state.play);
+  });
+  $('reset').addEventListener('click', () => { setPlay(false); state.hours = 0; render(); });
+  $('hours').addEventListener('input', e => { setPlay(false); state.hours = Number(e.target.value); render(); });
+  $('viewOut').addEventListener('click', () => { state.view = 'outside'; render(); });
+  $('viewEarth').addEventListener('click', () => { state.view = 'earth'; render(); });
+  $('frameOut').addEventListener('click', () => { state.mTo = 0; render(); });
+  $('frameEarth').addEventListener('click', () => { state.mTo = 1; render(); });
+
+  readColors();
+  const ro = new ResizeObserver(() => { Object.values(cv).forEach(fit); drawAll(); });
+  Object.values(els).forEach(el => ro.observe(el));
+  if (window.IntersectionObserver) {
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      const k = e.target.id, was = seen[k];
+      seen[k] = e.isIntersecting;
+      if (!was && e.isIntersecting) drawOne(k);
+    }), { rootMargin: '150px 0px' });
+    Object.values(els).forEach(el => io.observe(el));
+  }
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
