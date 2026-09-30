@@ -2,5 +2,5 @@
 title: Tides
 topic: The Moon
 order: 30
-summary: "How the moon and the sun pull together or against each other through the month, why there is a bulge on the far side of Earth too, and why some coasts get only one tide a day."
+summary: "Turning underneath the bulges. Why high water comes 12 hours 25 minutes apart and fifty minutes later each day, why the moon being off the equator makes one of your two highs bigger than the other, and where the second one vanishes altogether."
 ---
