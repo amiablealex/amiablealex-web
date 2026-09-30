@@ -118,7 +118,7 @@ a { color: var(--sun-ink); }
 
   <figure>
     <h2>Turning once per lap</h2>
-    <p class="hint">Eight snapshots around one orbit, each showing which way the moon faces. The dark patch is one lunar sea, to give it a front.</p>
+    <p class="hint">Eight snapshots around one orbit, each showing which way the moon faces. The dark patch is one lunar sea, to give it a front. Switch the orbit to Mercury's and the path itself goes lopsided, with the moon hurrying through its closest approach — which is where nearly all of the twist gets delivered.</p>
     <canvas id="orbit" role="img" aria-label="The moon orbiting Earth at a chosen spin rate"></canvas>
   </figure>
 
@@ -143,13 +143,21 @@ a { color: var(--sun-ink); }
       <div class="chips" role="group" aria-label="Spin presets">
         <button class="chip" data-spin="0">Not turning at all</button>
         <button class="chip" data-spin="1">Once per orbit</button>
-        <button class="chip" data-spin="1.5">Mercury's 3:2</button>
+        <button class="chip" data-spin="1.5">One and a half turns</button>
         <button class="chip" data-spin="2.4">Too fast</button>
       </div>
     </div>
     <div class="ctl">
       <label for="phase">Where it is in its orbit <output id="phaseOut" for="phase"></output></label>
       <input type="range" id="phase" min="0" max="27.55" step="0.05">
+    </div>
+    <div class="ctl">
+      <label>The shape of the orbit</label>
+      <div class="chips" role="group" aria-label="Orbit shape">
+        <button class="chip ecc-off" aria-pressed="true">Near-circular, like the moon's</button>
+        <button class="chip ecc-on" aria-pressed="false">Lopsided, like Mercury's</button>
+      </div>
+      <p class="hint sub">A lopsided orbit changes where the moon can settle. It is the same control as the one under the twist curve further down.</p>
     </div>
   </section>
 
@@ -169,8 +177,8 @@ a { color: var(--sun-ink); }
     <div class="ctl">
       <label>The shape of the orbit</label>
       <div class="chips" role="group" aria-label="Orbit shape">
-        <button class="chip" id="eccOff" aria-pressed="true">Near-circular, like the moon's</button>
-        <button class="chip" id="eccOn" aria-pressed="false">Lopsided, like Mercury's</button>
+        <button class="chip ecc-off" aria-pressed="true">Near-circular, like the moon's</button>
+        <button class="chip ecc-on" aria-pressed="false">Lopsided, like Mercury's</button>
       </div>
       <p class="hint sub">With the tides acting, the lopsided case catches the moon at the first of those rates it comes down to, rather than carrying it all the way to one turn per orbit.</p>
     </div>
@@ -227,7 +235,7 @@ a { color: var(--sun-ink); }
     <p>One caveat to all that inevitability. Mercury turns three times for every two orbits rather than once per orbit, and the reason is its lopsided path around the sun. Tidal torque falls off as the cube of distance, so almost all of it is delivered in the short stretch around closest approach, and what matters is the spin rate there rather than the average. On an orbit as eccentric as Mercury's, three turns per two orbits is stable too: it presents the same face to the sun at every other perihelion. Set the spin control to 1.5 and you can watch that pattern repeat every second lap. So the target is not always exactly one turn per orbit: what is always true is that there is a target, and that tides deliver you to it.</p>
 
     <h2>The wobble in the lock</h2>
-    <p>The lock is only exact on average. The moon turns at a perfectly steady rate but it does not orbit at a steady rate: like everything on an ellipse it hurries at perigee and dawdles at apogee. Its spin cannot hurry to match, so the face it presents rocks east and west by about six degrees over a month and we peer a little way around each limb in turn. Its spin axis is also tilted nearly seven degrees to its orbit, so we see alternately over the north pole and the south. The map panel adds those up and lands near 58% of the surface ever visible, against 50% for a perfect lock. The usual quoted figure is 59%, the extra coming from the moon's own slight physical wobble and from Earth being 12,700 km across, so that an observer watching the moon rise and one watching it set are looking from measurably different angles.</p>
+    <p>The lock is only exact on average. The moon turns at a perfectly steady rate but it does not orbit at a steady rate: like everything on an ellipse it hurries at perigee and dawdles at apogee. Its spin cannot hurry to match, so the face it presents rocks east and west by about six degrees over a month and we peer a little way around each limb in turn. Its spin axis is also tilted nearly seven degrees to its orbit, so we see alternately over the north pole and the south. The map panel adds those up and lands near 58% of the surface ever visible, against 50% for a perfect lock. Those figures belong to our own near-circular orbit; switch the orbit to Mercury's and the east–west rocking grows to about 24 degrees, which alone lifts the visible fraction to around 67%. The usual quoted figure is 59%, the extra coming from the moon's own slight physical wobble and from Earth being 12,700 km across, so that an observer watching the moon rise and one watching it set are looking from measurably different angles.</p>
 
     <h2>It is happening to us, just slowly</h2>
     <p>The moon is doing to Earth exactly what Earth did to the moon, and it is winning slowly. Our tidal bulge is dragged ahead of the moon by our fast rotation, the moon pulls back on it, and our spin bleeds away at about 1.7 milliseconds per century. That angular momentum is not destroyed. The same off-axis bulge pulls the moon forwards along its orbit, which lifts it into a wider one, and the retroreflectors left by Apollo let us measure the retreat directly: 3.8 cm a year.</p>
@@ -248,7 +256,10 @@ a { color: var(--sun-ink); }
 
   // ---------- the system ----------
   const G = 6.674e-11, ME = 5.972e24, MM = 7.342e22, RE = 6.371e6, RM = 1.7374e6;
-  const ECC = 0.0549, MONTH = 27.5545, DRAC = 27.2122, OBLIQ = 6.69;
+  // Our moon's orbit, and Mercury's, which is the whole reason Mercury did something else
+  const ECC_ROUND = 0.0549, ECC_LOP = 0.2056;
+  const ECC = () => state.ecc ? ECC_LOP : ECC_ROUND;
+  const MONTH = 27.5545, DRAC = 27.2122, OBLIQ = 6.69;
   const I_E = 0.3307 * ME * RE * RE, MU = ME * MM / (ME + MM), GMT = G * (ME + MM);
   const A0 = 3.844e8, W0 = 7.29212e-5;
   const LTOT = I_E * W0 + MU * Math.sqrt(GMT * A0);
@@ -269,8 +280,9 @@ a { color: var(--sun-ink); }
   function trueAnom(Mdeg) {
     const M = (((Mdeg % 360) + 360) % 360) * DEG;
     let E = M;
-    for (let i = 0; i < 6; i++) E -= (E - ECC * Math.sin(E) - M) / (1 - ECC * Math.cos(E));
-    return 2 * Math.atan2(Math.sqrt(1 + ECC) * Math.sin(E / 2), Math.sqrt(1 - ECC) * Math.cos(E / 2)) / DEG;
+    const e = ECC();
+    for (let i = 0; i < 6; i++) E -= (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+    return 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2)) / DEG;
   }
   const meanAnom = d => 360 * d / MONTH;
   // the day count since the start, orbits included: rotation has to be continuous across a lap
@@ -282,7 +294,7 @@ a { color: var(--sun-ink); }
     const Mn = meanAnom(state.phase);
     return ((trueAnom(Mn) - state.rot) % 360 + 540) % 360 - 180;
   };
-  const radius = nu => (1 - ECC * ECC) / (1 + ECC * cosd(nu));
+  const radius = nu => { const e = ECC(); return (1 - e * e) / (1 + e * cosd(nu)); };
   // which lunar longitude faces Earth: where it is in its orbit, minus how far it has turned
   const subEarthLon = d => {
     const M = meanAnom(d);
@@ -375,13 +387,29 @@ a { color: var(--sun-ink); }
     ctx.beginPath(); ctx.arc(cx, cy, small ? 10 : 13, 0, 2 * Math.PI);
     ctx.fillStyle = C.earth; ctx.fill();
     text(ctx, 'Earth', cx, cy + (small ? 25 : 29), { font: uiFont, color: C.earth, align: 'center', halo: true });
+    // on a lopsided orbit the closest point is where nearly all the twist gets delivered, so mark it
+    if (state.ecc) {
+      const hx = cx + radius(0) * R;
+      ctx.save(); ctx.setLineDash([2, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+      line(ctx, cx, cy, hx, cy); ctx.restore();
+      text(ctx, 'closest approach', Math.min(hx, w - 8), cy + (small ? 30 : 34),
+        { font: uiFont, color: C.muted, align: 'center', halo: true });
+    }
 
     const rm = small ? 12 : 15;
+    const Mnow = meanAnom(state.phase);
     for (let k = 0; k < 8; k++) {
-      const M = 360 * k / 8, nu = trueAnom(M);
-      const [px, py] = P(nu);
-      ctx.save(); ctx.globalAlpha = .5;
-      moonFace(ctx, px, py, rm, state.rot + state.spin * (M - meanAnom(state.phase)) + 180);
+      const M = 360 * k / 8;
+      // How far the moon still has to travel to reach this mark, always counted forwards. Taking
+      // the difference raw meant every heading jumped by a whole lap's worth of turning at the
+      // end of each month, which is only invisible when the spin is a whole number. Counted this
+      // way the jump happens as the moon passes a mark, where the live one is covering it.
+      const dM = (((M - Mnow) % 360) + 360) % 360;
+      const a = 0.5 * clamp(Math.min(dM, 360 - dM) / 24, 0, 1);
+      if (a <= 0.01) continue;
+      const [px, py] = P(trueAnom(M));
+      ctx.save(); ctx.globalAlpha = a;
+      moonFace(ctx, px, py, rm, state.rot + state.spin * dM + 180);
       ctx.restore();
     }
     const M = meanAnom(state.phase), nu = trueAnom(M);
@@ -410,9 +438,13 @@ a { color: var(--sun-ink); }
     text(ctx, Math.abs(lon) < 90 ? 'the near side' : 'the far side', Math.min(ix, w - 8), iy + insetR + 15,
       { font: uiFont, color: C.muted, align: 'center', halo: true });
 
-    const same = Math.abs(state.spin - 1) < 0.02;
-    text(ctx, same ? 'the same face, all the way round' : `turning ${state.spin.toFixed(2)}× per lap`,
-      10, h - 12, { font: handS, color: same ? C['sun-ink'] : C.muted, halo: true });
+    // A settled 1.50 turns per lap is an answer, not a stall, so say which lock it is
+    const at = lockedAt();
+    text(ctx, at === null ? `turning ${state.spin.toFixed(2)}× per lap`
+      : `locked ${RATIO[at] || at} — ${lockWords(at)}`,
+      10, h - 12, { font: handS, color: at === null ? C.muted : C['sun-ink'], halo: true });
+    if (at !== null && state.tides) text(ctx, 'the tides have nothing left to pull on', 10, h - 32,
+      { font: uiFont, color: C.muted, halo: true });
   }
 
   // ---------- 2. the bulge, dragged out of line ----------
@@ -535,6 +567,17 @@ a { color: var(--sun-ink); }
     return REST.val;
   }
   const RATIO = { 1: '1:1', 1.5: '3:2', 2: '2:1', 2.5: '5:2', 3: '3:1' };
+  // Which resting rate this moon is sitting at, if any. One turn per orbit also needs the face
+  // to have come round, since the rate passes through 1 on its way there; the others fix a rate
+  // and not a face, so arriving is all there is to it.
+  function lockedAt() {
+    const at = restRates().find(r => Math.abs(state.spin - r) < 0.02);
+    if (at === undefined) return null;
+    if (at === 1 && Math.abs(wrap360(state.rot - meanAnom(state.phase))) > 3) return null;
+    return at;
+  }
+  const lockWords = at => at === 1 ? 'the same face, all the way round'
+    : `the same face at every ${at % 1 ? 'second ' : ''}closest approach`;
   const ATT_PAD = { L: 16, R: 12, T: 16, B: 30 };
   function drawAttract() {
     const { ctx, w, h } = cv.attract;
@@ -613,21 +656,22 @@ a { color: var(--sun-ink); }
   // second half of that depends on the spin. So the expensive part — solving Kepler and the
   // latitude wobble at every step — is done once for good, and changing the spin rate costs a
   // subtraction per point.
-  let TRACK0 = null;
+  let TRACK0 = { key: null, val: null };
   function trackBase() {
-    if (TRACK0) return TRACK0;
+    const key = state.ecc ? 'lopsided' : 'round';          // the shape changes the whole track
+    if (TRACK0.key === key) return TRACK0.val;
     const M = [], nu = [], la = [], tanLat = [];
     for (let d = 0; d < 2800; d += 4) {
       const m = meanAnom(d), b = subEarthLat(d);
       M.push(m); nu.push(trueAnom(m)); la.push(b); tanLat.push(Math.tan(b * DEG));
     }
-    TRACK0 = { M, nu, la, tanLat };
-    return TRACK0;
+    TRACK0 = { key, val: { M, nu, la, tanLat } };
+    return TRACK0.val;
   }
   // the map depends only on the spin rate, so work it out once per rate
   let LIB_CACHE = { key: null, val: null };
   function libData() {
-    const key = state.spin.toFixed(4);
+    const key = (state.ecc ? 'e' : 'c') + state.spin.toFixed(4);
     if (LIB_CACHE.key === key) return LIB_CACHE.val;
     const B = trackBase(), tanLat = B.tanLat, track = [];
     for (let k = 0; k < B.M.length; k++) {
@@ -816,13 +860,13 @@ a { color: var(--sun-ink); }
   const chipsDist = [...document.querySelectorAll('[data-dist]')];
 
   function updateText() {
-    const same = Math.abs(state.spin - 1) < 0.02;
     const lon = liveLon();
     const tw = twistOf(state.spin);
-    const atRest = restRates().find(r => Math.abs(state.spin - r) < 0.02);
+    const at = lockedAt(), same = at === 1;
     $('rFace').textContent = same ? 'the same side, always'
-      : Math.abs(state.spin) < 0.02 ? 'every side, once a month'
-        : `every side, every ${(MONTH / Math.abs(state.spin - 1)).toFixed(1)} days`;
+      : at !== null ? lockWords(at)
+        : Math.abs(state.spin) < 0.02 ? 'every side, once a month'
+          : `every side, every ${(MONTH / Math.abs(state.spin - 1)).toFixed(1)} days`;
     $('rSpin').textContent = state.spin < 0.005 ? 'not turning'
       : `${(MONTH / state.spin).toFixed(2)} d : ${MONTH.toFixed(2)} d`;
     $('rTide').textContent = `${TIDE_RATIO.toFixed(0)}× ours`;
@@ -834,12 +878,14 @@ a { color: var(--sun-ink); }
     $('distOut').textContent = `${state.dist.toFixed(1)} Earth radii, ${Math.round(state.dist * 6371).toLocaleString('en-GB')} km`;
     $('rSum').textContent = same
       ? `Turning once per orbit, the moon shows Earth the same face for ever, give or take the ${Math.abs(lon).toFixed(1)}° of east–west rocking it happens to be at today.`
-      : atRest !== undefined
-        ? `At ${state.spin.toFixed(2)} turns per orbit this moon is held in a ${RATIO[atRest] || 'resonance'} lock: it comes back to the same face at the same point in its orbit ${atRest % 1 ? 'every second lap' : 'every lap'}, rather than holding one face all the time.`
+      : at !== null
+        ? `At ${state.spin.toFixed(2)} turns per orbit this moon is held in a ${RATIO[at] || 'resonance'} lock: on an orbit this lopsided that is a resting place too. It shows Earth the same face ${at % 1 ? 'every second time' : 'every time'} it swings through its closest approach, which is where nearly all the twist is delivered.`
         : tw < 0
           ? `At ${state.spin.toFixed(2)} turns per orbit the bulge keeps being carried past the line to Earth, and Earth keeps pulling it back. This spin is being eaten away.`
           : `At ${state.spin.toFixed(2)} turns per orbit the bulge trails behind the line to Earth, and Earth's pull hurries it along. This spin is being wound up.`;
-    els.orbit.setAttribute('aria-label', `The moon turning ${state.spin.toFixed(2)} times per orbit.`);
+    els.orbit.setAttribute('aria-label', at === null
+      ? `The moon turning ${state.spin.toFixed(2)} times per orbit.`
+      : `The moon locked ${RATIO[at] || at}: ${lockWords(at)}.`);
     els.torque.setAttribute('aria-label', 'Tidal bulges dragged out of line, and the resulting twists.');
     els.attract.setAttribute('aria-label', `The twist against spin rate: at ${state.spin.toFixed(2)} turns per orbit it is ${Math.abs(tw) < 0.02 ? 'zero' : tw < 0 ? 'braking' : 'accelerating'}.`);
     els.lib.setAttribute('aria-label', `A map of the moon: ${libData().seen.toFixed(0)} per cent is ever visible from Earth.`);
@@ -864,14 +910,19 @@ a { color: var(--sun-ink); }
   // and it only has anything to hold once the rate is nearly right, so it fades out smoothly
   // rather than switching — a hard boundary leaves the spin chattering across it. Kept gentle
   // enough that the spin eases in rather than ringing.
-  const TIDE_RATE = 2.6, ALIGN = 2.4, ALIGN_W = 0.25;
+  // Two independent clocks. ORBIT_RATE is how fast the animation runs; DESPIN is how fast the
+  // tide eats the spin. Their ratio decides how many turns a fast moon gets through before it is
+  // brought to heel, and at the old pairing it managed a quarter of one. ALIGN is the permanent
+  // figure bringing the face round, and it needs its own constant rather than riding on DESPIN,
+  // or slowing the opening would drag out the ending with it.
+  const ORBIT_RATE = 5, DESPIN = 0.45, ALIGN = 0.8, ALIGN_W = 0.35;
   let raf = 0, last = 0;
   function render() { if (!raf) raf = requestAnimationFrame(frame); }
   function frame(ts) {
     raf = 0;
     const dt = state.play && last ? Math.min((ts - last) / 1000, 0.1) : 0;
     if (state.play) {
-      const step = dt * 4;
+      const step = dt * ORBIT_RATE;
       spinBy(meanAnom(step));
       state.phase += step;
       while (state.phase >= MONTH) { state.phase -= MONTH; state.turns++; }
@@ -886,8 +937,8 @@ a { color: var(--sun-ink); }
         const rest = restRates();
         const target = rest.reduce((a, b) => Math.abs(b - state.spin) < Math.abs(a - state.spin) ? b : a);
         const grip = target === 1 ? Math.exp(-Math.pow((state.spin - 1) / ALIGN_W, 2)) : 0;
-        const pull = twistOf(state.spin) - ALIGN * grip * sind(off);
-        state.spin = clamp(state.spin + pull * dt * TIDE_RATE, 0, 3);
+        const pull = twistOf(state.spin) * DESPIN - ALIGN * grip * sind(off);
+        state.spin = clamp(state.spin + pull * dt, 0, 3);
         if (Math.abs(state.spin - 1) < 0.004 && Math.abs(off) < 1.5) {
           state.spin = 1;
           state.rot -= off;                                       // and there it stays
@@ -916,14 +967,16 @@ a { color: var(--sun-ink); }
   // a latch, not a one-shot: once it is on, moving the spin sets a new starting rate and the
   // tides take it from there, which is the whole claim of the page made available in one drag
   $('settle').addEventListener('click', () => setTides(!state.tides));
-  [['eccOff', false], ['eccOn', true]].forEach(([id, on]) => {
-    $(id).addEventListener('click', () => {
-      state.ecc = on;
-      $('eccOff').setAttribute('aria-pressed', !on);
-      $('eccOn').setAttribute('aria-pressed', on);
-      render();
-    });
-  });
+  const chipsEcc = [[...document.querySelectorAll('.ecc-off')], [...document.querySelectorAll('.ecc-on')]];
+  function setEcc(on) {
+    if (state.ecc === on) return;
+    state.ecc = on;
+    chipsEcc[0].forEach(b => b.setAttribute('aria-pressed', !on));
+    chipsEcc[1].forEach(b => b.setAttribute('aria-pressed', on));
+    render();
+  }
+  chipsEcc[0].forEach(b => b.addEventListener('click', () => setEcc(false)));
+  chipsEcc[1].forEach(b => b.addEventListener('click', () => setEcc(true)));
   inputs.spin.addEventListener('input', e => {
     state.spin = Number(e.target.value);
     state.rot = state.spin * meanAnom(state.phase);
