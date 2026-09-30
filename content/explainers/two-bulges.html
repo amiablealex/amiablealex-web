@@ -351,7 +351,8 @@ a { color: var(--sun-ink); }
       const lab = (j, sgn) => {
         const q = PTS[j];
         const d = Math.hypot(DM - q[0] * RE, q[1] * RE);
-        const x = org[0] + q[0] * R + f.par[j][0] * s;
+        // startX, not org: org already carries the centre's fall, and the parcel carries its own
+        const x = startX + q[0] * R + f.par[j][0] * s;
         text(ctx, uM(pullAt(d)), x + sgn * (small ? 9 : 12), cy - (small ? 12 : 15),
           { font: uiFont, color: C.pull, align: sgn > 0 ? 'left' : 'right', halo: true });
       };
