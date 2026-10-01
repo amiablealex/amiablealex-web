@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The moon's eighteen-year swing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F3; --surface: #E1E7EA; --ink: #1C2932; --muted: #55636C; --rule: #C4CED4;
+  --sun: #B87200; --sun-ink: #8A5600; --sun-bright: #EBA21B; --on-sun: #1C2932;
+  --sun-fill: rgba(235, 162, 27, .20); --sun-glow: rgba(235, 162, 27, .30);
+  --moon: #5C7085; --moon-ink: #41566B; --moon-lit: #F2F6FA; --moon-dark: #BFCAD5;
+  --moon-fill: rgba(92, 112, 133, .16);
+  --sky: rgba(104, 146, 184, .13); --plane: rgba(92, 112, 133, .10);
+  --ground: rgba(98, 112, 64, .16); --horizon: #4B5731; --land: rgba(98, 112, 64, .22);
+  --ghost: #7A8892; --faint: #9AA6AE;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+    --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+    --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+    --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+    --moon-fill: rgba(168, 187, 208, .13);
+    --sky: rgba(120, 164, 210, .12); --plane: rgba(150, 175, 205, .09);
+    --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C; --land: rgba(122, 142, 82, .20);
+    --ghost: #72838F; --faint: #4E5D69;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101923; --surface: #18232F; --ink: #E1E7EB; --muted: #95A3AD; --rule: #2B3946;
+  --sun: #F2B544; --sun-ink: #F6C467; --sun-bright: #F7C35A; --on-sun: #101923;
+  --sun-fill: rgba(242, 181, 68, .16); --sun-glow: rgba(242, 181, 68, .26);
+  --moon: #A8BBD0; --moon-ink: #C3D2E2; --moon-lit: #DCE6F0; --moon-dark: #38485A;
+  --moon-fill: rgba(168, 187, 208, .13);
+  --sky: rgba(120, 164, 210, .12); --plane: rgba(150, 175, 205, .09);
+  --ground: rgba(122, 142, 82, .15); --horizon: #A9B97C; --land: rgba(122, 142, 82, .20);
+  --ghost: #72838F; --faint: #4E5D69;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.5;
+  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 20px 18px 56px; }
+h1 {
+  font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  font-weight: 600; font-size: clamp(2.6rem, 9vw, 3.6rem); line-height: .95; margin: .15em 0 .2em;
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 0 0 14px; }
+h2 { font-size: 1.05rem; margin: 0 0 2px; }
+figure { margin: 0; }
+canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+#sphere { aspect-ratio: 6 / 5; cursor: grab; }
+#sphere:active, #dome:active { cursor: grabbing; }
+#waves { aspect-ratio: 5 / 3; }
+#dome { aspect-ratio: 3 / 2; cursor: grab; }
+#stand { aspect-ratio: 5 / 3; cursor: ew-resize; }
+@media (min-width: 640px) {
+  #sphere { aspect-ratio: 16 / 10; }
+  #waves { aspect-ratio: 16 / 7; }
+  #dome { aspect-ratio: 2 / 1; }
+  #stand { aspect-ratio: 16 / 6; }
+}
+.readout {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  margin: 12px 0 0; padding: 12px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+@media (min-width: 640px) { .readout { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.readout div { min-width: 0; }
+.readout dt { font-size: .82rem; color: var(--muted); }
+.readout dd { margin: 0; font-size: 1.12rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.readout .key dd { color: var(--sun-ink); }
+.sum { margin: 10px 0 0; padding: 10px 12px; background: var(--surface); border-radius: 10px; font-size: 1rem; }
+.controls { margin-top: 16px; }
+.play { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.btn {
+  font: inherit; font-weight: 700; min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1.5px solid var(--sun); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn[aria-pressed="true"] { background: var(--sun-bright); border-color: var(--sun-bright); color: var(--on-sun); }
+.ctl { padding: 12px 0 10px; border-bottom: 1px solid var(--rule); }
+.ctl:last-child { border-bottom: 0; }
+.ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.ctl output { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+input[type="range"] { width: 100%; height: 30px; margin: 6px 0 2px; accent-color: var(--sun); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  font: inherit; font-size: .86rem; min-height: 34px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip[aria-pressed="true"] { border-color: var(--sun); box-shadow: inset 0 0 0 1px var(--sun); }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: .88rem; margin: 0 0 6px; }
+.block { margin-top: 28px; }
+.notes { margin-top: 32px; }
+.notes h2 { margin-top: 22px; }
+.notes p { max-width: 64ch; margin: 0 0 10px; }
+.notes .small { color: var(--muted); font-size: .92rem; }
+a { color: var(--sun-ink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>The moon's eighteen-year swing</h1>
+    <p class="lede">Every month the moon swings north of the equator and back south, the way the sun does over a year. How far it swings is not fixed. Over 18.6 years its reach grows to 28.6 degrees, further than the sun ever goes, then shrinks to 18.3, well short of it. The two ends are the major and minor lunar standstills, and they come from two tilts taking turns to add and cancel: Earth's 23.4 degrees, and the moon's own five.</p>
+  </header>
+
+  <figure>
+    <h2>Two tilts, one path</h2>
+    <p class="hint">Earth in the middle, the sky around it. The flat disc is Earth's equator carried out onto the sky; the amber ring is the ecliptic, the sun's road, tilted 23.4° to it; the moon's path is tilted another 5.1° from the ecliptic. Drag sideways to turn it round.</p>
+    <canvas id="sphere" role="img" aria-label="The equator, the ecliptic and the moon's tilted path drawn on the sky around Earth"></canvas>
+  </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>The moon's path reaches</dt><dd id="rReach">–</dd></div>
+    <div><dt>From Earth's tilt</dt><dd id="rEarth">–</dd></div>
+    <div><dt>From the moon's own tilt</dt><dd id="rMoon">–</dd></div>
+    <div><dt>The two high sides are</dt><dd id="rSides">–</dd></div>
+    <div><dt>Highest moon where you are</dt><dd id="rHigh">–</dd></div>
+    <div><dt>Next standstill</dt><dd id="rNext">–</dd></div>
+  </dl>
+  <p class="sum" id="rSum">–</p>
+
+  <section class="controls" aria-label="Controls">
+    <div class="play">
+      <button class="btn" id="playMonth" aria-pressed="false">Run the month</button>
+      <button class="btn" id="playCycle" aria-pressed="false">Run the cycle</button>
+      <button class="btn" id="toNext">Next standstill ▶</button>
+    </div>
+    <div class="ctl">
+      <label for="when">When <output id="whenOut" for="when"></output></label>
+      <input type="range" id="when" step="1">
+      <div class="chips" role="group" aria-label="Date presets">
+        <button class="chip" id="chipToday">Today</button>
+        <button class="chip" data-event="major">Major standstill</button>
+        <button class="chip" data-event="mid">Nodes at the solstices</button>
+        <button class="chip" data-event="minor">Minor standstill</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="lat">Where you are standing <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="-80" max="80" step="0.1">
+      <div class="chips" role="group" aria-label="Latitude presets">
+        <button class="chip" data-lat="0">Equator</button>
+        <button class="chip" data-lat="53">UK 53° N</button>
+        <button class="chip" data-lat="58.2">Callanish 58° N</button>
+        <button class="chip" data-lat="69.6">Tromsø 70° N</button>
+      </div>
+    </div>
+  </section>
+
+  <figure class="block">
+    <h2>Two waves, added</h2>
+    <p class="hint">The same three circles unrolled, the way round the sky running left to right. The ecliptic makes one wave, the moon's extra tilt makes a smaller one, and the moon's path is the two added together. As the years pass, the small wave slides backwards through the big one.</p>
+    <canvas id="waves" role="img" aria-label="The ecliptic and the moon's tilt as two waves, and their sum"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>From the ground</h2>
+    <p class="hint">Your sky. The amber arcs are the sun on the longest and shortest days; the others are the moon at its highest and lowest this month, with today's moon in between. Drag sideways to walk round.</p>
+    <canvas id="dome" role="img" aria-label="Sky dome comparing the moon's highest and lowest arcs with the sun's"></canvas>
+  </figure>
+
+  <figure class="block">
+    <h2>Fifty years of it</h2>
+    <p class="hint">How far the moon reaches either side of the equator, from 1996 to 2046. Tap or drag to pick a year.</p>
+    <canvas id="stand" role="img" aria-label="The moon's reach over fifty years, with the standstills marked"></canvas>
+  </figure>
+
+  <section class="notes">
+    <h2>Two tilts, taking turns</h2>
+    <p>The moon's monthly path is the ecliptic with a five-degree tilt of its own laid on top. The ecliptic itself, the sun's road round the sky, is tilted 23.44 degrees to the equator, and that tilt has a fixed high side: the ecliptic climbs furthest north at the point the sun reaches in June, and sinks furthest south opposite it, at the December point. The moon's path is tilted 5.14 degrees to the ecliptic, so it has a high side too. The difference is that the moon's high side does not stay put. The tilt keeps its size but swings round, the way a plate wobbling on a table keeps the same slope while its highest edge walks round the rim.</p>
+    <p>Everything on this page comes down to where those two high sides are pointing. When they point the same way, the moon's path rides five degrees above the ecliptic exactly where the ecliptic is already highest, and the two stack: 23.44 + 5.14 = 28.6 degrees. That is a major standstill. Nine years on, the moon's high side has swung round to face the other way, its path runs five degrees below the ecliptic exactly where the ecliptic peaks, and the reach falls to 23.44 − 5.14 = 18.3. That is a minor one. Halfway between, with the high sides at right angles, the moon's tilt is spent lifting its path where the ecliptic is crossing the equator rather than where it peaks. The two tilts then combine like the sides of a right-angled triangle, and the reach is 24.0 degrees, not Earth's 23.4 alone.</p>
+    <p>The second panel is the plainest way to see it. Unroll the sky into a strip and the ecliptic becomes a wave 23.4 degrees high; the moon's extra tilt is a second, smaller wave added on top. Crest on crest and they add; crest on trough and they cancel. It is the same arithmetic as <a href="spring-neap.html">spring and neap tides</a>, run on a far slower clock.</p>
+
+    <h2>Why the high side goes round</h2>
+    <p>The moon's orbit is not left alone. The sun pulls on it, and because the orbit is tilted, that pull keeps trying to drag it flat into the ecliptic. A tilted, spinning thing pushed like that does not flatten: it swings sideways instead, like a top that leans and circles rather than falling over. So the tilt stays at five degrees while the line where the two planes cross, the line of nodes, creeps backwards round the sky, once every 18.61 years.</p>
+    <p>That is the same line of nodes that decides <a href="eclipse-seasons.html">eclipse seasons</a>. There it is measured against the sun, which comes round to it twice a year. Here it is measured against the fixed points of the ecliptic, the equinoxes and solstices, and it takes 18.6 years to get round them. Which is why the date barely matters on this page: the moon runs the whole ecliptic every month, so every month carries the full swing. What matters is the year.</p>
+    <p>The nodes' position decides the rest. With the node where the moon crosses northwards sitting at the March equinox point, the moon's highest stretch lands on the June point and the tilts add. With that node at the September point, they cancel. With the nodes at the solstices, you get the halfway case.</p>
+
+    <h2>Why it is called a standstill</h2>
+    <p>The sun's rising point creeps north along the horizon through spring, slows, stops for a few days around midsummer and turns back. That pause gave us the word solstice: the sun standing still. The moon does the same every month, swinging from its northernmost rising point to its southernmost and back in four weeks. And those monthly extremes have their own, far slower swing: year by year they push further out, or draw further in, as the nodes go round. Near the two ends of the cycle the change all but stops, and for a year or two the moon's furthest rising points sit in the same places month after month. Those are the standstills — the moon's solstices, on an eighteen-year clock.</p>
+
+    <h2>Higher than the sun, lower than the sun</h2>
+    <p>From the UK at 53 degrees north, the midsummer sun peaks at 60 degrees. During a major standstill the moon at its northern extreme climbs to 65.6, higher than the sun ever goes, and a fortnight later at its southern extreme it scrapes along at 8.4. Its rising point swings with it: further round to the north-east than any sunrise one week, further to the south-east than any sunrise the next. At a minor standstill everything pulls in: the moon tops out at 55 degrees and never sinks below 19.</p>
+    <p>Which phase is doing the climbing depends on the season, by the rule on <a href="harvest-moon.html">the harvest moon page</a>. The full moon sits opposite the sun, so around midwinter it is the full moon that rides the moon's northern extreme. In a major-standstill winter, the full moon over Britain stands higher than any midsummer sun. In a major-standstill summer, it is the full moon that hugs the southern horizon.</p>
+    <p>Go further north and high and low turn into something stronger. At Tromsø, 69.6 degrees north, a major standstill keeps the moon above the horizon for nearly a week at a time each month, and below it for nearly a week a fortnight later; at a minor standstill it rises and sets every day like everything else. Go south instead and the moon passes straight overhead anywhere within 28.6 degrees of the equator at a major standstill, five degrees further out than the sun ever reaches.</p>
+
+    <h2>The people who noticed</h2>
+    <p>Anyone watching moonrise against the same horizon for a couple of decades would see the swing, and some of the people who built in stone seem to have done exactly that. At Callanish on Lewis, at 58 degrees north, the southern moon of a major standstill clears the horizon by only about three degrees. It rolls low along the hills to the south, the line locally likened to a sleeping woman, and from parts of the site it seems to set among the stones. Alexander Thom and others argued the layout was built for it. How deliberate it was is still argued over, and the stones were back in the news for the 2024 and 2025 standstill.</p>
+    <p>The firmest case is in Colorado. At Chimney Rock, a Chacoan great house sits high on a ridge, and from it the moon at its northern standstill extreme rises in the gap between two stone pinnacles, which the sun never does from that spot. Tree rings in its timbers date two building phases to about AD 1076 and 1093, both standstill years. Stonehenge has carried a standstill theory since the 1960s; that one is still being argued over.</p>
+
+    <h2>What else swings with it</h2>
+    <p>The moon's reach turns up across the rest of the site. On <a href="tides.html">the tides page</a>, the latitude above which the second daily high water disappears is ninety degrees minus the moon's declination, the same line beyond which the moon stops setting, so over the cycle it wanders between about 61 and 72 degrees and the coast in between swaps two tides a day for one and back. <a href="harvest-moon.html">The harvest moon</a> page sets the moon on the ecliptic for simplicity; in a major-standstill year the real September full moon does even better than that page shows, because the moon's path then meets the eastern horizon at an even shallower angle than the ecliptic does. And on <a href="eclipse-seasons.html">eclipse seasons</a>, the same sliding line of nodes is what moves the eclipses nineteen days earlier each year.</p>
+
+    <h2>Small print</h2>
+    <p class="small">The moon's path here is the mean orbit: a circle on the sky tilted 5.145° to the ecliptic, with its nodes sliding backwards at the steady mean rate of 19.35° a year. That puts the major standstills in June 2006, January 2025 and September 2043 and the minor ones in 1997, 2015 and 2034, within a few weeks of the dates worked out from the true, wobbling node. The moon's place along its path is real, from mean elements with the main periodic terms, but its height above the ecliptic comes from the mean circle, so the moon always sits on the drawn path; the real one strays a few tenths of a degree either side of it. The real tilt also nods by about 0.15° on a 173-day beat as the sun's pull on it changes, which is why published maximum declinations at a major standstill run to 28.7° rather than 28.6°. Altitudes are geometric, for the centre of the moon as seen from the centre of Earth: refraction lifts the real moon by about half a degree at the horizon, and parallax lowers it by up to a degree, because the moon is near enough that where you stand on Earth makes a difference. Earth's tilt is held at 23.44°; it is slowly shrinking, on a clock that has <a href="milankovitch.html">a page of its own</a>.</p>
+    <p class="small"><a href="index.html">All the visualisations</a></p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const $ = id => document.getElementById(id);
+  const DEG = Math.PI / 180;
+  const sind = x => Math.sin(x * DEG), cosd = x => Math.cos(x * DEG);
+  const wrap = x => ((x % 360) + 540) % 360 - 180;
+  const n360 = x => ((x % 360) + 360) % 360;
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  // time is days from J2000, 2000 January 1 at noon UT
+  const EPOCH = Date.UTC(2000, 0, 1, 12);
+  const tOf = (y, m, d) => (Date.UTC(y, m, d) - EPOCH) / 86400000;
+  const dateOf = t => new Date(EPOCH + t * 86400000);
+  const T_START = tOf(1996, 0, 1), T_END = tOf(2046, 0, 1);
+  const TODAY = clamp((Date.now() - EPOCH) / 86400000, T_START, T_END);
+  const yearOf = t => 2000 + (t + 0.5) / 365.25;
+
+  // ---------- the two tilts ----------
+  const EPS = 23.4393;                       // Earth's axial tilt: the ecliptic against the equator
+  const INC = 5.145;                         // the moon's path against the ecliptic
+  const OM0 = 125.0445479, RATE = 0.0529537648;   // the ascending node, sliding backwards, degrees a day
+  const nodeAt = t => n360(OM0 - RATE * t);
+  // ecliptic longitude and latitude to an equatorial unit vector: x to the March point, z to the pole
+  const eqOf = (lon, lat) => {
+    const cb = cosd(lat), x = cb * cosd(lon), y = cb * sind(lon), z = sind(lat);
+    return [x, y * cosd(EPS) - z * sind(EPS), y * sind(EPS) + z * cosd(EPS)];
+  };
+  const raOf = v => n360(Math.atan2(v[1], v[0]) / DEG);
+  const decOf = v => Math.asin(clamp(v[2], -1, 1)) / DEG;
+  // The moon's path is a great circle; its pole decides everything. How far the pole sits from
+  // the celestial pole is how far the path reaches from the equator.
+  function geom(om) {
+    const px = sind(om) * sind(INC), py = -cosd(om) * sind(INC), pz = cosd(INC);
+    const n = [px, py * cosd(EPS) - pz * sind(EPS), py * sind(EPS) + pz * cosd(EPS)];
+    const reach = Math.acos(n[2]) / DEG;
+    const hiRa = n360(Math.atan2(-n[1], -n[0]) / DEG);          // where the path is highest
+    const hiEcl = eclDecAt(hiRa);                                // the ecliptic's own height there
+    return { om, n, reach, hiRa, hiEcl, share: reach - hiEcl, apart: Math.abs(wrap(om)) };
+  }
+  const eclDecAt = ra => Math.atan(Math.tan(EPS * DEG) * sind(ra)) / DEG;
+  const pathDecAt = (n, ra) => Math.atan(-(n[0] * cosd(ra) + n[1] * sind(ra)) / n[2]) / DEG;
+  const reachAt = t => geom(nodeAt(t)).reach;
+
+  // The moon itself: its real place along the path, from mean elements with the main terms,
+  // lifted off the ecliptic by the mean circle so that it always sits on the path drawn.
+  function sky(t) {
+    const T = t / 36525;
+    const Lp = 218.3164477 + 481267.88123421 * T, D = 297.8501921 + 445267.1114034 * T;
+    const M = 357.5291092 + 35999.0502909 * T, Mp = 134.9633964 + 477198.8675055 * T;
+    const F = 93.2720950 + 483202.0175233 * T;
+    const lon = Lp + 6.289 * sind(Mp) + 1.274 * sind(2 * D - Mp) + 0.658 * sind(2 * D)
+      + 0.214 * sind(2 * Mp) - 0.186 * sind(M) - 0.114 * sind(2 * F);
+    const lonS = 280.4665 + 36000.7698 * T + 1.915 * sind(M) + 0.020 * sind(2 * M);
+    const om = nodeAt(t);
+    const lat = Math.asin(sind(INC) * sind(lon - om)) / DEG;
+    const v = eqOf(lon, lat);
+    return { v, ra: raOf(v), dec: decOf(v), phase: n360(lon - lonS) };
+  }
+
+  // the moments the high sides line up, oppose, or sit at right angles
+  const EVENTS = (() => {
+    const out = [];
+    for (let k = -4; k <= 2; k++) [[0, 'major'], [180, 'minor'], [90, 'mid'], [270, 'mid']].forEach(([target, kind]) => {
+      const t = (OM0 - target - 360 * k) / RATE;
+      if (t > T_START - 700 && t < T_END + 700) out.push({ t, kind });
+    });
+    return out.sort((a, b) => a.t - b.t);
+  })();
+  const nearest = (kind, t) => EVENTS.filter(e => e.kind === kind).reduce((a, b) => Math.abs(b.t - t) < Math.abs(a.t - t) ? b : a);
+  const nextAfter = t => EVENTS.find(e => e.kind !== 'mid' && e.t > t + 2);
+  // the moment near t0 when the moon is furthest north, so the panels open on the reach itself
+  function northernmost(t0) {
+    let best = t0, top = -99;
+    for (let t = t0 - 14; t <= t0 + 14; t += 0.05) { const d = sky(t).dec; if (d > top) { top = d; best = t; } }
+    return best;
+  }
+
+  // ---------- state ----------
+  const state = { t: TODAY, lat: 53, spin: 10, view: 208, playM: false, playC: false };
+
+  // ---------- formatting ----------
+  const fmtDay = t => { const d = dateOf(t); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+  const fmtMonth = t => { const d = dateOf(t); return `${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+  const fmtShortMonth = t => { const d = dateOf(t); return `${MONTHS[d.getUTCMonth()].slice(0, 3)} ${d.getUTCFullYear()}`; };
+  const sgn = (v, dp) => { const r = Number(v.toFixed(dp)); return (r < 0 ? '−' : '+') + Math.abs(r).toFixed(dp); };
+  const fmtLat = l => Math.abs(l) < 0.05 ? '0° (equator)' : `${Math.abs(l).toFixed(1)}° ${l > 0 ? 'N' : 'S'}`;
+  const apartWords = a => a < 8 ? 'lined up' : a > 172 ? 'opposed' : Math.abs(a - 90) < 8 ? 'at right angles' : `${a.toFixed(0)}° apart`;
+  // the highest anything at a fixed declination limit gets over your head
+  const topAlt = (lat, lim) => 90 - Math.max(0, Math.abs(lat) - lim);
+  const tagFor = t => {
+    const e = EVENTS.filter(x => x.kind !== 'mid').find(x => Math.abs(x.t - t) < 150);
+    return e ? ` — ${e.kind} standstill` : '';
+  };
+
+  // ---------- canvas plumbing ----------
+  const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
+  const UI = '"Atkinson Hyperlegible", system-ui, sans-serif';
+  const TOKENS = ['bg', 'surface', 'ink', 'muted', 'rule', 'sun', 'sun-ink', 'sun-bright', 'sun-fill', 'sun-glow',
+    'moon', 'moon-ink', 'moon-lit', 'moon-dark', 'moon-fill', 'sky', 'plane', 'ground', 'horizon', 'land', 'ghost', 'faint'];
+  const C = {};
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
+  }
+  const els = { sphere: $('sphere'), waves: $('waves'), dome: $('dome'), stand: $('stand') };
+  const cv = {};
+  Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
+  function fit(c) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const r = c.el.getBoundingClientRect();
+    c.w = r.width; c.h = r.height;
+    c.el.width = Math.max(1, Math.round(r.width * dpr));
+    c.el.height = Math.max(1, Math.round(r.height * dpr));
+    c.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function text(ctx, str, x, y, o) {
+    ctx.font = o.font;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.base || 'alphabetic';
+    if (o.halo) {
+      ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = o.halo === true ? C.bg : o.halo;
+      ctx.strokeText(str, x, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(str, x, y);
+  }
+  const line = (ctx, ax, ay, bx, by) => { ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); };
+  const poly = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+  function runs(ctx, pts, keep, style) {
+    ctx.save();
+    ctx.setLineDash(style.dash || []);
+    ctx.lineWidth = style.width; ctx.strokeStyle = style.color;
+    ctx.globalAlpha = style.alpha === undefined ? 1 : style.alpha;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    let run = [];
+    const flush = () => { if (run.length > 1) { poly(ctx, run); ctx.stroke(); } run = []; };
+    pts.forEach(p => { if (keep(p)) run.push([p[0], p[1]]); else { if (run.length) run.push([p[0], p[1]]); flush(); } });
+    flush();
+    ctx.restore();
+  }
+  function moonGlyph(ctx, x, y, r, P) {
+    const p = ((P % 360) + 360) % 360;
+    const waxing = p <= 180, k = Math.abs(cosd(p)), gib = p > 90 && p < 270;
+    ctx.save();
+    ctx.translate(x, y);
+    if (!waxing) ctx.scale(-1, 1);
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 2 * Math.PI);
+    ctx.fillStyle = C['moon-dark']; ctx.fill();
+    if (p > 3 && p < 357) {
+      ctx.beginPath();
+      ctx.arc(0, 0, r, Math.PI / 2, -Math.PI / 2, true);
+      ctx.ellipse(0, 0, Math.max(r * k, 0.01), r, 0, -Math.PI / 2, Math.PI / 2, gib);
+      ctx.closePath();
+      ctx.fillStyle = C['moon-lit']; ctx.fill();
+    }
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.strokeStyle = C.moon; ctx.lineWidth = 1.2; ctx.stroke();
+  }
+  const dot = (ctx, x, y, r, fill, stroke) => {
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.fillStyle = fill; ctx.fill();
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.5; ctx.stroke(); }
+  };
+
+  // ---------- 1. two tilts, one path ----------
+  // The sky as a sphere round Earth, seen from a little above the equator. Three great circles:
+  // the equator, the ecliptic 23.44° to it, and the moon's path 5.145° to the ecliptic.
+  function drawSphere() {
+    const { ctx, w, h } = cv.sphere;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const uiFont = `${small ? 11 : 12}px ${UI}`;
+    const handS = `500 ${small ? 17 : 19}px ${HAND}`;
+    const handB = `600 ${small ? 19 : 22}px ${HAND}`;
+    const g = geom(nodeAt(state.t));
+    const A = state.spin * DEG, el = 22 * DEG;
+    const R = Math.min(w * (small ? 0.43 : 0.42), (h - (small ? 70 : 84)) / 1.3);
+    const cx = w / 2, cy = h / 2 + (small ? 6 : 8);
+    const rx = [-Math.sin(A), Math.cos(A), 0];
+    const ux = [-Math.sin(el) * Math.cos(A), -Math.sin(el) * Math.sin(A), Math.cos(el)];
+    const cz = [Math.cos(el) * Math.cos(A), Math.cos(el) * Math.sin(A), Math.sin(el)];
+    const dotv = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const P = v => [cx + R * dotv(v, rx), cy - R * dotv(v, ux), dotv(v, cz)];
+    const ring = (n, fn) => { const a = []; for (let i = 0; i <= n; i++) a.push(P(fn(360 * i / n))); return a; };
+    const onSky = (ra, dec) => [cosd(dec) * cosd(ra), cosd(dec) * sind(ra), sind(dec)];
+
+    // the equator, carried out onto the sky
+    const eqRing = ring(120, a => onSky(a, 0));
+    poly(ctx, eqRing); ctx.closePath();
+    ctx.fillStyle = C.plane; ctx.fill();
+    runs(ctx, eqRing, p => p[2] < 0, { color: C.ghost, width: 1, dash: [3, 4], alpha: .6 });
+    runs(ctx, eqRing, p => p[2] >= 0, { color: C.ghost, width: 1.4, alpha: .9 });
+
+    // the ecliptic and the moon's path
+    const ecl = ring(180, l => eqOf(l, 0));
+    const N = [cosd(g.om), sind(g.om), 0];
+    const Mv = [-sind(g.om) * cosd(INC), cosd(g.om) * cosd(INC), sind(INC)];
+    const toEq = v => [v[0], v[1] * cosd(EPS) - v[2] * sind(EPS), v[1] * sind(EPS) + v[2] * cosd(EPS)];
+    const path = ring(180, u => toEq([cosd(u) * N[0] + sind(u) * Mv[0], cosd(u) * N[1] + sind(u) * Mv[1], sind(u) * Mv[2]]));
+    runs(ctx, ecl, p => p[2] < 0, { color: C.sun, width: 1.2, dash: [4, 4], alpha: .55 });
+    runs(ctx, path, p => p[2] < 0, { color: C.moon, width: 1.4, dash: [4, 4], alpha: .65 });
+
+    // the line of nodes: where the moon's path crosses the ecliptic
+    const nA = P(eqOf(g.om, 0)), nB = P(eqOf(g.om + 180, 0));
+    ctx.save();
+    ctx.setLineDash([6, 5]); ctx.lineWidth = 1.2; ctx.strokeStyle = C.moon; ctx.globalAlpha = .55;
+    line(ctx, nA[0], nA[1], nB[0], nB[1]);
+    ctx.restore();
+
+    // Earth, with its axis aimed at the celestial pole
+    const ER = Math.max(6, R * 0.05);
+    const pole = P([0, 0, 0.66]), axT = P([0, 0, 0.17]), axB = P([0, 0, -0.17]);
+    ctx.save();
+    ctx.setLineDash([2, 4]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1; ctx.globalAlpha = .7;
+    line(ctx, axT[0], axT[1], pole[0], pole[1]);
+    ctx.restore();
+    text(ctx, 'N', pole[0], pole[1] - 6, { font: uiFont, color: C.muted, align: 'center', halo: true });
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.4;
+    line(ctx, axB[0], axB[1], axT[0], axT[1]);
+    dot(ctx, cx, cy, ER, C.bg);
+    dot(ctx, cx, cy, ER, C.land, C.ink);
+
+    // the near halves, drawn over Earth
+    runs(ctx, ecl, p => p[2] >= 0, { color: C.sun, width: 2.2 });
+    runs(ctx, path, p => p[2] >= 0, { color: C.moon, width: 2.8 });
+
+    // the four points of the ecliptic the sun reaches at the equinoxes and solstices
+    [[0, small ? 'Mar' : 'March'], [90, 'June'], [180, small ? 'Sep' : 'Sept'], [270, 'Dec']].forEach(([l, lab]) => {
+      const p = P(eqOf(l, 0));
+      const right = p[0] > cx;
+      ctx.globalAlpha = p[2] < 0 ? .55 : 1;
+      dot(ctx, p[0], p[1], 3.2, C.sun);
+      text(ctx, lab, p[0] + (right ? -6 : 6), p[1] + 15, { font: uiFont, color: C['sun-ink'], align: right ? 'right' : 'left', halo: true });
+      ctx.globalAlpha = 1;
+    });
+    // the nodes themselves
+    [nA, nB].forEach(p => {
+      ctx.globalAlpha = p[2] < 0 ? .6 : 1;
+      dot(ctx, p[0], p[1], 4.2, C.bg, C.moon);
+      ctx.globalAlpha = 1;
+    });
+    if (!small) {
+      // label the nodes' line at its nearer end, unless a solstice label is already sitting there
+      const cards = [90, 270].map(l => P(eqOf(l, 0)));
+      const clash = q => cards.some(c => Math.hypot(c[0] - q[0], c[1] - q[1]) < 40);
+      let end = nA[2] >= nB[2] ? nA : nB;
+      if (clash(end)) end = end === nA ? nB : nA;
+      const dx = end[0] - cx, dy = end[1] - cy, len = Math.hypot(dx, dy) || 1;
+      text(ctx, 'line of nodes', end[0] + dx / len * 10, end[1] + dy / len * 10 + 14,
+        { font: uiFont, color: C['moon-ink'], align: dx >= 0 ? 'left' : 'right', halo: true });
+    }
+
+    // The split, drawn like a dimension line just outside the sky. Climb the meridian through the
+    // path's highest point: the first stretch, up to the ecliptic, is Earth's tilt; the rest is the
+    // moon's own, and at a minor standstill it runs back down.
+    const DIM = 1.08;
+    const out = (d, k) => { const v = onSky(g.hiRa, d); return P([v[0] * k, v[1] * k, v[2] * k]); };
+    const arc = (d0, d1) => { const a = [], n = 40; for (let i = 0; i <= n; i++) a.push(out(d0 + (d1 - d0) * i / n, DIM)); return a; };
+    const behind = out(g.reach, 1)[2] < -0.05;
+    ctx.save();
+    ctx.globalAlpha = behind ? .5 : 1;
+    ctx.setLineDash([2, 3]); ctx.strokeStyle = C.ghost; ctx.lineWidth = 1;
+    [0, g.hiEcl, g.reach].forEach(d => { const a = out(d, 1), b = out(d, DIM + 0.03); line(ctx, a[0], a[1], b[0], b[1]); });
+    ctx.setLineDash([]); ctx.lineCap = 'butt';
+    poly(ctx, arc(0, g.hiEcl)); ctx.strokeStyle = C['sun-bright']; ctx.lineWidth = 5; ctx.stroke();
+    // when the moon's share is negative it runs back down beside Earth's, not on top of it
+    const dimM = g.share < 0 ? DIM + 0.035 : DIM;
+    const arcM = []; for (let i = 0; i <= 40; i++) arcM.push(out(g.hiEcl + (g.reach - g.hiEcl) * i / 40, dimM));
+    poly(ctx, arcM); ctx.strokeStyle = C['moon-ink']; ctx.lineWidth = 5; ctx.stroke();
+    ctx.restore();
+    const lab = (str, d, col, k0) => {
+      const p = out(d, k0 || DIM), q = out(d, 1);
+      const dx = p[0] - q[0], dy = p[1] - q[1], len = Math.hypot(dx, dy) || 1;
+      ctx.font = `700 ${uiFont}`;
+      const tw = ctx.measureText(str).width;
+      const outside = dx >= 0 ? p[0] + 8 + tw < w - 4 : p[0] - 8 - tw > 4;
+      const k = outside ? 1 : -1;
+      text(ctx, str, p[0] + k * (dx / len) * 8, p[1] + k * (dy / len) * 8 + 4,
+        { font: `700 ${uiFont}`, color: col, align: (dx >= 0) === outside ? 'left' : 'right', halo: true });
+    };
+    lab(`${g.hiEcl.toFixed(1)}°`, g.hiEcl / 2, C['sun-ink']);
+    lab(`${sgn(g.share, 1)}°`, Math.abs(g.share) < 2 ? g.reach + 1.5 : (g.hiEcl + g.reach) / 2, C['moon-ink'], dimM);
+
+    // the moon, on its path
+    if (!state.playC) {
+      const s = sky(state.t), mp = P(s.v);
+      ctx.globalAlpha = mp[2] < 0 ? .55 : 1;
+      moonGlyph(ctx, mp[0], mp[1], small ? 8 : 9, s.phase);
+      ctx.globalAlpha = 1;
+    }
+
+    // captions
+    const a = g.apart;
+    text(ctx, a < 8 ? 'high sides lined up: the tilts add' : a > 172 ? 'high sides opposed: the tilts cancel'
+      : Math.abs(a - 90) < 8 ? 'high sides at right angles' : `high sides ${a.toFixed(0)}° apart`,
+      10, 24, { font: handB, color: a < 8 ? C['sun-ink'] : C['moon-ink'], halo: true });
+    text(ctx, fmtShortMonth(state.t), w - 10, 24, { font: handS, color: C.muted, align: 'right', halo: true });
+    text(ctx, `the moon reaches ±${g.reach.toFixed(1)}°`, w / 2, h - 10,
+      { font: handB, color: g.reach > EPS + 0.3 ? C['sun-ink'] : C['moon-ink'], align: 'center', halo: true });
+    const eqLab = P(onSky(n360(state.spin - 90), 0));
+    text(ctx, 'equator', eqLab[0] + 2, eqLab[1] + 16, { font: uiFont, color: C.muted, halo: true });
+  }
+
+  // ---------- 2. two waves, added ----------
+  const W_PAD = { L: 40, R: 12, T: 30, B: 26 };
+  function drawWaves() {
+    const { ctx, w, h } = cv.waves;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    const small = w < 480;
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const R_PAD = small ? W_PAD.R : 52;
+    const x0 = W_PAD.L, x1 = w - R_PAD, y0 = W_PAD.T, y1 = h - W_PAD.B;
+    const LIM = 33;
+    const X = ra => x0 + ra / 360 * (x1 - x0);
+    const Y = d => (y0 + y1) / 2 - d / LIM * (y1 - y0) / 2;
+    const g = geom(nodeAt(state.t));
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.lineWidth = 1;
+    for (let v = -30; v <= 30; v += 10) {
+      ctx.strokeStyle = v === 0 ? C.ghost : C.rule;
+      line(ctx, x0, Y(v), x1, Y(v));
+      text(ctx, v === 0 ? '0°' : `${v > 0 ? '+' : '−'}${Math.abs(v)}°`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
+    }
+    const pts = [[0, small ? 'Mar' : 'March point'], [90, small ? 'Jun' : 'June point'], [180, small ? 'Sep' : 'Sept point'], [270, small ? 'Dec' : 'Dec point'], [360, small ? 'Mar' : 'March point']];
+    pts.forEach(([ra, lab]) => {
+      ctx.strokeStyle = C.rule; ctx.globalAlpha = .7;
+      line(ctx, X(ra), y0, X(ra), y1);
+      ctx.globalAlpha = 1;
+      text(ctx, lab, clamp(X(ra), x0 + 22, x1 - 22), h - 8, { font, color: C['sun-ink'], align: 'center' });
+    });
+    // the two ends of the swing, for reference
+    ctx.save();
+    ctx.setLineDash([1, 4]); ctx.strokeStyle = C.moon; ctx.globalAlpha = .7;
+    [28.58, 18.29, -28.58, -18.29].forEach(v => line(ctx, x0, Y(v), x1, Y(v)));
+    ctx.restore();
+    if (!small) {
+      text(ctx, 'major', x1 + 5, Y(28.58), { font, color: C['moon-ink'], base: 'middle' });
+      text(ctx, 'minor', x1 + 5, Y(18.29), { font, color: C['moon-ink'], base: 'middle' });
+    }
+
+    const rows = [];
+    for (let ra = 0; ra <= 360; ra += 1) {
+      const e = eclDecAt(ra), p = pathDecAt(g.n, ra);
+      rows.push({ ra, e, p, gap: p - e });
+    }
+    const trace = (key, col, wid, dash) => {
+      ctx.save();
+      if (dash) ctx.setLineDash(dash);
+      poly(ctx, rows.map(r => [X(r.ra), Y(r[key])]));
+      ctx.lineWidth = wid; ctx.strokeStyle = col; ctx.lineJoin = 'round'; ctx.stroke();
+      ctx.restore();
+    };
+    poly(ctx, rows.map(r => [X(r.ra), Y(r.p)]));
+    ctx.lineTo(X(360), Y(0)); ctx.lineTo(X(0), Y(0)); ctx.closePath();
+    ctx.fillStyle = C['moon-fill']; ctx.fill();
+    trace('e', C.sun, 1.6, [5, 4]);
+    trace('gap', C.moon, 1.6, [5, 4]);
+    trace('p', C['moon-ink'], 2.75);
+
+    // where each one crests
+    const gapTop = rows.reduce((a, b) => b.gap > a.gap ? b : a);
+    dot(ctx, X(90), Y(EPS), 3.5, C.sun);
+    text(ctx, small ? "Earth's" : "Earth's tilt", X(90) + (small ? 0 : 8), Y(EPS) + (small ? 16 : 4),
+      { font, color: C['sun-ink'], align: small ? 'center' : 'left', halo: C.surface });
+    dot(ctx, X(gapTop.ra), Y(gapTop.gap), 3.5, C.moon);
+    text(ctx, small ? "moon's" : "the moon's tilt", X(gapTop.ra), Y(gapTop.gap) - 9,
+      { font, color: C['moon-ink'], align: 'center', halo: C.surface });
+    dot(ctx, X(g.hiRa), Y(g.reach), 4, C['moon-ink']);
+    text(ctx, `+${g.reach.toFixed(1)}°`, X(g.hiRa), Y(g.reach) - 9, { font: `700 ${font}`, color: C['moon-ink'], align: 'center', halo: C.surface });
+
+    // how far apart the two high sides are, the same figure the panel above gives
+    const off = g.apart;
+    text(ctx, off < 8 ? 'crest on crest: they add' : off > 172 ? 'crest on trough: they cancel'
+      : Math.abs(off - 90) < 8 ? 'crests a quarter-turn apart' : `crests ${off.toFixed(0)}° apart`,
+      x0 + 2, y0 - 9, { font: handS, color: off < 8 ? C['sun-ink'] : off > 172 ? C['moon-ink'] : C.muted });
+
+    // the moon, riding the sum
+    if (!state.playC) {
+      const s = sky(state.t);
+      moonGlyph(ctx, X(s.ra), Y(s.dec), small ? 6 : 7, s.phase);
+    }
+  }
+
+  // ---------- 3. from the ground ----------
+  // a sky dome at your latitude: north, east, up
+  function skyVec(lat, dec, H) {
+    const p = lat * DEG, d = dec * DEG, a = H * DEG;
+    return [
+      Math.cos(p) * Math.sin(d) - Math.sin(p) * Math.cos(d) * Math.cos(a),
+      -Math.cos(d) * Math.sin(a),
+      Math.sin(p) * Math.sin(d) + Math.cos(p) * Math.cos(d) * Math.cos(a)
+    ];
+  }
+  // how far round from north something at this declination rises; null if it never crosses
+  const riseAz = (lat, dec) => { const c = sind(dec) / cosd(lat); return Math.abs(c) > 1 ? null : Math.acos(c) / DEG; };
+  function drawDome() {
+    const { ctx, w, h } = cv.dome;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([]);
+    const small = w < 480;
+    const font = `${small ? 11 : 12}px ${UI}`;
+    const th = state.view * DEG, ps = 20 * DEG;
+    const R = Math.max(30, Math.min((w - 58) / 2, (h - 64) / (1 + Math.sin(ps))));
+    const cx = w / 2, cy = Math.max(20, (h - 30 - R * (1 + Math.sin(ps))) / 2) + R;
+    const P = v => {
+      const x = v[0] * Math.sin(th) - v[1] * Math.cos(th);
+      const f = v[0] * Math.cos(th) + v[1] * Math.sin(th);
+      return [cx + R * x, cy - R * (v[2] * Math.cos(ps) - f * Math.sin(ps)), f * Math.cos(ps) + v[2] * Math.sin(ps)];
+    };
+    const ring = (n, fn) => { const a = []; for (let i = 0; i <= n; i++) a.push(P(fn(i / n))); return a; };
+
+    // sky and ground
+    ctx.beginPath();
+    for (let i = 0; i <= 72; i++) { const a = Math.PI * i / 72, px = cx + R * Math.cos(a), py = cy - R * Math.sin(a); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+    for (let i = 0; i <= 72; i++) { const u = Math.PI - Math.PI * i / 72; ctx.lineTo(cx + R * Math.cos(u), cy + R * Math.sin(ps) * Math.sin(u)); }
+    ctx.closePath();
+    ctx.fillStyle = C.sky; ctx.fill();
+    const hz = ring(96, u => [Math.cos(2 * Math.PI * u), Math.sin(2 * Math.PI * u), 0]);
+    poly(ctx, hz); ctx.closePath();
+    ctx.fillStyle = C.bg; ctx.fill();
+    ctx.fillStyle = C.ground; ctx.fill();
+    runs(ctx, hz, p => p[2] <= 0, { color: C.horizon, width: 1.25, alpha: .55 });
+    runs(ctx, hz, p => p[2] > 0, { color: C.horizon, width: 2.25 });
+    ctx.save();
+    ctx.globalAlpha = .42; ctx.setLineDash([2, 4]); ctx.lineWidth = 1; ctx.strokeStyle = C.ghost;
+    [30, 60].forEach(a => { poly(ctx, ring(72, u => { const l = 2 * Math.PI * u; return [cosd(a) * Math.cos(l), cosd(a) * Math.sin(l), sind(a)]; })); ctx.stroke(); });
+    ctx.restore();
+    [['N', [1, 0, 0]], ['E', [0, 1, 0]], ['S', [-1, 0, 0]], ['W', [0, -1, 0]]].forEach(([nm, v]) => {
+      const p = P(v), dx = p[0] - cx, dy = p[1] - cy, len = Math.hypot(dx, dy) || 1;
+      ctx.globalAlpha = p[2] < 0 ? .5 : 1;
+      text(ctx, nm, p[0] + dx / len * 13, p[1] + dy / len * 13, { font: `${small ? 12 : 13}px ${UI}`, color: C.muted, align: 'center', base: 'middle' });
+      ctx.globalAlpha = 1;
+    });
+
+    // arcs: one day's path across the sky at a given declination
+    const arcOf = dec => { const a = []; for (let i = 0; i <= 180; i++) { const v = skyVec(state.lat, dec, -180 + 2 * i); const p = P(v); a.push([p[0], p[1], p[2], v[2]]); } return a; };
+    const up = p => p[3] > 0;
+    const g = geom(nodeAt(state.t)), lim = g.reach;
+    const north = state.lat >= 0 ? 1 : -1;
+    [EPS, -EPS].forEach(d => {
+      const a = arcOf(d);
+      runs(ctx, a, p => up(p) && p[2] < 0, { color: C.sun, width: 1.4, dash: [5, 5], alpha: .5 });
+      runs(ctx, a, p => up(p) && p[2] >= 0, { color: C.sun, width: 1.8, dash: [5, 5] });
+    });
+    [lim, -lim].forEach(d => {
+      const a = arcOf(d);
+      runs(ctx, a, p => up(p) && p[2] < 0, { color: C['moon-ink'], width: 1.8, alpha: .5 });
+      runs(ctx, a, p => up(p) && p[2] >= 0, { color: C['moon-ink'], width: 2.8 });
+    });
+    // where they cross the horizon, in the east
+    const tick = (dec, col) => {
+      const az = riseAz(state.lat, dec);
+      if (az === null) return;
+      const p = P([cosd(az), sind(az), 0]);
+      ctx.globalAlpha = p[2] < 0 ? .5 : 1;
+      dot(ctx, p[0], p[1], 3.2, col);
+      ctx.globalAlpha = 1;
+    };
+    [EPS, -EPS].forEach(d => tick(d, C.sun));
+    [lim, -lim].forEach(d => tick(d, C['moon-ink']));
+
+    // today's moon, somewhere between its two extremes
+    if (!state.playC) {
+      const s = sky(state.t);
+      const a = arcOf(s.dec);
+      runs(ctx, a, p => up(p), { color: C.moon, width: 1.3, dash: [2, 3], alpha: .9 });
+      const top = P(skyVec(state.lat, s.dec, 0));
+      if (skyVec(state.lat, s.dec, 0)[2] > 0) moonGlyph(ctx, top[0], top[1], small ? 7 : 8, s.phase);
+    }
+
+    // labels at the tops of the two highest arcs
+    const topOf = d => P(skyVec(state.lat, d, 0));
+    const mT = topOf(north * lim), sT = topOf(north * EPS);
+    const moonAbove = mT[1] < sT[1];
+    if (skyVec(state.lat, north * lim, 0)[2] > 0) {
+      text(ctx, small ? "moon's highest" : "the moon's highest this month", mT[0] + 8, mT[1] + (moonAbove ? -6 : 16),
+        { font, color: C['moon-ink'], halo: true });
+    }
+    if (skyVec(state.lat, north * EPS, 0)[2] > 0) {
+      text(ctx, small ? 'midsummer sun' : 'the midsummer sun', sT[0] + 8, sT[1] + (moonAbove ? 16 : -6),
+        { font, color: C['sun-ink'], halo: true });
+    }
+
+    // caption
+    const lat = Math.abs(state.lat);
+    const handB = `600 ${small ? 19 : 21}px ${HAND}`;
+    let cap, col = C['moon-ink'];
+    if (lat >= 90 - lim) { cap = 'for days each month the moon never sets'; col = C['sun-ink']; }
+    else if (lat > lim && lat > EPS) {
+      const diff = topAlt(lat, lim) - topAlt(lat, EPS);
+      cap = Math.abs(diff) < 0.3 ? 'the moon tops out level with the midsummer sun'
+        : diff > 0 ? `the moon climbs ${diff.toFixed(1)}° higher than the sun ever does`
+          : `the moon tops out ${(-diff).toFixed(1)}° below the midsummer sun`;
+      if (diff > 0) col = C['sun-ink'];
+    } else {
+      // how far round from due east each one rises at its extreme, north or south alike
+      const am = riseAz(state.lat, north * lim), as = riseAz(state.lat, north * EPS);
+      const diff = Math.abs(90 - am) - Math.abs(90 - as);
+      cap = Math.abs(diff) < 0.3 ? 'moonrise swings as far as sunrise does'
+        : diff > 0 ? `moonrise swings ${diff.toFixed(1)}° further round than sunrise ever does`
+          : `moonrise stops ${(-diff).toFixed(1)}° short of the sun's furthest`;
+      if (diff > 0) col = C['sun-ink'];
+    }
+    text(ctx, cap, w / 2, h - 8, { font: handB, color: col, align: 'center' });
+  }
+
+  // ---------- 4. fifty years ----------
+  const S_PAD = { L: 38, R: 12, T: 22, B: 26 };
+  const standRows = (() => {
+    const out = [];
+    for (let t = T_START; t <= T_END; t += 15) out.push({ t, r: reachAt(t) });
+    return out;
+  })();
+  function drawStand() {
+    const { ctx, w, h } = cv.stand;
+    if (!w) return;
+    ctx.clearRect(0, 0, w, h);
+    const small = w < 480;
+    const font = `${small ? 10 : 12}px ${UI}`;
+    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
+    const x0 = S_PAD.L, x1 = w - S_PAD.R, y0 = S_PAD.T, y1 = h - S_PAD.B;
+    const LO = 16, HI = 31;
+    const X = t => x0 + (t - T_START) / (T_END - T_START) * (x1 - x0);
+    const Y = v => y1 - (v - LO) / (HI - LO) * (y1 - y0);
+
+    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.lineWidth = 1;
+    for (let v = 18; v <= 30; v += 2) {
+      ctx.strokeStyle = C.rule;
+      line(ctx, x0, Y(v), x1, Y(v));
+      text(ctx, `${v}°`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
+    }
+    for (let y = 2000; y <= 2045; y += small ? 10 : 5) {
+      const xx = X(tOf(y, 0, 1));
+      ctx.strokeStyle = C.rule; ctx.globalAlpha = .7;
+      line(ctx, xx, y0, xx, y1);
+      ctx.globalAlpha = 1;
+      text(ctx, String(y), xx, h - 8, { font, color: C.muted, align: 'center' });
+    }
+    ctx.save();
+    ctx.setLineDash([2, 4]); ctx.strokeStyle = C.sun; ctx.lineWidth = 1.2;
+    line(ctx, x0, Y(EPS), x1, Y(EPS));
+    ctx.restore();
+    text(ctx, small ? "Earth's tilt alone" : "Earth's tilt alone, 23.4°", x0 + 6, Y(EPS) - 5, { font, color: C['sun-ink'], halo: C.surface });
+
+    poly(ctx, standRows.map(r => [X(r.t), Y(r.r)]));
+    ctx.lineTo(X(T_END), y1); ctx.lineTo(X(T_START), y1); ctx.closePath();
+    ctx.fillStyle = C['moon-dark']; ctx.globalAlpha = .25; ctx.fill(); ctx.globalAlpha = 1;
+    poly(ctx, standRows.map(r => [X(r.t), Y(r.r)]));
+    ctx.lineWidth = 2.25; ctx.strokeStyle = C.moon; ctx.lineJoin = 'round'; ctx.stroke();
+
+    EVENTS.filter(e => e.kind !== 'mid' && e.t > T_START && e.t < T_END).forEach(e => {
+      const r = reachAt(e.t), major = e.kind === 'major';
+      dot(ctx, X(e.t), Y(r), 4, C['moon-ink']);
+      const yr = dateOf(e.t).getUTCFullYear();
+      text(ctx, small ? String(yr) : `${e.kind}, ${yr}`, clamp(X(e.t), x0 + 30, x1 - 30), Y(r) + (major ? -9 : 17),
+        { font, color: C['moon-ink'], align: 'center', halo: C.surface });
+    });
+
+    const here = state.t, r = reachAt(here);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(here), y0, X(here), y1);
+    dot(ctx, X(here), Y(r), 5, C['sun-bright'], C.sun);
+    const lab = `${fmtShortMonth(here)}: ±${r.toFixed(1)}°`;
+    ctx.font = handS;
+    const tw = ctx.measureText(lab).width;
+    const right = X(here) + 8 + tw < x1 - 4;
+    text(ctx, lab, right ? X(here) + 8 : X(here) - 8, y0 + 16, { font: handS, color: C.ink, align: right ? 'left' : 'right', halo: C.surface });
+    text(ctx, 'how far the moon reaches from the equator', x0 - 5, y0 - 8, { font, color: C['moon-ink'] });
+  }
+
+  // ---------- text and inputs ----------
+  const inputs = { when: $('when'), lat: $('lat') };
+  inputs.when.min = Math.ceil(T_START); inputs.when.max = Math.floor(T_END);
+  function updateText() {
+    const g = geom(nodeAt(state.t));
+    const nx = nextAfter(state.t);
+    $('rReach').textContent = `±${g.reach.toFixed(1)}°`;
+    $('rEarth').textContent = `${sgn(g.hiEcl, 1)}°`;
+    $('rMoon').textContent = `${sgn(g.share, 1)}°`;
+    $('rSides').textContent = apartWords(g.apart);
+    const lat = Math.abs(state.lat), mh = topAlt(lat, g.reach), sh = topAlt(lat, EPS);
+    $('rHigh').textContent = mh > 89.95 ? (sh > 89.95 ? 'overhead, as is the sun' : `overhead; sun ${sh.toFixed(1)}°`)
+      : `${mh.toFixed(1)}°; sun ${sh.toFixed(1)}°`;
+    $('rNext').textContent = nx ? `${nx.kind}, ${fmtShortMonth(nx.t)}` : '–';
+
+    const yr = nx ? dateOf(nx.t).getUTCFullYear() : '';
+    const growing = reachAt(state.t + 30) > g.reach;
+    const a = g.apart;
+    $('rSum').textContent = a < 8
+      ? `The moon's path is highest in the same direction as the ecliptic, so the two tilts stack: 23.4° + 5.1° = 28.6°. This is a major standstill, and every month the moon swings further either side of the equator than the sun ever goes.`
+      : a > 172
+        ? `The moon's path is highest in the opposite direction, so just where the ecliptic peaks at 23.4° the moon runs 5.1° below it, and it reaches only 18.3°. This is a minor standstill: every month the moon falls well short of the sun's range.`
+        : Math.abs(a - 90) < 8
+          ? `The two high sides are at right angles, so the moon's tilt mostly lifts its path where the ecliptic is crossing the equator, not where it peaks. The reach is ${g.reach.toFixed(1)}°, a shade more than Earth's tilt alone, and ${growing ? 'growing towards a major' : 'shrinking towards a minor'} standstill in ${yr}.`
+          : `The two high sides are ${a.toFixed(0)}° apart, so the moon's tilt ${g.share >= 0 ? 'adds' : 'takes away'} ${Math.abs(g.share).toFixed(1)}° and the moon reaches ${g.reach.toFixed(1)}°. They are swinging ${growing ? 'together, towards a major' : 'apart, towards a minor'} standstill in ${yr}.`;
+
+    $('whenOut').textContent = `${fmtDay(state.t)}${tagFor(state.t)}`;
+    $('latOut').textContent = fmtLat(state.lat);
+    if (Number(inputs.when.value) !== Math.round(state.t)) inputs.when.value = Math.round(state.t);
+    if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    $('chipToday').setAttribute('aria-pressed', Math.abs(state.t - TODAY) < 1);
+    document.querySelectorAll('[data-event]').forEach(b =>
+      b.setAttribute('aria-pressed', Math.abs(nearest(b.dataset.event, TODAY).t - state.t) < 20));
+    document.querySelectorAll('[data-lat]').forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - Number(b.dataset.lat)) < 0.06));
+
+    els.sphere.setAttribute('aria-label', `The moon's path on the sky in ${fmtMonth(state.t)}: its high side and the ecliptic's are ${apartWords(a)}, so it reaches ${g.reach.toFixed(1)} degrees from the equator.`);
+    els.waves.setAttribute('aria-label', `The ecliptic's wave and the moon's smaller wave, adding to a path that peaks at ${g.reach.toFixed(1)} degrees.`);
+    els.dome.setAttribute('aria-label', `The sky at ${fmtLat(state.lat)}: the moon's highest arc this month peaks at ${mh.toFixed(0)} degrees against the midsummer sun's ${sh.toFixed(0)}.`);
+    els.stand.setAttribute('aria-label', `The moon's reach from 1996 to 2046; in ${fmtMonth(state.t)} it is ${g.reach.toFixed(1)} degrees.`);
+  }
+
+  const DRAWERS = { sphere: drawSphere, waves: drawWaves, dome: drawDome, stand: drawStand };
+  const seen = { sphere: true, waves: true, dome: true, stand: true };
+  const drawOne = k => { if (cv[k].w) DRAWERS[k](); };
+  const drawAll = () => Object.keys(DRAWERS).forEach(k => { if (seen[k]) drawOne(k); });
+
+  let raf = 0, last = 0;
+  function render() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame(ts) {
+    raf = 0;
+    const running = state.playM || state.playC;
+    const dt = running && last ? Math.min((ts - last) / 1000, 0.1) : 0;
+    if (state.playM) state.t += dt * 2.5;              // a month in about eleven seconds
+    if (state.playC) state.t += dt * 340;              // the whole cycle in twenty
+    if (state.t > T_END) state.t = T_START + (state.t - T_END);
+    last = running ? ts : 0;
+    updateText(); drawAll();
+    if (running) render();
+  }
+  const LABELS = { playMonth: 'Run the month', playCycle: 'Run the cycle' };
+  function setPlay(which, on) {
+    const key = which === 'month' ? 'playM' : 'playC', id = which === 'month' ? 'playMonth' : 'playCycle';
+    if (state[key] === on) return;
+    state[key] = on;
+    $(id).setAttribute('aria-pressed', on);
+    $(id).textContent = on ? 'Pause' : LABELS[id];
+    render();
+  }
+  const stopAll = () => { setPlay('month', false); setPlay('cycle', false); };
+  $('playMonth').addEventListener('click', () => { setPlay('cycle', false); setPlay('month', !state.playM); });
+  $('playCycle').addEventListener('click', () => { setPlay('month', false); setPlay('cycle', !state.playC); });
+  $('toNext').addEventListener('click', () => {
+    stopAll();
+    const nx = nextAfter(state.t + 20) || EVENTS.find(e => e.kind !== 'mid' && e.t > T_START);
+    state.t = clamp(northernmost(nx.t), T_START, T_END);
+    render();
+  });
+  inputs.when.addEventListener('input', e => { stopAll(); state.t = Number(e.target.value); render(); });
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
+  $('chipToday').addEventListener('click', () => { stopAll(); state.t = TODAY; render(); });
+  document.querySelectorAll('[data-event]').forEach(b => b.addEventListener('click', () => {
+    stopAll();
+    state.t = clamp(northernmost(nearest(b.dataset.event, TODAY).t), T_START, T_END);
+    render();
+  }));
+  document.querySelectorAll('[data-lat]').forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); render(); }));
+
+  // pointer: mouse acts at once, touch waits for a tap or a sideways drag so the page still scrolls
+  function drag(el, onTap, onMove, stop) {
+    let start = null, active = false, lastX = 0;
+    el.addEventListener('pointerdown', e => {
+      start = { x: e.clientX, y: e.clientY };
+      lastX = e.clientX;
+      active = e.pointerType === 'mouse';
+      if (active) { stop(); try { el.setPointerCapture(e.pointerId); } catch (_) {} if (onTap) onTap(e); }
+    });
+    el.addEventListener('pointermove', e => {
+      if (!start) return;
+      if (!active) {
+        const dx = e.clientX - start.x, dy = e.clientY - start.y;
+        if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+          active = true; stop();
+          try { el.setPointerCapture(e.pointerId); } catch (_) {}
+        } else return;
+      }
+      onMove(e, e.clientX - lastX);
+      lastX = e.clientX;
+    });
+    el.addEventListener('pointerup', e => {
+      if (start && !active && onTap) { stop(); onTap(e); }
+      start = null; active = false;
+    });
+    el.addEventListener('pointercancel', () => { start = null; active = false; });
+  }
+  drag(els.sphere, null, (e, dx) => {
+    const r = els.sphere.getBoundingClientRect();
+    state.spin = (state.spin - dx / r.width * 220 + 540) % 360 - 180;
+    render();
+  }, () => {});
+  drag(els.dome, null, (e, dx) => {
+    const r = els.dome.getBoundingClientRect();
+    state.view = (state.view - dx / r.width * 220 + 360) % 360;
+    render();
+  }, () => {});
+  const atYear = e => {
+    const r = els.stand.getBoundingClientRect();
+    const f = clamp((e.clientX - r.left - S_PAD.L) / (r.width - S_PAD.L - S_PAD.R), 0, 1);
+    state.t = T_START + f * (T_END - T_START);
+    render();
+  };
+  drag(els.stand, atYear, atYear, stopAll);
+
+  readColors();
+  const ro = new ResizeObserver(() => { Object.values(cv).forEach(fit); drawAll(); });
+  Object.values(els).forEach(el => ro.observe(el));
+  if (window.IntersectionObserver) {
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      const k = e.target.id, was = seen[k];
+      seen[k] = e.isIntersecting;
+      if (!was && e.isIntersecting) drawOne(k);
+    }), { rootMargin: '150px 0px' });
+    Object.values(els).forEach(el => io.observe(el));
+  }
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const retheme = () => { readColors(); render(); };
+  if (mq.addEventListener) mq.addEventListener('change', retheme); else if (mq.addListener) mq.addListener(retheme);
+  new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts) {
+    Promise.all([document.fonts.load(`600 20px ${HAND}`), document.fonts.load(`12px ${UI}`)]).then(render, render);
+    document.fonts.ready.then(render);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
