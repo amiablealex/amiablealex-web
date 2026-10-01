@@ -174,9 +174,17 @@ a { color: var(--moon-ink); }
 
   <figure class="block">
     <h2>Looking east at moonrise</h2>
-    <p class="hint">Tonight's moon on the horizon, with the next three nights strung along the ecliptic behind it. Moons drawn larger than life.</p>
+    <p class="hint">Tonight's moon on the horizon, with the next three nights strung along the ecliptic behind it. The solid lines are the tracks Earth's rotation carries them along; the arrow is the way the sky turns. Step forward a night at a time: the moon on the horizon sweeps away with the turning sky, comes back a day later on the next track along, and then needs a few minutes more to reach the horizon. Those minutes are the nightly delay. Moons drawn larger than life.</p>
     <canvas id="east" role="img" aria-label="The eastern horizon at moonrise with the ecliptic"></canvas>
   </figure>
+
+  <section class="controls" aria-label="Step through the nights">
+    <div class="play">
+      <button class="btn" id="stepNight">Next night ▶</button>
+      <button class="btn" id="stepBack">Back to tonight</button>
+    </div>
+    <p class="sum" id="stepSum">–</p>
+  </section>
 
   <figure class="block">
     <h2>Tonight's arc</h2>
@@ -229,7 +237,13 @@ a { color: var(--moon-ink); }
   const now = new Date();
   const TODAY = clamp(MSTART[now.getMonth()] + now.getDate() - 1, 0, 364);
 
-  const state = { d: TODAY, phase: 180, lat: 53, playNights: false, playYear: false };
+  // step is which of the four moons is at the horizon; lead is how far the clock has been wound on
+  // from tonight's moonrise, in minutes. anim carries a step in progress: stage 1 is the whole day's
+  // turn, which flies the moon off one track and back in on the next, and stage 2 is the extra few
+  // minutes of turning that finally brings it to the horizon.
+  const state = { d: TODAY, phase: 180, lat: 53, playNights: false, playYear: false, step: 0, lead: 0, leadTo: 0, anim: null };
+  const FLY_MS = 2000, EXTRA_MS = 1300;
+  const nightName = k => k === 0 ? 'tonight' : k === 1 ? 'tomorrow' : `${k} nights on`;
 
   // ---------- astronomy ----------
   function sunLon(d) {
@@ -304,6 +318,18 @@ a { color: var(--moon-ink); }
     return Math.abs(Math.atan2(dAlt, dAz) / DEG) > 90
       ? 180 - Math.abs(Math.atan2(dAlt, dAz) / DEG)
       : Math.abs(Math.atan2(dAlt, dAz) / DEG);
+  }
+  // tonight's moon and the next three, with how much later than tonight each one rises
+  function eastNights() {
+    const m = body(state.d, state.phase, state.lat);
+    const bodies = [m], cum = [0];
+    let ok = m.rise !== null;
+    for (let k = 1; k <= 3; k++) {
+      bodies.push(body(state.d + k, state.phase + SYN * k, state.lat));
+      const dl = ok ? nightDelay(state.d + k - 1, state.phase + SYN * (k - 1), state.lat) : null;
+      if (dl === null) { ok = false; cum.push(cum[k - 1]); } else cum.push(cum[k - 1] + dl);
+    }
+    return { m, bodies, cum, ok };
   }
   // the date on which the sun occupies the moon's spot on the ecliptic
   function sunDateFor(lam) {
@@ -468,6 +494,10 @@ a { color: var(--moon-ink); }
   }
 
   // ---------- 2. looking east at moonrise ----------
+  // The sky as seen facing the moon's rising point. Two motions are at work and the panel keeps them
+  // apart: the dashed ecliptic carries the moon about 13° east a day, which is why each night's moon
+  // starts lower; the solid tracks are the diurnal circles Earth's rotation sweeps everything along,
+  // about a degree every four minutes. Winding the clock on moves every moon along its own track.
   function drawEast() {
     const { ctx, w, h } = cv.east;
     if (!w) return;
@@ -475,94 +505,205 @@ a { color: var(--moon-ink); }
     ctx.setLineDash([]);
     const small = w < 480;
     const x0 = 8, x1 = w - 8, y0 = 10, y1 = h - 10;
-    const TOP = 8, BOT = -27;
-    const perDeg = (y1 - y0) / (TOP - BOT);
-    const PY = a => y0 + (TOP - a) * perDeg;
     const handS = `500 ${small ? 17 : 19}px ${HAND}`;
     const handB = `600 ${small ? 19 : 21}px ${HAND}`;
     const uiFont = `${small ? 11 : 12}px ${UI}`;
 
-    const m = body(state.d, state.phase, state.lat);
+    const { m, bodies, cum, ok } = eastNights();
+    if (m.rise === null) {
+      ctx.fillStyle = C.sky; ctx.fillRect(x0, y0, x1 - x0, (y0 + y1) / 2 - y0);
+      ctx.fillStyle = C.ground; ctx.fillRect(x0, (y0 + y1) / 2, x1 - x0, y1 - (y0 + y1) / 2);
+      text(ctx, m.H0 === null && m.up === 24 ? 'the moon never sets today' : 'the moon never rises today',
+        (x0 + x1) / 2, (y0 + y1) / 2 - 10, { font: handB, color: C.muted, align: 'center', base: 'middle', halo: false });
+      return;
+    }
+    const lead = state.lead;
+    const anim = ok ? state.anim : null;
+    const az0 = altaz(state.lat, m.dec, -m.H0).az;
+    const dAz = az => ((az - az0 + 540) % 360) - 180;
+    // where night k's moon stands when the clock is L minutes on from tonight's moonrise
+    const posOf = (k, L) => {
+      const b = bodies[k];
+      const p = altaz(state.lat, b.dec, hourAngle(m.rise + L / 60, b.ras, b.ram));
+      return [dAz(p.az), p.alt];
+    };
+
+    // one window wide enough for the whole sequence, so stepping never rescales the picture
+    let hiA = 4, loA = -4, hiX = 3, loX = -3;
+    cum.forEach(L => bodies.forEach((_, k) => {
+      const [px, py] = posOf(k, L);
+      hiA = Math.max(hiA, py); loA = Math.min(loA, py); hiX = Math.max(hiX, px); loX = Math.min(loX, px);
+    }));
+    let TOP = Math.max(7, hiA + 4), BOT = Math.min(-9, loA - 4);
+    if (TOP - BOT < 26) { const pad2 = (26 - (TOP - BOT)) / 2; TOP += pad2; BOT -= pad2; }
+    const perDeg = Math.min((y1 - y0) / (TOP - BOT), (x1 - x0) / Math.max(24, hiX - loX + 12));
+    const midA = (TOP + BOT) / 2, midX = (hiX + loX) / 2;
+    const PY = a => (y0 + y1) / 2 - (a - midA) * perDeg;
+    const PX = d => (x0 + x1) / 2 + (d - midX) * perDeg;
+
     ctx.fillStyle = C.sky; ctx.fillRect(x0, y0, x1 - x0, PY(0) - y0);
     ctx.fillStyle = C.ground; ctx.fillRect(x0, PY(0), x1 - x0, y1 - PY(0));
     ctx.strokeStyle = C.horizon; ctx.lineWidth = 2.25;
     line(ctx, x0, PY(0), x1, PY(0));
 
-    if (m.rise === null) {
-      text(ctx, m.H0 === null && m.up === 24 ? 'the moon never sets today' : 'the moon never rises today',
-        (x0 + x1) / 2, PY(-4), { font: handB, color: C.muted, align: 'center', base: 'middle', halo: false });
-      return;
+    // Where the flying moon is during stage 1. It runs a whole day round its diurnal circle, so it
+    // leaves the frame climbing and comes back in from below — by which time it is a day older and
+    // belongs to the next night's track. The time it spends out of sight is skipped through quickly.
+    const outside = (px, py) => {
+      const X = PX(px), Y = PY(py);
+      return X < x0 - 14 || X > x1 + 14 || Y < y0 - 14 || Y > y1 + 14;
+    };
+    function flight(a, prog) {
+      const base = a.cum[a.from];
+      let A = 0.3, B = 0.7;
+      for (let L = 8; L <= 760; L += 6) if (outside(...posOf(a.from, base + L))) { A = Math.min(0.32, (L + 18) / 1440); break; }
+      for (let L = 8; L <= 760; L += 6) if (outside(...posOf(a.to, base + 1440 - L))) { B = Math.max(0.68, 1 - (L + 18) / 1440); break; }
+      if (B <= A + 0.1) { A = 0.3; B = 0.7; }
+      // steady while it can be seen, with the long way round the far side skipped through
+      let u;
+      if (prog < 0.33) u = A * prog / 0.33;
+      else if (prog < 0.45) u = A + (B - A) * (prog - 0.33) / 0.12;
+      else u = B + (1 - B) * (prog - 0.45) / 0.55;
+      return { u, k: u < 0.5 ? a.from : a.to, L: base + u * 1440 };
     }
+    const fly = anim && anim.stage === 1 ? flight(anim, anim.p) : null;
+    // which track is the live one: the moon being brought up, or the one it is becoming
+    const boldK = anim ? (anim.stage === 2 ? anim.to : fly.k) : state.step;
 
-    const az0 = altaz(state.lat, m.dec, -m.H0).az;
-    const dAz = az => ((az - az0 + 540) % 360) - 180;
-
-    // next three nights at the same clock time
-    const nights = [];
-    for (let k = 1; k <= 3; k++) {
-      const b = body(state.d + k, state.phase + SYN * k, state.lat);
-      const p = altaz(state.lat, b.dec, hourAngle(m.rise, b.ras, b.ram));
-      let cum = 0, ok = true;
-      for (let j = 0; j < k; j++) {
-        const dl = nightDelay(state.d + j, state.phase + SYN * j, state.lat);
-        if (dl === null) { ok = false; break; }
-        cum += dl;
-      }
-      nights.push({ alt: p.alt, dAz: dAz(p.az), cum, ok });
-    }
-    const lean = nights.length && nights[0].dAz < 0 ? -1 : 1;
-    const need = Math.max(...nights.map(n => Math.abs(n.dAz))) * perDeg + 26;
-    const cxm = lean > 0 ? Math.max(x0 + 24, x1 - 20 - need) : Math.min(x1 - 24, x0 + 20 + need);
-    const PX = deg => cxm + deg * perDeg;
-
-    // the ecliptic through the moon's rising point
-    const ec = [];
-    for (let s = -25; s <= 75; s += 1) {
-      const lam = m.lm + s * DEG;
-      const p = altaz(state.lat, declOf(lam), hourAngle(m.rise, m.ras, raOf(lam)));
-      ec.push([PX(dAz(p.az)), PY(p.alt)]);
-    }
     ctx.save();
     ctx.beginPath(); ctx.rect(x0, y0, x1 - x0, y1 - y0); ctx.clip();
+
+    // the tracks Earth's rotation sweeps the moons along, over the span the steps cover
+    const L0 = Math.min(0, ...cum) - 20, L1 = Math.max(0, ...cum) + 30;
+    const trackOf = k => {
+      const pts = [];
+      for (let i = 0; i <= 48; i++) {
+        const [px, py] = posOf(k, L0 + (L1 - L0) * i / 48);
+        pts.push([PX(px), PY(py)]);
+      }
+      return pts;
+    };
+    bodies.forEach((_, k) => {
+      const t = trackOf(k);
+      ctx.save();
+      ctx.globalAlpha = k === boldK ? .9 : .3;
+      poly(ctx, t); ctx.lineWidth = k === boldK ? 1.6 : 1.2; ctx.strokeStyle = C.moon; ctx.stroke();
+      ctx.restore();
+      if (k === boldK) {
+        // an arrowhead just ahead of the live moon, so the way the sky turns is never in doubt
+        const tip = posOf(k, lead + 22), back = posOf(k, lead + 14);
+        const bx = PX(tip[0]), by = PY(tip[1]);
+        const ang = Math.atan2(by - PY(back[1]), bx - PX(back[0]));
+        ctx.save();
+        ctx.translate(bx, by); ctx.rotate(ang);
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-10, -5); ctx.lineTo(-10, 5); ctx.closePath();
+        ctx.fillStyle = C.moon; ctx.fill();
+        ctx.restore();
+        const str = small ? 'the sky turns' : 'the sky turns this way';
+        ctx.font = handS;
+        const half = ctx.measureText(str).width / 2;
+        const lx = clamp(bx + Math.sin(ang) * 30 - half - 6, x0 + 4 + half, x1 - 4 - half);
+        let ly = clamp(by - Math.cos(ang) * 30, y0 + 18, y1 - 6);
+        // never let it straddle the horizon, where neither halo colour can hide the line
+        if (Math.abs(ly - PY(0)) < 13) ly = Math.max(y0 + 18, PY(0) - 18);
+        text(ctx, str, lx, ly, { font: handS, color: C['moon-ink'], align: 'center', halo: ly > PY(0) ? 'ground' : 'sky' });
+      }
+    });
+
+    // the ecliptic, which turns with the sky and carries the later moons further down it
+    const ec = [];
+    for (let sDeg = -25; sDeg <= 75; sDeg += 1) {
+      const lam = m.lm + sDeg * DEG;
+      const p = altaz(state.lat, declOf(lam), hourAngle(m.rise + lead / 60, m.ras, raOf(lam)));
+      ec.push([PX(dAz(p.az)), PY(p.alt), p.alt]);
+    }
     poly(ctx, ec); ctx.lineWidth = 2; ctx.strokeStyle = C.ghost; ctx.setLineDash([6, 5]); ctx.stroke();
     ctx.setLineDash([]);
 
-    // the moons
-    nights.forEach(n => {
-      const x = PX(n.dAz), y = PY(n.alt);
-      moonGlyph(ctx, x, y, small ? 9 : 11, state.phase);
-      if (n.ok && x > x0 + 6 && x < x1 - 6 && y < y1 - 22) {
-        ctx.font = handS;
-        const str = `${n.cum < -0.5 ? '−' : '+'}${Math.abs(Math.round(n.cum))} min`;
-        const half = ctx.measureText(str).width / 2;
-        text(ctx, str, clamp(x, x0 + 4 + half, x1 - 4 - half), y + (small ? 20 : 24),
-          { font: handS, color: C.muted, align: 'center', halo: 'ground' });
-      }
+    // The moons, each at the same clock time on its own night — which is to say the same moon, four
+    // days running. While one is in flight its two ends are hidden or faint, so the eye follows the
+    // traveller rather than seeing it in two places at once.
+    const ghostAlpha = k => {
+      if (!anim) return 1;
+      if (k === anim.from) return anim.stage === 1 ? 0 : anim.q;
+      if (k === anim.to) return anim.stage === 1 ? .22 : 1;
+      return 1;
+    };
+    bodies.forEach((_, k) => {
+      const al = ghostAlpha(k);
+      if (al < .02) return;
+      const [px, py] = posOf(k, lead);
+      const x = PX(px), y = PY(py);
+      ctx.save();
+      ctx.globalAlpha = al;
+      moonGlyph(ctx, x, y, (small ? 9 : 11) * (k === boldK ? 1 : .88), state.phase + SYN * k);
+      ctx.restore();
+      if (k === 0 || !ok || al < .5) return;
+      ctx.font = handS;
+      const str = `${cum[k] < -0.5 ? '−' : '+'}${Math.abs(Math.round(cum[k]))} min`;
+      const half = ctx.measureText(str).width / 2;
+      text(ctx, str, clamp(x, x0 + 4 + half, x1 - 4 - half), clamp(y + (small ? 20 : 24), y0 + 14, y1 - 5),
+        { font: handS, color: k === boldK ? C['moon-ink'] : C.muted, align: 'center', halo: py < 0 ? 'ground' : 'sky' });
     });
-    moonGlyph(ctx, PX(0), PY(0), small ? 11 : 13, state.phase);
+
+    // the traveller itself, with a short trail so the eye can follow it
+    if (fly) {
+      const tail = [];
+      for (let i = 6; i >= 1; i--) {
+        const uu = Math.max(0, fly.u - i * 0.0022);
+        const kk = uu < 0.5 ? anim.from : anim.to;
+        const [px, py] = posOf(kk, anim.cum[anim.from] + uu * 1440);
+        tail.push([PX(px), PY(py)]);
+      }
+      const [px, py] = posOf(fly.k, fly.L);
+      const x = PX(px), y = PY(py);
+      tail.push([x, y]);
+      ctx.save();
+      ctx.globalAlpha = .35; ctx.strokeStyle = C.moon; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      poly(ctx, tail); ctx.stroke();
+      ctx.restore();
+      moonGlyph(ctx, x, y, small ? 9 : 11, state.phase + SYN * (anim.from + fly.u));
+    }
     ctx.restore();
 
-    // the ecliptic's angle to the horizon
-    const ang = eclipticAngle(state.d, state.phase, state.lat);
-    if (ang !== null) {
+    // the angle the ecliptic makes with the horizon, drawn where it crosses now
+    let ci = -1;
+    if (Math.abs(lead) < 1) for (let i = 1; i < ec.length; i++) if ((ec[i - 1][2] < 0) !== (ec[i][2] < 0)) { ci = i; break; }
+    if (ci > 0) {
+      const a = ec[Math.max(0, ci - 3)], b = ec[Math.min(ec.length - 1, ci + 3)];
+      const up = a[1] > b[1] ? [a, b] : [b, a];            // the end that climbs
+      const ang = eclipticAngle(state.d, state.phase, state.lat) || 0;
+      const dir = up[1][0] > up[0][0] ? 1 : -1;
+      const cxh = ec[ci][0] + (ec[ci - 1][0] - ec[ci][0]) * (ec[ci][2] / (ec[ci][2] - ec[ci - 1][2]));
       const rad = Math.min(46, perDeg * 6);
-      const dir = lean > 0 ? 1 : -1;
       ctx.save();
       ctx.strokeStyle = C['moon-ink']; ctx.lineWidth = 1.25;
       ctx.beginPath();
-      if (dir > 0) ctx.arc(PX(0), PY(0), rad, 0, ang * DEG);
-      else ctx.arc(PX(0), PY(0), rad, Math.PI - ang * DEG, Math.PI);
+      if (dir > 0) ctx.arc(cxh, PY(0), rad, -ang * DEG, 0);
+      else ctx.arc(cxh, PY(0), rad, Math.PI, Math.PI + ang * DEG);
       ctx.stroke();
       ctx.restore();
-      const mid = dir > 0 ? ang * DEG / 2 : Math.PI - ang * DEG / 2;
-      text(ctx, fmtDeg(ang, 0), PX(0) + Math.cos(mid) * (rad + 16), PY(0) + Math.sin(mid) * (rad + 16),
-        { font: handB, color: C['moon-ink'], align: 'center', base: 'middle', halo: 'ground' });
+      const mid = dir > 0 ? -ang * DEG / 2 : Math.PI + ang * DEG / 2;
+      text(ctx, fmtDeg(ang, 0), cxh + Math.cos(mid) * (rad + 16), PY(0) + Math.sin(mid) * (rad + 16),
+        { font: handB, color: C['moon-ink'], align: 'center', base: 'middle', halo: 'sky' });
     }
     text(ctx, 'the ecliptic', x1 - 4, y0 + 16, { font: uiFont, color: C.muted, align: 'right', halo: 'sky' });
-    // where later moons sit above the horizon (rising earlier each night), keep the label out of their way
-    const crowded = lean < 0 && nights.some(n => n.alt > 0);
-    text(ctx, `moonrise ${fmtClock(m.rise)}`, crowded ? x1 - 4 : x0 + 4, PY(0) - 8,
-      { font: handS, color: C.horizon, align: crowded ? 'right' : 'left', halo: 'sky' });
+
+    // the clock, spinning through a whole day in stage 1 and then creeping on through stage 2
+    const shown = fly ? fly.L : lead;
+    const suffix = fly ? '' : `, ${nightName(anim ? anim.to : state.step)}`;
+    text(ctx, fmtClock(m.rise + shown / 60) + suffix, x0 + 4, y0 + 20, { font: handB, color: C.ink, halo: 'sky' });
+    let line2 = '';
+    if (fly) line2 = `the sky turning — ${fmtDur(fly.u * 24)}`;
+    else if (anim) {
+      const d2 = Math.round(lead - anim.cum[anim.from]);
+      line2 = `a full turn ${d2 < 0 ? '−' : '+'} ${Math.abs(d2)} min`;
+    }
+    else if (state.step > 0 && ok) {
+      const gap = cum[state.step] - cum[state.step - 1];
+      line2 = `a full turn ${gap < 0 ? '−' : '+'} ${Math.abs(Math.round(gap))} min`;
+    }
+    if (line2) text(ctx, line2, x0 + 4, y0 + (small ? 38 : 42), { font: handS, color: C['moon-ink'], halo: 'sky' });
   }
 
   // ---------- 3. tonight's arc ----------
@@ -769,6 +910,28 @@ a { color: var(--moon-ink); }
     $('phaseOut').textContent = `${phaseName(state.phase)}, ${Math.round(state.phase)}°`;
     $('dateOut').textContent = fmtDate(state.d);
     $('latOut').textContent = fmtLat(state.lat);
+    // the step caption: the clock has gone on a whole day plus (or minus) that night's delay
+    const en = eastNights();
+    const a = state.anim;
+    const k = a ? a.to : state.step;
+    if (a && en.ok) {
+      const gap0 = en.cum[a.to] - en.cum[a.from];
+      $('stepSum').textContent = a.stage === 1
+        ? `Earth is turning once. The moon that was on the horizon is sweeping up and across the sky, round the far side, and back towards the east — and by the time it gets there it is a day older, so it comes in on the next track along.`
+        : `A full turn has not been enough: in that day the moon slid about 13° further east along the ecliptic, so it comes back ${Math.abs(Math.round(gap0))} minutes ${gap0 < 0 ? 'ahead of' : 'short of'} the horizon. That extra turning is the nightly delay.`;
+    } else if (en.m.rise === null || !en.ok) {
+      $('stepSum').textContent = 'The moon does not rise on every one of these nights here, so there is nothing to step through.';
+    } else if (k === 0) {
+      $('stepSum').textContent = `Tonight's moon is on the horizon at ${fmtClock(en.m.rise)}. The other three are below it, each about 13° further east along the ecliptic, because that is how far the moon moves in a day. Step forward: that moon will ride the turning sky round for a whole day and come back as the next one along.`;
+    } else {
+      const gap = en.cum[k] - en.cum[k - 1];
+      const late = gap >= 0;
+      const which = k === 1 ? "Tomorrow's" : k === 2 ? "The second night's" : "The third night's";
+      $('stepSum').textContent = `The sky has turned ${fmtDur(24 + gap / 60)} since ${k === 1 ? "tonight's moonrise" : 'the last one'} — a full turn plus ${Math.abs(Math.round(gap))} minutes${late ? '' : ' short'}. ${which} moon is on the horizon now, at ${fmtClock(en.m.rise + en.cum[k] / 60)}, ${Math.abs(Math.round(gap))} minutes ${late ? 'later' : 'earlier'} than the night before${k === 1 ? '' : ` and ${Math.abs(Math.round(en.cum[k]))} ${en.cum[k] < 0 ? 'earlier' : 'later'} than tonight`}. Tonight's moon, meanwhile, has climbed well up its own track: that is the sky turning, not the moon moving.`;
+    }
+    $('stepNight').textContent = !a && state.step >= 3 ? 'Back to tonight' : 'Next night ▶';
+    $('stepBack').style.display = !a && state.step === 0 ? 'none' : '';
+
     const md = sunDateFor(m.lm);
     $('rSum').textContent = `A ${phaseName(state.phase)} moon on ${fmtDate(state.d)} rides where the sun rides on ${fmtDate(md)}.`;
     const where = `a ${phaseName(state.phase)} moon on ${fmtDate(state.d)} at ${fmtLat(state.lat)}`;
@@ -788,14 +951,36 @@ a { color: var(--moon-ink); }
     chipsDay.forEach(b => b.setAttribute('aria-pressed', Math.floor(state.d) === dayPreset(b.dataset.day)));
   }
 
+  const resetStep = () => { state.step = 0; state.lead = 0; state.leadTo = 0; state.anim = null; };
+  const easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(2 - 2 * t, 2) / 2;
   let raf = 0, last = 0;
   function render() { if (!raf) raf = requestAnimationFrame(frame); }
   function frame(ts) {
     raf = 0;
-    const playing = state.playNights || state.playYear;
+    const a = state.anim;
+    if (a) {
+      if (a.t0 === null) a.t0 = ts;
+      const el = ts - a.t0;
+      if (el < FLY_MS) {
+        // stage one: a whole day's turn, with the ghosts held still as the reference frame
+        a.stage = 1; a.p = el / FLY_MS; a.q = 0;
+        state.lead = a.cum[a.from];
+      } else if (el < FLY_MS + EXTRA_MS) {
+        // stage two: the extra minutes that finish the job, with the whole sky turning again
+        a.stage = 2; a.p = 1; a.q = easeInOut((el - FLY_MS) / EXTRA_MS);
+        state.lead = a.cum[a.from] + (a.cum[a.to] - a.cum[a.from]) * a.q;
+      } else {
+        state.step = a.to; state.lead = state.leadTo = a.cum[a.to]; state.anim = null;
+      }
+    }
+    const tweening = !state.anim && Math.abs(state.lead - state.leadTo) > 0.15;
+    const playing = state.playNights || state.playYear || tweening || !!state.anim;
     const dt = playing && last ? Math.min((ts - last) / 1000, 0.1) : 0;
     if (state.playNights) { state.d = (state.d + dt * 2) % 365; state.phase = (state.phase + dt * 2 * SYN) % 360; }
     if (state.playYear) state.d = (state.d + dt * 20) % 365;
+    // ease the clock towards the next moon's rising rather than jumping, so the motion reads
+    if (tweening) state.lead += (state.leadTo - state.lead) * (1 - Math.exp(-dt * 3.2));
+    else if (!state.anim) state.lead = state.leadTo;
     last = playing ? ts : 0;
     syncInputs(); updateText();
     drawSeasons(); drawEast(); drawArc(); drawLadder(); drawDelay();
@@ -807,24 +992,45 @@ a { color: var(--moon-ink); }
     const b = $(key);
     b.setAttribute('aria-pressed', on);
     b.textContent = (on ? 'Pause ' : 'Play ') + (key === 'playNights' ? 'nights' : 'year');
-    if (on) setPlay(key === 'playNights' ? 'playYear' : 'playNights', false);
+    if (on) { setPlay(key === 'playNights' ? 'playYear' : 'playNights', false); resetStep(); }
     render();
   }
+  // jump straight to a step, with no flight
+  const setStep = k => {
+    const en = eastNights();
+    state.anim = null;
+    state.step = en.m.rise === null || !en.ok ? 0 : clamp(k, 0, 3);
+    state.leadTo = en.m.rise === null || !en.ok ? 0 : en.cum[state.step];
+    render();
+  };
+  function nextNight() {
+    const en = eastNights();
+    if (en.m.rise === null || !en.ok) return;
+    // a tap part way through the last flight finishes it first
+    if (state.anim) setStep(state.anim.to);
+    if (state.step >= 3) { setStep(0); return; }
+    state.anim = { from: state.step, to: state.step + 1, cum: en.cum, t0: null, stage: 1, p: 0, q: 0 };
+    state.lead = state.leadTo = en.cum[state.step];
+    render();
+  }
+  $('stepNight').addEventListener('click', () => { setPlay('playNights', false); setPlay('playYear', false); nextNight(); });
+  $('stepBack').addEventListener('click', () => { setPlay('playNights', false); setPlay('playYear', false); setStep(0); });
   $('playNights').addEventListener('click', () => setPlay('playNights', !state.playNights));
   $('playYear').addEventListener('click', () => setPlay('playYear', !state.playYear));
 
-  inputs.date.addEventListener('input', e => { setPlay('playNights', false); setPlay('playYear', false); state.d = Number(e.target.value); render(); });
-  inputs.phase.addEventListener('input', e => { setPlay('playNights', false); state.phase = Number(e.target.value); render(); });
-  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); render(); });
-  chipsLat.forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); render(); }));
-  chipsPhase.forEach(b => b.addEventListener('click', () => { setPlay('playNights', false); state.phase = Number(b.dataset.phase); render(); }));
-  chipsDay.forEach(b => b.addEventListener('click', () => { setPlay('playNights', false); setPlay('playYear', false); state.d = dayPreset(b.dataset.day); render(); }));
+  inputs.date.addEventListener('input', e => { setPlay('playNights', false); setPlay('playYear', false); state.d = Number(e.target.value); resetStep(); render(); });
+  inputs.phase.addEventListener('input', e => { setPlay('playNights', false); state.phase = Number(e.target.value); resetStep(); render(); });
+  inputs.lat.addEventListener('input', e => { state.lat = Number(e.target.value); resetStep(); render(); });
+  chipsLat.forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); resetStep(); render(); }));
+  chipsPhase.forEach(b => b.addEventListener('click', () => { setPlay('playNights', false); state.phase = Number(b.dataset.phase); resetStep(); render(); }));
+  chipsDay.forEach(b => b.addEventListener('click', () => { setPlay('playNights', false); setPlay('playYear', false); state.d = dayPreset(b.dataset.day); resetStep(); render(); }));
 
   (el => {
     let start = null, active = false;
     const at = e => {
       const r = el.getBoundingClientRect();
       state.d = clamp((e.clientX - r.left - DELAY_PAD.L) / (r.width - DELAY_PAD.L - DELAY_PAD.R), 0, 1) * 364.99;
+      resetStep();
       render();
     };
     const stop = () => { setPlay('playNights', false); setPlay('playYear', false); };
