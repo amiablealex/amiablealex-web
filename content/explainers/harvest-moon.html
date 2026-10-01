@@ -204,11 +204,11 @@ a { color: var(--moon-ink); }
     <h2>Why the harvest moon bunches up</h2>
     <p>Each night the moon has moved about 13° further east along the ecliptic, so the sky has to turn that much further to lift it, which normally costs around fifty minutes. Two things cut the bill in September. The first is the angle: near the equinox points the ecliptic lies shallow against the eastern horizon in the evening, so those 13° run mostly sideways along the horizon rather than down beneath it. Little vertical drop means little extra rotation. The second is that the moon's declination is climbing fast there, several degrees a night, and a moon further north rises earlier for anyone in the north, which claws back more time still.</p>
     <p>Both terms scale with latitude, which is why this is a northern-harvest story rather than a tropical one. At the equator the delay sits near forty-five minutes all year. At 53° N the September full moon comes in around a quarter of an hour. Push the slider to 65° N and it reaches zero, and beyond that the moon rises <em>earlier</em> each night. Set the phase to new and the whole pattern slides to March, because what matters is where the moon is on the ecliptic, not what it's lit like. The southern hemisphere gets its harvest moon in March for the same reason, six months out of step.</p>
-    <p>The angle of the ecliptic against the horizon is the same measurement as the last piece in this set, applied to a different line: there it was the sun's daily circle cutting the horizon, here it's the moon's monthly road.</p>
+    <p>The angle of the ecliptic against the horizon is the same measurement as <a href="crossing-the-horizon.html">crossing the horizon</a>, applied to a different line: there it was the sun's daily circle cutting the horizon, here it's the moon's monthly road.</p>
     <p class="small">The rest of the set: the <a href="sliding-horizon.html">sliding horizon</a>, the <a href="sun-arc.html">sun's real arc</a>, and <a href="crossing-the-horizon.html">crossing the horizon</a>.</p>
 
     <h2>Small print</h2>
-    <p class="small">The moon here is idealised: it runs exactly along the ecliptic at a steady 13.18° a day, so the phase advances 12.19° a day and a lunation takes 29.53 days. The real moon's orbit is tilted 5.1°, which lifts or lowers its declination by up to that much and swings on an 18.6-year cycle, so real harvest moons are a little better or worse than these figures; its orbit is also elliptical, so it runs fast and slow through the month. Rise and set are geometric, for the centre of the moon, with no refraction and no parallax, both of which push real moonrise a few minutes earlier. Times are local solar time. The phase drawing assumes a northern-hemisphere view; from the south it appears flipped. Dates follow the 2026 calendar for the sun's position, and any phase can be set on any date, which in reality only happens on the dates it happens.</p>
+    <p class="small">The moon here is idealised: it runs exactly along the ecliptic at a steady 13.18° a day, so the phase advances 12.19° a day and a lunation takes 29.53 days. The real moon's orbit is tilted 5.1°, which lifts or lowers its declination by up to that much and swings on <a href="standstills.html">an 18.6-year cycle</a>, so real harvest moons are a little better or worse than these figures, and best around a major standstill; its orbit is also elliptical, so it runs fast and slow through the month. Rise and set are geometric, for the centre of the moon, with no refraction and no parallax, both of which push real moonrise a few minutes earlier. Times are local solar time. The phase drawing assumes a northern-hemisphere view; from the south it appears flipped. Dates follow the 2026 calendar for the sun's position, and any phase can be set on any date, which in reality only happens on the dates it happens.</p>
     <p class="small"><a href="index.html">All eleven visualisations</a></p>
   </section>
 </main>
@@ -263,10 +263,31 @@ a { color: var(--moon-ink); }
   }
   const hourAngle = (t, ras, ram) => (t - 12) * 15 + ras - ram;   // degrees
   const moonAlt = (m, lat, t) => altaz(lat, m.dec, hourAngle(t, m.ras, m.ram)).alt;
+  // How much later the moon rises tomorrow than tonight, in minutes. Each day's snapshot above holds
+  // the moon still for that day, which is fine for a single night but goes wrong when two snapshots
+  // are subtracted near the polar circles, where the moon skims the horizon and a few hours' motion
+  // moves its rising by a lot. So the delay is measured on a moving moon: guess the moment of
+  // rising, put the moon where it is at that moment, solve again, and repeat until it settles.
+  const clockOf = tau => (((tau + 0.5) % 1) + 1) % 1 * 24;        // tau = day + (clock − 12) / 24
+  const wrapH = h => (((h % 24) + 36) % 24) - 12;                   // hours, into −12 … +12
+  function riseNear(tau, d0, P0, lat) {
+    for (let i = 0; i < 6; i++) {
+      const b = body(tau, P0 + SYN * (tau - d0), lat);
+      if (b.rise === null) return null;
+      const step = wrapH(b.rise - clockOf(tau)) / 24;
+      tau += step;
+      if (Math.abs(step) < 1e-5) break;
+    }
+    return tau;
+  }
   function nightDelay(d, P, lat) {
     const a = body(d, P, lat).rise, b = body(d + 1, P + SYN, lat).rise;
     if (a === null || b === null) return null;
-    return (((b - a + 36) % 24) - 12) * 60;
+    const t1 = riseNear(d + (a - 12) / 24, d, P, lat);
+    if (t1 === null) return null;
+    const t2 = riseNear(t1 + 1 + wrapH(b - a) / 24, d, P, lat);
+    if (t2 === null) return null;
+    return (t2 - t1 - 1) * 1440;
   }
   // angle the ecliptic makes with the horizon where the moon rises
   function eclipticAngle(d, P, lat) {
@@ -512,7 +533,7 @@ a { color: var(--moon-ink); }
       moonGlyph(ctx, x, y, small ? 9 : 11, state.phase);
       if (n.ok && x > x0 + 6 && x < x1 - 6 && y < y1 - 22) {
         ctx.font = handS;
-        const str = `+${Math.round(n.cum)} min`;
+        const str = `${n.cum < -0.5 ? '−' : '+'}${Math.abs(Math.round(n.cum))} min`;
         const half = ctx.measureText(str).width / 2;
         text(ctx, str, clamp(x, x0 + 4 + half, x1 - 4 - half), y + (small ? 20 : 24),
           { font: handS, color: C.muted, align: 'center', halo: 'ground' });
@@ -538,7 +559,10 @@ a { color: var(--moon-ink); }
         { font: handB, color: C['moon-ink'], align: 'center', base: 'middle', halo: 'ground' });
     }
     text(ctx, 'the ecliptic', x1 - 4, y0 + 16, { font: uiFont, color: C.muted, align: 'right', halo: 'sky' });
-    text(ctx, `moonrise ${fmtClock(m.rise)}`, x0 + 4, PY(0) - 8, { font: handS, color: C.horizon, halo: 'sky' });
+    // where later moons sit above the horizon (rising earlier each night), keep the label out of their way
+    const crowded = lean < 0 && nights.some(n => n.alt > 0);
+    text(ctx, `moonrise ${fmtClock(m.rise)}`, crowded ? x1 - 4 : x0 + 4, PY(0) - 8,
+      { font: handS, color: C.horizon, align: crowded ? 'right' : 'left', halo: 'sky' });
   }
 
   // ---------- 3. tonight's arc ----------
@@ -630,17 +654,23 @@ a { color: var(--moon-ink); }
     const handS = `500 ${small ? 17 : 19}px ${HAND}`;
     const SPAN = 9;
 
+    // Each night is placed by the delay from the night before, which can be negative where the moon
+    // rises earlier each night; after a night with no rise, it is picked up from that day's own time.
     const rows = [];
-    let prev = null;
+    let prev = null, prevK = -1;
     for (let k = 0; k < N; k++) {
       const b = body(state.d + k, state.phase + SYN * k, state.lat);
       let t = b.rise;
-      if (t !== null && prev !== null) { while (t < prev) t += 24; }
-      if (t !== null) prev = t;
-      rows.push({ d: state.d + k, P: state.phase + SYN * k, t, clock: b.rise });
+      if (t !== null && prev !== null) {
+        const dl = prevK === k - 1 ? nightDelay(state.d + k - 1, state.phase + SYN * (k - 1), state.lat) : null;
+        t = dl !== null ? prev + dl / 60 : t + 24 * Math.round((prev - t) / 24);
+      }
+      if (t !== null) { prev = t; prevK = k; }
+      rows.push({ d: state.d + k, P: state.phase + SYN * k, t, clock: t === null ? null : ((t % 24) + 24) % 24 });
     }
     const first = rows.find(r => r.t !== null);
-    const T0 = (first ? first.t : 18) - 0.5;
+    // start the window at the earliest rise, which is not the first night's if it rises earlier each night
+    const T0 = (first ? Math.min(...rows.filter(r => r.t !== null).map(r => r.t)) : 18) - 0.5;
     const X = t => x0 + (t - T0) / SPAN * (x1 - x0);
     const Y = k => y0 + (k + .5) / N * (y1 - y0);
 
