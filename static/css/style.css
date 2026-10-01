@@ -83,8 +83,8 @@ a { color: var(--teal-ink); text-decoration: none; }
 
 /* ---- Header -------------------------------------------------------------- */
 .site-header {
-  display: flex; align-items: center; justify-content: flex-start;
-  flex-wrap: wrap; gap: 14px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px;
   max-width: var(--maxw); margin: 0 auto;
   padding: 22px 28px;
   border-bottom: 1px solid var(--line-soft);
@@ -94,7 +94,6 @@ a { color: var(--teal-ink); text-decoration: none; }
 }
 .wordmark-accent { color: var(--teal); }
 .site-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 22px; }
-.site-nav { margin-left: auto; }
 .site-nav > a {
   color: var(--ink-soft); font-size: 15px; padding: 8px 2px;
   display: inline-flex; align-items: center; min-height: 40px;
@@ -301,10 +300,9 @@ a { color: var(--teal-ink); text-decoration: none; }
 
 /* ---- Mobile -------------------------------------------------------------- */
 @media (max-width: 640px) {
-  .site-header { flex-direction: row; align-items: center; gap: 10px 14px; padding: 16px 20px; }
-  .wordmark { order: 1; }
-  .nav-social { order: 2; margin-left: auto; }
-  .site-nav { order: 3; width: 100%; margin-left: 0; gap: 4px 18px; }
+  .site-header { flex-direction: column; align-items: flex-start; gap: 14px; padding: 18px 20px; }
+  .site-nav { width: 100%; gap: 4px 18px; }
+  .nav-social { margin-left: auto; }
   .container { padding: 0 20px; }
   .hero { padding: 44px 0 28px; }
   .card-grid { grid-template-columns: 1fr; }
@@ -628,9 +626,11 @@ html, body { overflow-x: hidden; }
 .ex-topic-summary {
   color: var(--ink-soft); max-width: 40rem; margin: 6px 0 0; font-size: 0.95rem;
 }
-.ex-list { list-style: none; margin: 16px 0 0; padding: 0; }
+.ex-list {
+  list-style: none; margin: 16px 0 0; padding: 0;
+  border-bottom: 1px solid var(--line);
+}
 .ex-list li { border-top: 1px solid var(--line); }
-.ex-list li:last-child { border-bottom: 1px solid var(--line); }
 
 .ex-item {
   display: flex; align-items: baseline; gap: 14px;
@@ -654,4 +654,56 @@ html, body { overflow-x: hidden; }
 
 @media (max-width: 640px) {
   .ex-item { gap: 10px; }
+}
+
+/* ---- Explainers search --------------------------------------------------- */
+/* A class selector that sets `display` outranks the UA's [hidden] rule, so the
+   attribute needs backing up. Global, because it's the behaviour you'd expect. */
+[hidden] { display: none !important; }
+
+.ex-search { margin: 22px 0 4px; }
+.ex-search-field {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--ink-faint);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.ex-search-field:focus-within {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-soft);
+}
+.ex-search-field .icon { flex: none; }
+.ex-search input {
+  flex: 1 1 auto; min-width: 0;
+  -webkit-appearance: none; appearance: none;
+  border: 0; background: none; padding: 0;
+  font: inherit; color: var(--ink);
+}
+.ex-search input:focus { outline: none; }
+.ex-search input::placeholder { color: var(--ink-faint); }
+.ex-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.ex-search-clear {
+  flex: none; display: inline-flex; padding: 2px;
+  border: 0; background: none; cursor: pointer;
+  color: var(--ink-faint); border-radius: 4px;
+}
+.ex-search-clear:hover { color: var(--ink); }
+.ex-search-count {
+  margin: 8px 2px 0; min-height: 1.2em;
+  font-size: 0.85rem; color: var(--ink-faint);
+}
+.ex-snippet {
+  display: block; margin-top: 5px;
+  font-size: 0.85rem; line-height: 1.5; color: var(--ink-faint);
+}
+.ex-snippet mark {
+  background: var(--teal-soft); color: var(--ink-soft);
+  padding: 0 2px; border-radius: 2px;
+}
+.ex-empty { color: var(--ink-faint); margin-top: 20px; }
+.ex-empty .text-link {
+  border: 0; background: none; padding: 0; font: inherit; cursor: pointer;
 }
