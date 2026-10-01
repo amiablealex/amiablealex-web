@@ -210,8 +210,9 @@ a { color: var(--sun-ink); }
   const now = new Date();
   const YEAR = now.getUTCFullYear();
   const TODAY = clamp(Math.floor((Date.UTC(YEAR, now.getUTCMonth(), now.getUTCDate()) - Date.UTC(YEAR, 0, 1)) / 86400000), 0, 364);
+  // days from J2000 to 00:00 UT on 1 January (January counts as month 10 of the previous year here)
   const jan1 = y => {
-    const yy = y + 4800, mm = 10;
+    const yy = y + 4799, mm = 10;
     const JDN = 1 + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
     return JDN - 0.5 - 2451545.0;
   };
