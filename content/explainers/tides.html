@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Twice a day, and sometimes once</title>
+<title>Two tides a day, and sometimes one</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
@@ -61,12 +61,10 @@ canvas { display: block; width: 100%; touch-action: pan-y; -webkit-tap-highlight
 #system { aspect-ratio: 1 / 1; }
 #tilt { aspect-ratio: 1 / 1; }
 #day { aspect-ratio: 5 / 3; }
-#stand { aspect-ratio: 5 / 3; }
 @media (min-width: 640px) {
   #system { aspect-ratio: 16 / 10; }
   #tilt { aspect-ratio: 16 / 9; }
   #day { aspect-ratio: 16 / 6; }
-  #stand { aspect-ratio: 16 / 6; }
 }
 .readout {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
@@ -110,7 +108,7 @@ a { color: var(--sun-ink); }
 <body>
 <main>
   <header>
-    <h1>Twice a day, and sometimes once</h1>
+    <h1>Two tides a day, and sometimes one</h1>
     <p class="lede">The two bulges stand still while Earth turns underneath them, so you ride through both of them every day. That much is simple. What isn't is why high water comes fifty minutes later each day, why the two highs are rarely the same size, and why some coasts get only one.</p>
   </header>
 
@@ -150,15 +148,6 @@ a { color: var(--sun-ink); }
       </div>
     </div>
     <div class="ctl">
-      <label for="year">Year <output id="yearOut" for="year"></output></label>
-      <input type="range" id="year" min="0" max="19" step="1">
-      <div class="chips" role="group" aria-label="Standstill presets">
-        <button class="chip" id="chipMinor">Minor standstill</button>
-        <button class="chip" id="chipMajor">Major standstill</button>
-      </div>
-      <p class="hint sub">How far the moon swings either side of the equator is not the same every year. It breathes over 18.6 years, and the two extremes have names.</p>
-    </div>
-    <div class="ctl">
       <label for="lat">Where you are standing <output id="latOut" for="lat"></output></label>
       <input type="range" id="lat" min="-80" max="80" step="0.5">
       <div class="chips" role="group" aria-label="Latitude presets">
@@ -177,12 +166,6 @@ a { color: var(--sun-ink); }
   </figure>
 
   <figure class="block">
-    <h2>The eighteen-year breath</h2>
-    <p class="hint">How far north and south the moon reaches, month by month, for twenty years. The axis on the right is the latitude above which the second high water stops existing — which is simply ninety degrees minus whatever the moon is managing.</p>
-    <canvas id="stand" role="img" aria-label="The moon's peak declination over twenty years, showing the 18.6-year standstill cycle"></canvas>
-  </figure>
-
-  <figure class="block">
     <h2>A day and a night of it</h2>
     <p class="hint">Two days of the moon's equilibrium tide where you are standing. The moon runs slow against the clock, so everything drifts to the right.</p>
     <canvas id="day" role="img" aria-label="Tide height over two days"></canvas>
@@ -193,24 +176,22 @@ a { color: var(--sun-ink); }
     <p>The bulges hold still relative to the moon while Earth turns beneath them, so one rotation carries you through two of them. But the moon has moved on. It takes 24 hours 50 minutes for the moon to come back to your meridian rather than 24 hours, so successive high waters are 12 hours 25 minutes apart and the whole pattern drifts about fifty minutes later each day. That is the same fifty minutes that makes moonrise creep later each night on <a href="harvest-moon.html">the harvest moon page</a> — one fact, two consequences.</p>
 
     <h2>Why one high is bigger</h2>
-    <p>Two a day is the usual case, not the rule. The bulge axis points at the moon, and the moon spends nearly all month away from the equator: it swings about 28 degrees either side in a fortnight. So the two bulges sit one north of the equator and one south, and your circle of latitude does not cut them evenly.</p>
-    <p>The arithmetic is unusually tidy. If you stand at latitude φ and the moon's declination is δ, then when the moon is on your meridian it stands (φ − δ) from your zenith, and twelve hours later, with the moon underfoot, the far bulge's axis is (φ + δ) away. Those two angles are all that separates your two highs. At the equinoxes the moon crosses the equator, δ is nearly zero, the two angles are equal and your tides come in matched pairs. A fortnight later δ is 25 degrees and they are not.</p>
+    <p>Two a day is the usual case, not the rule. The bulge axis points at the moon, and the moon spends nearly all month away from the equator: it swings about 23 degrees either side of it, from furthest north to furthest south in a fortnight. So the two bulges sit one north of the equator and one south, and your circle of latitude does not cut them evenly.</p>
+    <p>The arithmetic is unusually tidy. If you stand at latitude φ and the moon's declination is δ, then when the moon is on your meridian it stands (φ − δ) from your zenith, and twelve hours later, with the moon underfoot, the far bulge's axis is (φ + δ) away. Those two angles are all that separates your two highs. Twice a month the moon crosses the equator, δ is nearly zero, the two angles are equal and your tides come in matched pairs. A week later δ is 23 degrees and they are not.</p>
 
     <h2>Where the second one disappears</h2>
     <p>Push the latitude towards 70 degrees with the moon well north and watch the smaller high stop being a high at all. What is left is one rise and one fall a day rather than two of each — a diurnal tide. Plenty of real coastlines do exactly this: much of the Gulf of Mexico, the South China Sea, parts of the Antarctic coast. The rest of the world mostly gets two, and a good many places get two unequal ones, which surveyors call a mixed tide and which is simply this panel with the moon a long way off the equator.</p>
-    <p>The threshold falls out of the same two angles, and it is a clean one. The second high sits at (φ + δ) from the bulge axis, and the tide's height goes as (3cos²ψ − 1)/2, which stops curving downwards — stops being a maximum there at all — the moment that angle passes ninety degrees. So the second high water survives only while latitude plus declination is under 90°: above 90° minus the moon's declination you get one tide a day. With the moon at 23 degrees that line sits at 67 degrees; over the cycle below it moves between 61 and 72. The derivation assumes the moon holds still at that declination for the day, and it does not quite — it drifts a degree or two — so on the panel the switch lands about a degree lower than the formula says.</p>
+    <p>The threshold falls out of the same two angles, and it is a clean one. The second high sits at (φ + δ) from the bulge axis, and the tide's height goes as (3cos²ψ − 1)/2, which stops curving downwards — stops being a maximum there at all — the moment that angle passes ninety degrees. So the second high water survives only while latitude plus declination is under 90°: above 90° minus the moon's declination you get one tide a day. With the moon at its furthest, 23.4 degrees, that line sits at 66.6 degrees: the Arctic Circle, and for the same reason, since the Arctic Circle is ninety degrees minus the sun's own furthest. It is also exactly the latitude beyond which a moon that far north never sets, which is no coincidence either. The second high water arrives as the moon passes beneath you, and a moon that never drops below your horizon never gets far enough beneath you to bring it. The derivation assumes the moon holds still at that declination for the day, and it does not quite — it drifts a degree or two — so on the panel the switch lands about a degree lower than the formula says.</p>
 
-    <h2>The eighteen-year breath</h2>
-    <p>Which raises the obvious question: is 28 degrees the moon's limit? It is, but only sometimes. Earth's axis is tilted 23.44 degrees, and the moon's orbit is tilted another 5.14 degrees to the ecliptic — but those two only add when the moon's orbit crosses the ecliptic at the right place. The crossing points, the nodes, slide backwards right round the ecliptic in 18.61 years, so the two tilts add at one end of that cycle and subtract at the other. The moon's reach breathes between 23.44 + 5.14 = 28.6 degrees and 23.44 − 5.14 = 18.3.</p>
-    <p>What it does not do is vary with the season. Slide the date through a year and you are watching the same swing thirteen times over; the envelope barely moves. The clock you can feel in the tides is the long one. The wide end is a major lunar standstill — the last was 2024 and 2025, which is why the Callanish stones were in the news — and the narrow end a minor one, due in the early 2030s.</p>
-    <p>The consequence is worth going to look at. That 90° − δ line sweeps from about 72° at a minor standstill down to 61° at a major one and back again. A ten-degree band of the Arctic, from roughly northern Norway to the top of Greenland, spends part of the cycle with two tides a day and part of it with one. Tromsø, at 69.6°, is inside the band. Nothing about the coast changes; the sky does.</p>
+    <h2>The real moon wanders further</h2>
+    <p>This page sets the moon on the ecliptic, the sun's own road, so it reaches 23.4 degrees either side of the equator every month of every year. The real moon's orbit is tilted another five degrees, and how far that carries it breathes over 18.6 years, from 28.6 degrees at a major lunar standstill to 18.3 at a minor one; that has <a href="standstills.html">a page of its own</a>. For tides it means the one-a-day line is not pinned to the Arctic Circle but wanders between about 61 and 72 degrees over the cycle. A band of the north from about Trondheim to the North Cape, with Iceland in the middle of it, spends part of the cycle with two tides a day and part of it with one. Tromsø, at 69.6°, is inside it. Nothing about the coast changes; the sky does.</p>
 
     <h2>What this model does not do</h2>
     <p>Everything here is the equilibrium tide: the shape the ocean would take if it were deep, global and could respond instantly. Real tides are a forced wave sloshing in basins of awkward shape, and that changes almost every number. The equilibrium range is about half a metre; the Bay of Fundy reaches sixteen because its basin happens to resonate near twelve hours. High water does not arrive when the moon is overhead but hours later, by an amount fixed for each port. And the tide does not slide around the globe as a bulge at all — it rotates around amphidromic points where the range falls to nothing and turns to nothing but a change in current. What this model gets right is the rhythm: two a day, 12 hours 25 minutes apart, drifting fifty minutes daily, and unequal by exactly as much as the moon is off the equator. Every real tide table dances to that beat and then applies its own local correction.</p>
     <p>Two other pages carry the rest of it: <a href="two-bulges.html">why there are two bulges at all</a>, and <a href="spring-neap.html">what the sun adds</a>, which is what makes the range swell and collapse fortnightly.</p>
 
     <h2>Small print</h2>
-    <p class="small">Moon positions carry the node's regression, so the standstill cycle in the twenty-year panel is the model's own output rather than something drawn on: it puts the major standstill in 2042 and the minor one in 2033, which is where they are. The threshold latitude is derived rather than fitted: for a fixed declination the second high water stops being a maximum precisely when latitude plus declination reaches 90°. The panels use the real, moving declination, so the switch happens about a degree below that line. The height is the standard equilibrium expression: the moon's mass ratio to Earth, times Earth's radius to the fourth, over the distance cubed, times (3cos²ψ − 1)/2, where ψ is the moon's angle from your zenith. The sun's term is deliberately left out on this page so the daily rhythm is not tangled up with the fortnightly one; put it back on the spring and neap page and every height here grows or shrinks by up to half as much again. Moon positions come from mean elements with the main periodic terms, good to about a minute of time. Times are local solar time. No ocean, no coastline, no lag.</p>
+    <p class="small">The moon here rides exactly on the ecliptic: its place along it and its distance are real, but its five-degree tilt is left out, so it reaches 23.44° either side of the equator every month. The real moon sits up to five degrees north or south of where it is drawn, which moves the threshold latitude about but shifts the times of high water by ten minutes at most; the tilt and its 18.6-year cycle are on <a href="standstills.html">the standstills page</a>. The threshold latitude is derived rather than fitted: for a fixed declination the second high water stops being a maximum precisely when latitude plus declination reaches 90°. The panels use the real, moving declination, so the switch happens about a degree below that line. The height is the standard equilibrium expression: the moon's mass ratio to Earth, times Earth's radius to the fourth, over the distance cubed, times (3cos²ψ − 1)/2, where ψ is the moon's angle from your zenith. The sun's term is deliberately left out on this page so the daily rhythm is not tangled up with the fortnightly one; put it back on the spring and neap page and every height here grows or shrinks by up to half as much again. Moon positions come from mean elements with the main periodic terms, good to about a minute of time. Times are local solar time. No ocean, no coastline, no lag.</p>
     <p class="small"><a href="index.html">All the visualisations</a></p>
   </section>
 </main>
@@ -229,8 +210,9 @@ a { color: var(--sun-ink); }
   const now = new Date();
   const YEAR = now.getUTCFullYear();
   const TODAY = clamp(Math.floor((Date.UTC(YEAR, now.getUTCMonth(), now.getUTCDate()) - Date.UTC(YEAR, 0, 1)) / 86400000), 0, 364);
+  // days from J2000 to 00:00 UT on 1 January (January counts as month 10 of the previous year here)
   const jan1 = y => {
-    const yy = y + 4800, mm = 10;
+    const yy = y + 4799, mm = 10;
     const JDN = 1 + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
     return JDN - 0.5 - 2451545.0;
   };
@@ -238,9 +220,8 @@ a { color: var(--sun-ink); }
 
   // The sun's share is left out here on purpose: this page is about the daily rhythm, and the
   // fortnightly swell has a page of its own.
-  const state = { d: TODAY, t: 10, lat: 53, yr: 0, play: false, playM: false };
-  const NYEARS = 20;
-  const OBLIQ = 23.44, LUNAR = 5.14;                 // the two tilts that make the swing
+  const state = { d: TODAY, t: 10, lat: 53, play: false, playM: false };
+  const OBLIQ = 23.44;                               // the moon rides the ecliptic, so this is its whole swing
 
   // ---------- sun and moon ----------
   const ME = 5.9722e24, RE = 6371.0, MM = 7.342e22, MS = 1.98847e30;
@@ -261,7 +242,9 @@ a { color: var(--sun-ink); }
     const F = 93.2720950 + 483202.0175233 * T;
     const lonM = Lp + 6.289 * sind(Mp) + 1.274 * sind(2 * D - Mp) + 0.658 * sind(2 * D)
       + 0.214 * sind(2 * Mp) - 0.186 * sind(M) - 0.114 * sind(2 * F);
-    const latM = 5.128 * sind(F) + 0.2806 * sind(Mp + F) + 0.2777 * sind(Mp - F) + 0.1732 * sind(2 * D - F);
+    // The moon is set on the ecliptic. Its own five-degree tilt, and the 18.6-year swing that
+    // comes with it, have a page of their own.
+    const latM = 0;
     const rM = 385000.56 - 20905.355 * cosd(Mp) - 3699.111 * cosd(2 * D - Mp)
       - 2955.968 * cosd(2 * D) - 569.925 * cosd(2 * Mp);
     const lonS = 280.4665 + 36000.7698 * T + 1.915 * sind(M) + 0.020 * sind(2 * M);
@@ -284,7 +267,7 @@ a { color: var(--sun-ink); }
     const m = (MM / ME) * Math.pow(RE, 4) / Math.pow(s.moon.r, 3) * (3 * c * c - 1) / 2 * 1000;
     return { total: m, moon: m, s, H };
   }
-  const dayAt = d => jan1(YEAR + state.yr) + d;
+  const dayAt = d => T0 + d;
   const curve = (d, lat, hours, step) => {
     const out = [];
     const dh = step || 1 / 12;
@@ -306,34 +289,8 @@ a { color: var(--sun-ink); }
   })();
   const dayData = () => memo('day', `${Math.floor(state.d)}|${state.lat}`,
     () => curve(Math.floor(state.d), state.lat, 48));
-  // How far the moon is reaching this month. It is 23.44 plus or minus 5.14 depending on where
-  // the orbit's nodes have got to, and they go right round in 18.61 years.
-  const decLimit = () => memo('lim', `${state.yr}|${Math.floor(state.d / 20)}`, () => {
-    let mx = 0;
-    const c = Math.floor(state.d / 20) * 20;
-    for (let d = c - 14; d <= c + 28; d += 0.25) mx = Math.max(mx, Math.abs(sky(dayAt(d)).moon.dec));
-    return mx;
-  });
   // the latitude above which the second high water is not a high water at all
   const critLat = dec => 90 - Math.abs(dec);
-  // the whole cycle, one point per month, worked out once
-  const standData = () => memo('stand', 'x', () => {
-    const out = [];
-    const base = jan1(YEAR);
-    for (let k = 0; k < NYEARS * 12; k++) {
-      const d0 = k * 30.44;
-      let mx = 0;
-      for (let d = d0; d < d0 + 30.44; d += 0.5) mx = Math.max(mx, Math.abs(sky(base + d).moon.dec));
-      out.push({ k, y: YEAR + k / 12, dec: mx });
-    }
-    return out;
-  });
-  const standExtreme = kind => {
-    const rows = standData();
-    let best = rows[0];
-    for (const r of rows) if (kind === 'max' ? r.dec > best.dec : r.dec < best.dec) best = r;
-    return best;
-  };
   // the next time the moon's declination does something worth looking at
   function findDec(want, fromD) {
     let best = fromD, score = 1e9;
@@ -353,7 +310,7 @@ a { color: var(--sun-ink); }
     const cs = getComputedStyle(document.documentElement);
     TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--' + k).trim(); });
   }
-  const els = { system: $('system'), tilt: $('tilt'), stand: $('stand'), day: $('day') };
+  const els = { system: $('system'), tilt: $('tilt'), day: $('day') };
   const cv = {};
   Object.entries(els).forEach(([k, el]) => { cv[k] = { el, ctx: el.getContext('2d'), w: 0, h: 0 }; });
   function fit(c) {
@@ -532,21 +489,19 @@ a { color: var(--sun-ink); }
     ctx.fillStyle = C.land; ctx.fill();
     ctx.strokeStyle = C.ink; ctx.lineWidth = 1.2; ctx.stroke();
 
-    // how far the moon can reach this year, and how much of that is which tilt
-    const lim = decLimit(), rw = R * 1.55;
+    // the band the moon swings through each month, riding the ecliptic
+    const rw = R * 1.55;
     ctx.save();
     ctx.globalAlpha = .16; ctx.fillStyle = C.moon;
     ctx.beginPath(); ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, rw, -lim * DEG, lim * DEG); ctx.closePath(); ctx.fill();
+    ctx.arc(cx, cy, rw, -OBLIQ * DEG, OBLIQ * DEG); ctx.closePath(); ctx.fill();
     ctx.restore();
     ctx.save();
-    ctx.setLineDash([2, 4]); ctx.strokeStyle = C.sun; ctx.lineWidth = 1.2; ctx.globalAlpha = .85;
+    ctx.setLineDash([2, 4]); ctx.strokeStyle = C.moon; ctx.lineWidth = 1.2; ctx.globalAlpha = .85;
     [OBLIQ, -OBLIQ].forEach(a => line(ctx, cx, cy, cx + rw * cosd(a), cy - rw * sind(a)));
     ctx.restore();
     if (!small) {
-      text(ctx, `the ecliptic, ±${OBLIQ}°`, cx + rw * cosd(OBLIQ) + 4, cy - rw * sind(OBLIQ) - 2,
-        { font: uiFont, color: C['sun-ink'], halo: true });
-      text(ctx, `the moon can reach ±${lim.toFixed(1)}°`, cx + rw * cosd(lim) + 4, cy - rw * sind(lim) - 14,
+      text(ctx, `the moon's monthly swing, ±${OBLIQ}°`, cx + rw * cosd(OBLIQ) + 4, cy - rw * sind(OBLIQ) - 2,
         { font: uiFont, color: C['moon-ink'], halo: true });
     }
 
@@ -618,82 +573,7 @@ a { color: var(--sun-ink); }
   }
 
 
-  // ---------- 3. the eighteen-year breath ----------
-  // The nodes of the moon's orbit slide backwards round the ecliptic in 18.61 years, so the
-  // 5.14° of orbital tilt adds to Earth's 23.44° at one end of that and subtracts at the other.
-  const S_PAD = { L: 40, R: 52, T: 20, B: 26 };
-  function drawStand() {
-    const { ctx, w, h } = cv.stand;
-    if (!w) return;
-    const small = w < 480;
-    ctx.clearRect(0, 0, w, h);
-    const font = `${small ? 10 : 12}px ${UI}`;
-    const handS = `500 ${small ? 16 : 18}px ${HAND}`;
-    const x0 = S_PAD.L, x1 = w - S_PAD.R, y0 = S_PAD.T, y1 = h - S_PAD.B;
-    const rows = standData();
-    const LO = 16, HI = 31;
-    const X = k => x0 + k / (rows.length - 1) * (x1 - x0);
-    const Y = v => y1 - (v - LO) / (HI - LO) * (y1 - y0);
-
-    ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
-    ctx.lineWidth = 1;
-    for (let v = 18; v <= HI; v += 2) {
-      ctx.strokeStyle = C.rule;
-      line(ctx, x0, Y(v), x1, Y(v));
-      text(ctx, `${v}°`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
-      text(ctx, `${90 - v}°`, x1 + 5, Y(v), { font, color: C.pull, align: 'left', base: 'middle' });
-    }
-    // where the two tilts sit on their own
-    ctx.save();
-    ctx.setLineDash([2, 4]); ctx.strokeStyle = C.sun; ctx.lineWidth = 1.2;
-    line(ctx, x0, Y(OBLIQ), x1, Y(OBLIQ));
-    ctx.restore();
-    text(ctx, small ? 'axial tilt' : "Earth's axial tilt alone, 23.44°", x0 + 6, Y(OBLIQ) - 5,
-      { font, color: C['sun-ink'], halo: C.surface });
-
-    for (let y = 0; y <= NYEARS; y += NYEARS > 12 ? 4 : 2) {
-      const xx = X(y * 12);
-      if (xx > x1) continue;
-      ctx.strokeStyle = C.rule; ctx.globalAlpha = .7;
-      line(ctx, xx, y0, xx, y1);
-      ctx.globalAlpha = 1;
-      text(ctx, String(YEAR + y), xx, h - 8, { font, color: C.muted, align: 'center' });
-    }
-
-    poly(ctx, rows.map(r => [X(r.k), Y(r.dec)]));
-    ctx.lineTo(X(rows.length - 1), y1); ctx.lineTo(X(0), y1); ctx.closePath();
-    ctx.fillStyle = C['moon-dark']; ctx.globalAlpha = .25; ctx.fill(); ctx.globalAlpha = 1;
-    poly(ctx, rows.map(r => [X(r.k), Y(r.dec)]));
-    ctx.lineWidth = 2.25; ctx.strokeStyle = C.moon; ctx.lineJoin = 'round'; ctx.stroke();
-
-    [['max', 'major standstill'], ['min', 'minor standstill']].forEach(([kind, lab]) => {
-      const b = standExtreme(kind);
-      ctx.fillStyle = C['moon-ink'];
-      ctx.beginPath(); ctx.arc(X(b.k), Y(b.dec), 4, 0, 2 * Math.PI); ctx.fill();
-      text(ctx, `${lab}, ${Math.floor(b.y)}`, clamp(X(b.k), x0 + 56, x1 - 56),
-        Y(b.dec) + (kind === 'max' ? -10 : 16),
-        { font, color: C['moon-ink'], align: 'center', halo: C.surface });
-    });
-
-    // where you are, and what it costs you
-    const hereK = clamp(state.yr * 12 + state.d / 30.44, 0, rows.length - 1);
-    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
-    line(ctx, X(hereK), y0, X(hereK), y1);
-    const lim = decLimit();
-    ctx.fillStyle = C['sun-bright'];
-    ctx.beginPath(); ctx.arc(X(hereK), Y(lim), 5, 0, 2 * Math.PI); ctx.fill();
-    ctx.strokeStyle = C.sun; ctx.lineWidth = 1.5; ctx.stroke();
-
-    text(ctx, small ? 'how far the moon reaches' : 'how far the moon reaches from the equator',
-      x0 - 5, y0 - 7, { font, color: C['moon-ink'], align: 'left' });
-    text(ctx, small ? 'one tide above' : 'above this latitude, one tide a day',
-      x1 + 5, y0 - 7, { font, color: C.pull, align: 'right' });
-    text(ctx, `now: ±${lim.toFixed(1)}°, one tide a day beyond ${(90 - lim).toFixed(0)}°`,
-      clamp(X(hereK) + 8, x0 + 6, x1 - 150), y1 - 8,
-      { font: handS, color: C.ink, halo: C.surface });
-  }
-
-  // ---------- 4. a day and a night of it ----------
+  // ---------- 3. a day and a night of it ----------
   const D_PAD = { L: 44, R: 12, T: 18, B: 26 };
   function drawDay() {
     const { ctx, w, h } = cv.day;
@@ -792,9 +672,7 @@ a { color: var(--sun-ink); }
     $('rDec').textContent = `${dec >= 0 ? '+' : ''}${dec.toFixed(1)}°`;
     $('rCrit').textContent = `${critLat(dec).toFixed(1)}°`;
     $('timeOut').textContent = fmtClock(state.t);
-    $('dateOut').textContent = `${fmtDate(state.d)} ${YEAR + state.yr}`;
-    $('yearOut').textContent = `${YEAR + state.yr}${Math.abs(decLimit() - standExtreme('max').dec) < 0.3 ? ' — major standstill'
-      : Math.abs(decLimit() - standExtreme('min').dec) < 0.3 ? ' — minor standstill' : ''}`;
+    $('dateOut').textContent = `${fmtDate(state.d)} ${YEAR}`;
     $('latOut').textContent = Math.abs(state.lat) < 0.5 ? '0° (equator)' : `${Math.abs(state.lat).toFixed(0)}° ${state.lat > 0 ? 'N' : 'S'}`;
 
     const gap = Math.abs(two[0] - two[1]);
@@ -806,17 +684,15 @@ a { color: var(--sun-ink); }
 
     els.system.setAttribute('aria-label', `Earth turning under the moon's two bulges at ${fmtClock(state.t)}.`);
     els.tilt.setAttribute('aria-label', `Earth in side view: the bulge axis leans ${dec.toFixed(0)} degrees, and your latitude circle meets it unevenly.`);
-    els.stand.setAttribute('aria-label', `The moon's reach over twenty years: currently ${decLimit().toFixed(1)} degrees, so one tide a day above ${(90 - decLimit()).toFixed(0)} degrees.`);
     els.day.setAttribute('aria-label', 'Two days of tide height where you are standing.');
-    if (Number($('year').value) !== state.yr) $('year').value = state.yr;
     if (Number($('time').value) !== state.t) $('time').value = state.t;
     if (Number($('date').value) !== Math.floor(state.d)) $('date').value = Math.floor(state.d);
     if (Number($('lat').value) !== state.lat) $('lat').value = state.lat;
     document.querySelectorAll('[data-lat]').forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - Number(b.dataset.lat)) < 0.26));
   }
 
-  const DRAWERS = { system: drawSystem, tilt: drawTilt, stand: drawStand, day: drawDay };
-  const seen = { system: true, tilt: true, stand: true, day: true };
+  const DRAWERS = { system: drawSystem, tilt: drawTilt, day: drawDay };
+  const seen = { system: true, tilt: true, day: true };
   const drawOne = k => { if (cv[k].w) DRAWERS[k](); };
   const drawAll = () => Object.keys(DRAWERS).forEach(k => { if (seen[k]) drawOne(k); });
 
@@ -864,17 +740,6 @@ a { color: var(--sun-ink); }
   $('chipToday').addEventListener('click', () => { setPlay('month', false); state.d = TODAY; render(); });
   $('chipHighDec').addEventListener('click', () => { setPlay('month', false); state.d = findDec('max', state.d) % 365; render(); });
   $('chipZeroDec').addEventListener('click', () => { setPlay('month', false); state.d = findDec('zero', state.d) % 365; render(); });
-  $('year').addEventListener('input', e => { setPlay('month', false); state.yr = Number(e.target.value); render(); });
-  const goStand = kind => {
-    setPlay('month', false); setPlay('day', false);
-    const b = standExtreme(kind);
-    state.yr = clamp(Math.floor(b.k / 12), 0, NYEARS - 1);
-    state.d = clamp(Math.round((b.k % 12) * 30.44 + 15), 0, 364);
-    state.d = findDec('max', Math.max(0, state.d - 14)) % 365;
-    render();
-  };
-  $('chipMinor').addEventListener('click', () => goStand('min'));
-  $('chipMajor').addEventListener('click', () => goStand('max'));
 
   readColors();
   const ro = new ResizeObserver(() => { Object.values(cv).forEach(fit); drawAll(); });
