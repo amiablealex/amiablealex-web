@@ -128,7 +128,7 @@ a { color: var(--sun-ink); }
     <div><dt>From Earth's tilt</dt><dd id="rEarth">–</dd></div>
     <div><dt>From the moon's own tilt</dt><dd id="rMoon">–</dd></div>
     <div><dt>The two high sides are</dt><dd id="rSides">–</dd></div>
-    <div><dt>Highest moon where you are</dt><dd id="rHigh">–</dd></div>
+    <div><dt>The moon today</dt><dd id="rToday">–</dd></div>
     <div><dt>Next standstill</dt><dd id="rNext">–</dd></div>
   </dl>
   <p class="sum" id="rSum">–</p>
@@ -150,14 +150,14 @@ a { color: var(--sun-ink); }
       </div>
     </div>
     <div class="ctl">
-      <label for="lat">Where you are standing <output id="latOut" for="lat"></output></label>
-      <input type="range" id="lat" min="-80" max="80" step="0.1">
-      <div class="chips" role="group" aria-label="Latitude presets">
-        <button class="chip" data-lat="0">Equator</button>
-        <button class="chip" data-lat="53">UK 53° N</button>
-        <button class="chip" data-lat="58.2">Callanish 58° N</button>
-        <button class="chip" data-lat="69.6">Tromsø 70° N</button>
+      <label for="inc">The moon's orbit tilt <output id="incOut" for="inc"></output></label>
+      <input type="range" id="inc" min="0" max="10" step="0.1">
+      <div class="chips" role="group" aria-label="Orbit tilt presets">
+        <button class="chip" data-inc="0">None</button>
+        <button class="chip" data-inc="5.145">Real, 5.1°</button>
+        <button class="chip" data-inc="10">Double</button>
       </div>
+      <p class="hint" style="margin-top:6px">Take it to zero and the moon rides the ecliptic exactly, reaching 23.4° every month of every year with no cycle at all — which is what <a href="harvest-moon.html">the harvest moon</a> and <a href="tides.html">the tides</a> assume.</p>
     </div>
   </section>
 
@@ -172,6 +172,25 @@ a { color: var(--sun-ink); }
     <p class="hint">Your sky. The amber arcs are the sun on the longest and shortest days; the others are the moon at its highest and lowest this month, with today's moon in between. Drag sideways to walk round.</p>
     <canvas id="dome" role="img" aria-label="Sky dome comparing the moon's highest and lowest arcs with the sun's"></canvas>
   </figure>
+
+  <dl class="readout">
+    <div class="key"><dt>Moon at its highest</dt><dd id="dHigh">–</dd></div>
+    <div><dt>Moon at its lowest</dt><dd id="dLow">–</dd></div>
+    <div><dt>The midsummer sun</dt><dd id="dSun">–</dd></div>
+  </dl>
+
+  <section class="controls" aria-label="Where you are standing">
+    <div class="ctl">
+      <label for="lat">Where you are standing <output id="latOut" for="lat"></output></label>
+      <input type="range" id="lat" min="-80" max="80" step="0.1">
+      <div class="chips" role="group" aria-label="Latitude presets">
+        <button class="chip" data-lat="0">Equator</button>
+        <button class="chip" data-lat="53">UK 53° N</button>
+        <button class="chip" data-lat="58.2">Callanish 58° N</button>
+        <button class="chip" data-lat="69.6">Tromsø 70° N</button>
+      </div>
+    </div>
+  </section>
 
   <figure class="block">
     <h2>Fifty years of it</h2>
@@ -231,7 +250,7 @@ a { color: var(--sun-ink); }
 
   // ---------- the two tilts ----------
   const EPS = 23.4393;                       // Earth's axial tilt: the ecliptic against the equator
-  const INC = 5.145;                         // the moon's path against the ecliptic
+  const INC = 5.145;                         // the moon's path against the ecliptic, the real value
   const OM0 = 125.0445479, RATE = 0.0529537648;   // the ascending node, sliding backwards, degrees a day
   const nodeAt = t => n360(OM0 - RATE * t);
   // ecliptic longitude and latitude to an equatorial unit vector: x to the March point, z to the pole
@@ -243,21 +262,21 @@ a { color: var(--sun-ink); }
   const decOf = v => Math.asin(clamp(v[2], -1, 1)) / DEG;
   // The moon's path is a great circle; its pole decides everything. How far the pole sits from
   // the celestial pole is how far the path reaches from the equator.
-  function geom(om) {
-    const px = sind(om) * sind(INC), py = -cosd(om) * sind(INC), pz = cosd(INC);
+  function geom(om, inc) {
+    const px = sind(om) * sind(inc), py = -cosd(om) * sind(inc), pz = cosd(inc);
     const n = [px, py * cosd(EPS) - pz * sind(EPS), py * sind(EPS) + pz * cosd(EPS)];
     const reach = Math.acos(n[2]) / DEG;
     const hiRa = n360(Math.atan2(-n[1], -n[0]) / DEG);          // where the path is highest
     const hiEcl = eclDecAt(hiRa);                                // the ecliptic's own height there
-    return { om, n, reach, hiRa, hiEcl, share: reach - hiEcl, apart: Math.abs(wrap(om)) };
+    return { om, inc, n, reach, hiRa, hiEcl, share: reach - hiEcl, apart: Math.abs(wrap(om)), flat: inc < 0.05 };
   }
   const eclDecAt = ra => Math.atan(Math.tan(EPS * DEG) * sind(ra)) / DEG;
   const pathDecAt = (n, ra) => Math.atan(-(n[0] * cosd(ra) + n[1] * sind(ra)) / n[2]) / DEG;
-  const reachAt = t => geom(nodeAt(t)).reach;
+  const reachAt = (t, inc) => geom(nodeAt(t), inc).reach;
 
   // The moon itself: its real place along the path, from mean elements with the main terms,
   // lifted off the ecliptic by the mean circle so that it always sits on the path drawn.
-  function sky(t) {
+  function sky(t, inc) {
     const T = t / 36525;
     const Lp = 218.3164477 + 481267.88123421 * T, D = 297.8501921 + 445267.1114034 * T;
     const M = 357.5291092 + 35999.0502909 * T, Mp = 134.9633964 + 477198.8675055 * T;
@@ -266,7 +285,7 @@ a { color: var(--sun-ink); }
       + 0.214 * sind(2 * Mp) - 0.186 * sind(M) - 0.114 * sind(2 * F);
     const lonS = 280.4665 + 36000.7698 * T + 1.915 * sind(M) + 0.020 * sind(2 * M);
     const om = nodeAt(t);
-    const lat = Math.asin(sind(INC) * sind(lon - om)) / DEG;
+    const lat = Math.asin(sind(inc) * sind(lon - om)) / DEG;
     const v = eqOf(lon, lat);
     return { v, ra: raOf(v), dec: decOf(v), phase: n360(lon - lonS) };
   }
@@ -285,12 +304,12 @@ a { color: var(--sun-ink); }
   // the moment near t0 when the moon is furthest north, so the panels open on the reach itself
   function northernmost(t0) {
     let best = t0, top = -99;
-    for (let t = t0 - 14; t <= t0 + 14; t += 0.05) { const d = sky(t).dec; if (d > top) { top = d; best = t; } }
+    for (let t = t0 - 14; t <= t0 + 14; t += 0.05) { const d = sky(t, state.inc).dec; if (d > top) { top = d; best = t; } }
     return best;
   }
 
   // ---------- state ----------
-  const state = { t: TODAY, lat: 53, spin: 10, view: 208, playM: false, playC: false };
+  const state = { t: TODAY, lat: 53, inc: INC, spin: 10, view: 208, playM: false, playC: false };
 
   // ---------- formatting ----------
   const fmtDay = t => { const d = dateOf(t); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
@@ -299,12 +318,14 @@ a { color: var(--sun-ink); }
   const sgn = (v, dp) => { const r = Number(v.toFixed(dp)); return (r < 0 ? '−' : '+') + Math.abs(r).toFixed(dp); };
   const fmtLat = l => Math.abs(l) < 0.05 ? '0° (equator)' : `${Math.abs(l).toFixed(1)}° ${l > 0 ? 'N' : 'S'}`;
   const apartWords = a => a < 8 ? 'lined up' : a > 172 ? 'opposed' : Math.abs(a - 90) < 8 ? 'at right angles' : `${a.toFixed(0)}° apart`;
-  // the highest anything at a fixed declination limit gets over your head
-  const topAlt = (lat, lim) => 90 - Math.max(0, Math.abs(lat) - lim);
   const tagFor = t => {
+    if (state.inc < 0.05) return '';
     const e = EVENTS.filter(x => x.kind !== 'mid').find(x => Math.abs(x.t - t) < 150);
     return e ? ` — ${e.kind} standstill` : '';
   };
+  // how high something at declination dec climbs when it crosses your meridian
+  const culm = (lat, dec) => 90 - Math.abs(lat - dec);
+  const fmtAlt = a => a < 0 ? 'never rises' : a > 89.95 ? 'straight overhead' : `${a.toFixed(1)}°`;
 
   // ---------- canvas plumbing ----------
   const HAND = '"Caveat", "Segoe Print", "Bradley Hand", cursive';
@@ -389,7 +410,7 @@ a { color: var(--sun-ink); }
     const uiFont = `${small ? 11 : 12}px ${UI}`;
     const handS = `500 ${small ? 17 : 19}px ${HAND}`;
     const handB = `600 ${small ? 19 : 22}px ${HAND}`;
-    const g = geom(nodeAt(state.t));
+    const g = geom(nodeAt(state.t), state.inc);
     const A = state.spin * DEG, el = 22 * DEG;
     const R = Math.min(w * (small ? 0.43 : 0.42), (h - (small ? 70 : 84)) / 1.3);
     const cx = w / 2, cy = h / 2 + (small ? 6 : 8);
@@ -411,7 +432,7 @@ a { color: var(--sun-ink); }
     // the ecliptic and the moon's path
     const ecl = ring(180, l => eqOf(l, 0));
     const N = [cosd(g.om), sind(g.om), 0];
-    const Mv = [-sind(g.om) * cosd(INC), cosd(g.om) * cosd(INC), sind(INC)];
+    const Mv = [-sind(g.om) * cosd(g.inc), cosd(g.om) * cosd(g.inc), sind(g.inc)];
     const toEq = v => [v[0], v[1] * cosd(EPS) - v[2] * sind(EPS), v[1] * sind(EPS) + v[2] * cosd(EPS)];
     const path = ring(180, u => toEq([cosd(u) * N[0] + sind(u) * Mv[0], cosd(u) * N[1] + sind(u) * Mv[1], sind(u) * Mv[2]]));
     runs(ctx, ecl, p => p[2] < 0, { color: C.sun, width: 1.2, dash: [4, 4], alpha: .55 });
@@ -419,10 +440,12 @@ a { color: var(--sun-ink); }
 
     // the line of nodes: where the moon's path crosses the ecliptic
     const nA = P(eqOf(g.om, 0)), nB = P(eqOf(g.om + 180, 0));
-    ctx.save();
-    ctx.setLineDash([6, 5]); ctx.lineWidth = 1.2; ctx.strokeStyle = C.moon; ctx.globalAlpha = .55;
-    line(ctx, nA[0], nA[1], nB[0], nB[1]);
-    ctx.restore();
+    if (!g.flat) {
+      ctx.save();
+      ctx.setLineDash([6, 5]); ctx.lineWidth = 1.2; ctx.strokeStyle = C.moon; ctx.globalAlpha = .55;
+      line(ctx, nA[0], nA[1], nB[0], nB[1]);
+      ctx.restore();
+    }
 
     // Earth, with its axis aimed at the celestial pole
     const ER = Math.max(6, R * 0.05);
@@ -451,12 +474,12 @@ a { color: var(--sun-ink); }
       ctx.globalAlpha = 1;
     });
     // the nodes themselves
-    [nA, nB].forEach(p => {
+    if (!g.flat) [nA, nB].forEach(p => {
       ctx.globalAlpha = p[2] < 0 ? .6 : 1;
       dot(ctx, p[0], p[1], 4.2, C.bg, C.moon);
       ctx.globalAlpha = 1;
     });
-    if (!small) {
+    if (!small && !g.flat) {
       // label the nodes' line at its nearer end, unless a solstice label is already sitting there
       const cards = [90, 270].map(l => P(eqOf(l, 0)));
       const clash = q => cards.some(c => Math.hypot(c[0] - q[0], c[1] - q[1]) < 40);
@@ -500,7 +523,7 @@ a { color: var(--sun-ink); }
 
     // the moon, on its path
     if (!state.playC) {
-      const s = sky(state.t), mp = P(s.v);
+      const s = sky(state.t, state.inc), mp = P(s.v);
       ctx.globalAlpha = mp[2] < 0 ? .55 : 1;
       moonGlyph(ctx, mp[0], mp[1], small ? 8 : 9, s.phase);
       ctx.globalAlpha = 1;
@@ -508,9 +531,10 @@ a { color: var(--sun-ink); }
 
     // captions
     const a = g.apart;
-    text(ctx, a < 8 ? 'high sides lined up: the tilts add' : a > 172 ? 'high sides opposed: the tilts cancel'
+    text(ctx, g.flat ? 'no tilt of its own: the moon rides the ecliptic'
+      : a < 8 ? 'high sides lined up: the tilts add' : a > 172 ? 'high sides opposed: the tilts cancel'
       : Math.abs(a - 90) < 8 ? 'high sides at right angles' : `high sides ${a.toFixed(0)}° apart`,
-      10, 24, { font: handB, color: a < 8 ? C['sun-ink'] : C['moon-ink'], halo: true });
+      10, 24, { font: handB, color: !g.flat && a < 8 ? C['sun-ink'] : C['moon-ink'], halo: true });
     text(ctx, fmtShortMonth(state.t), w - 10, 24, { font: handS, color: C.muted, align: 'right', halo: true });
     text(ctx, `the moon reaches ±${g.reach.toFixed(1)}°`, w / 2, h - 10,
       { font: handB, color: g.reach > EPS + 0.3 ? C['sun-ink'] : C['moon-ink'], align: 'center', halo: true });
@@ -529,14 +553,15 @@ a { color: var(--sun-ink); }
     const handS = `500 ${small ? 16 : 18}px ${HAND}`;
     const R_PAD = small ? W_PAD.R : 52;
     const x0 = W_PAD.L, x1 = w - R_PAD, y0 = W_PAD.T, y1 = h - W_PAD.B;
-    const LIM = 33;
+    const g = geom(nodeAt(state.t), state.inc);
+    const LIM = EPS + state.inc + 4.5;
     const X = ra => x0 + ra / 360 * (x1 - x0);
     const Y = d => (y0 + y1) / 2 - d / LIM * (y1 - y0) / 2;
-    const g = geom(nodeAt(state.t));
 
     ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
     ctx.lineWidth = 1;
-    for (let v = -30; v <= 30; v += 10) {
+    for (let v = -40; v <= 40; v += 10) {
+      if (Math.abs(v) > LIM - 2) continue;
       ctx.strokeStyle = v === 0 ? C.ghost : C.rule;
       line(ctx, x0, Y(v), x1, Y(v));
       text(ctx, v === 0 ? '0°' : `${v > 0 ? '+' : '−'}${Math.abs(v)}°`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
@@ -549,13 +574,16 @@ a { color: var(--sun-ink); }
       text(ctx, lab, clamp(X(ra), x0 + 22, x1 - 22), h - 8, { font, color: C['sun-ink'], align: 'center' });
     });
     // the two ends of the swing, for reference
-    ctx.save();
-    ctx.setLineDash([1, 4]); ctx.strokeStyle = C.moon; ctx.globalAlpha = .7;
-    [28.58, 18.29, -28.58, -18.29].forEach(v => line(ctx, x0, Y(v), x1, Y(v)));
-    ctx.restore();
-    if (!small) {
-      text(ctx, 'major', x1 + 5, Y(28.58), { font, color: C['moon-ink'], base: 'middle' });
-      text(ctx, 'minor', x1 + 5, Y(18.29), { font, color: C['moon-ink'], base: 'middle' });
+    const MAJ = EPS + state.inc, MIN = EPS - state.inc;
+    if (!g.flat) {
+      ctx.save();
+      ctx.setLineDash([1, 4]); ctx.strokeStyle = C.moon; ctx.globalAlpha = .7;
+      [MAJ, MIN, -MAJ, -MIN].forEach(v => line(ctx, x0, Y(v), x1, Y(v)));
+      ctx.restore();
+      if (!small) {
+        text(ctx, 'major', x1 + 5, Y(MAJ), { font, color: C['moon-ink'], base: 'middle' });
+        text(ctx, 'minor', x1 + 5, Y(MIN), { font, color: C['moon-ink'], base: 'middle' });
+      }
     }
 
     const rows = [];
@@ -582,21 +610,23 @@ a { color: var(--sun-ink); }
     dot(ctx, X(90), Y(EPS), 3.5, C.sun);
     text(ctx, small ? "Earth's" : "Earth's tilt", X(90) + (small ? 0 : 8), Y(EPS) + (small ? 16 : 4),
       { font, color: C['sun-ink'], align: small ? 'center' : 'left', halo: C.surface });
-    dot(ctx, X(gapTop.ra), Y(gapTop.gap), 3.5, C.moon);
-    text(ctx, small ? "moon's" : "the moon's tilt", X(gapTop.ra), Y(gapTop.gap) - 9,
-      { font, color: C['moon-ink'], align: 'center', halo: C.surface });
+    if (!g.flat) {
+      dot(ctx, X(gapTop.ra), Y(gapTop.gap), 3.5, C.moon);
+      text(ctx, small ? "moon's" : "the moon's tilt", X(gapTop.ra), Y(gapTop.gap) - 9,
+        { font, color: C['moon-ink'], align: 'center', halo: C.surface });
+    }
     dot(ctx, X(g.hiRa), Y(g.reach), 4, C['moon-ink']);
     text(ctx, `+${g.reach.toFixed(1)}°`, X(g.hiRa), Y(g.reach) - 9, { font: `700 ${font}`, color: C['moon-ink'], align: 'center', halo: C.surface });
 
     // how far apart the two high sides are, the same figure the panel above gives
     const off = g.apart;
-    text(ctx, off < 8 ? 'crest on crest: they add' : off > 172 ? 'crest on trough: they cancel'
+    text(ctx, g.flat ? 'one wave only' : off < 8 ? 'crest on crest: they add' : off > 172 ? 'crest on trough: they cancel'
       : Math.abs(off - 90) < 8 ? 'crests a quarter-turn apart' : `crests ${off.toFixed(0)}° apart`,
-      x0 + 2, y0 - 9, { font: handS, color: off < 8 ? C['sun-ink'] : off > 172 ? C['moon-ink'] : C.muted });
+      x0 + 2, y0 - 9, { font: handS, color: !g.flat && off < 8 ? C['sun-ink'] : off > 172 ? C['moon-ink'] : C.muted });
 
     // the moon, riding the sum
     if (!state.playC) {
-      const s = sky(state.t);
+      const s = sky(state.t, state.inc);
       moonGlyph(ctx, X(s.ra), Y(s.dec), small ? 6 : 7, s.phase);
     }
   }
@@ -656,7 +686,7 @@ a { color: var(--sun-ink); }
     // arcs: one day's path across the sky at a given declination
     const arcOf = dec => { const a = []; for (let i = 0; i <= 180; i++) { const v = skyVec(state.lat, dec, -180 + 2 * i); const p = P(v); a.push([p[0], p[1], p[2], v[2]]); } return a; };
     const up = p => p[3] > 0;
-    const g = geom(nodeAt(state.t)), lim = g.reach;
+    const g = geom(nodeAt(state.t), state.inc), lim = g.reach;
     const north = state.lat >= 0 ? 1 : -1;
     [EPS, -EPS].forEach(d => {
       const a = arcOf(d);
@@ -682,7 +712,7 @@ a { color: var(--sun-ink); }
 
     // today's moon, somewhere between its two extremes
     if (!state.playC) {
-      const s = sky(state.t);
+      const s = sky(state.t, state.inc);
       const a = arcOf(s.dec);
       runs(ctx, a, p => up(p), { color: C.moon, width: 1.3, dash: [2, 3], alpha: .9 });
       const top = P(skyVec(state.lat, s.dec, 0));
@@ -708,7 +738,7 @@ a { color: var(--sun-ink); }
     let cap, col = C['moon-ink'];
     if (lat >= 90 - lim) { cap = 'for days each month the moon never sets'; col = C['sun-ink']; }
     else if (lat > lim && lat > EPS) {
-      const diff = topAlt(lat, lim) - topAlt(lat, EPS);
+      const diff = culm(lat, lim) - culm(lat, EPS);
       cap = Math.abs(diff) < 0.3 ? 'the moon tops out level with the midsummer sun'
         : diff > 0 ? `the moon climbs ${diff.toFixed(1)}° higher than the sun ever does`
           : `the moon tops out ${(-diff).toFixed(1)}° below the midsummer sun`;
@@ -727,11 +757,16 @@ a { color: var(--sun-ink); }
 
   // ---------- 4. fifty years ----------
   const S_PAD = { L: 38, R: 12, T: 22, B: 26 };
-  const standRows = (() => {
-    const out = [];
-    for (let t = T_START; t <= T_END; t += 15) out.push({ t, r: reachAt(t) });
-    return out;
-  })();
+  // one point a fortnight, worked out again only when the tilt changes
+  let standCache = { inc: null, rows: [] };
+  function standRows(inc) {
+    if (standCache.inc !== inc) {
+      const out = [];
+      for (let t = T_START; t <= T_END; t += 15) out.push({ t, r: reachAt(t, inc) });
+      standCache = { inc, rows: out };
+    }
+    return standCache.rows;
+  }
   function drawStand() {
     const { ctx, w, h } = cv.stand;
     if (!w) return;
@@ -740,13 +775,16 @@ a { color: var(--sun-ink); }
     const font = `${small ? 10 : 12}px ${UI}`;
     const handS = `500 ${small ? 16 : 18}px ${HAND}`;
     const x0 = S_PAD.L, x1 = w - S_PAD.R, y0 = S_PAD.T, y1 = h - S_PAD.B;
-    const LO = 16, HI = 31;
+    const inc = state.inc, flat = inc < 0.05;
+    const rows = standRows(inc);
+    const LO = Math.floor(EPS - inc - 2), HI = Math.ceil(EPS + inc + 2);
+    const step = HI - LO <= 7 ? 1 : HI - LO <= 18 ? 2 : 5;
     const X = t => x0 + (t - T_START) / (T_END - T_START) * (x1 - x0);
     const Y = v => y1 - (v - LO) / (HI - LO) * (y1 - y0);
 
     ctx.fillStyle = C.surface; ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
     ctx.lineWidth = 1;
-    for (let v = 18; v <= 30; v += 2) {
+    for (let v = Math.ceil((LO + 1) / step) * step; v < HI; v += step) {
       ctx.strokeStyle = C.rule;
       line(ctx, x0, Y(v), x1, Y(v));
       text(ctx, `${v}°`, x0 - 5, Y(v), { font, color: C.muted, align: 'right', base: 'middle' });
@@ -764,51 +802,63 @@ a { color: var(--sun-ink); }
     ctx.restore();
     text(ctx, small ? "Earth's tilt alone" : "Earth's tilt alone, 23.4°", x0 + 6, Y(EPS) - 5, { font, color: C['sun-ink'], halo: C.surface });
 
-    poly(ctx, standRows.map(r => [X(r.t), Y(r.r)]));
+    poly(ctx, rows.map(r => [X(r.t), Y(r.r)]));
     ctx.lineTo(X(T_END), y1); ctx.lineTo(X(T_START), y1); ctx.closePath();
     ctx.fillStyle = C['moon-dark']; ctx.globalAlpha = .25; ctx.fill(); ctx.globalAlpha = 1;
-    poly(ctx, standRows.map(r => [X(r.t), Y(r.r)]));
+    poly(ctx, rows.map(r => [X(r.t), Y(r.r)]));
     ctx.lineWidth = 2.25; ctx.strokeStyle = C.moon; ctx.lineJoin = 'round'; ctx.stroke();
 
-    EVENTS.filter(e => e.kind !== 'mid' && e.t > T_START && e.t < T_END).forEach(e => {
-      const r = reachAt(e.t), major = e.kind === 'major';
-      dot(ctx, X(e.t), Y(r), 4, C['moon-ink']);
-      const yr = dateOf(e.t).getUTCFullYear();
-      text(ctx, small ? String(yr) : `${e.kind}, ${yr}`, clamp(X(e.t), x0 + 30, x1 - 30), Y(r) + (major ? -9 : 17),
-        { font, color: C['moon-ink'], align: 'center', halo: C.surface });
-    });
-
-    const here = state.t, r = reachAt(here);
-    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
-    line(ctx, X(here), y0, X(here), y1);
-    dot(ctx, X(here), Y(r), 5, C['sun-bright'], C.sun);
+    // the marker for the year in view, and its label; a standstill's own label gives way to it
+    const here = state.t, r = reachAt(here, inc);
     const lab = `${fmtShortMonth(here)}: ±${r.toFixed(1)}°`;
     ctx.font = handS;
     const tw = ctx.measureText(lab).width;
     const right = X(here) + 8 + tw < x1 - 4;
-    text(ctx, lab, right ? X(here) + 8 : X(here) - 8, y0 + 16, { font: handS, color: C.ink, align: right ? 'left' : 'right', halo: C.surface });
+
+    if (!flat) EVENTS.filter(e => e.kind !== 'mid' && e.t > T_START && e.t < T_END).forEach(e => {
+      const er = reachAt(e.t, inc), major = e.kind === 'major';
+      dot(ctx, X(e.t), Y(er), 4, C['moon-ink']);
+      const dx = X(e.t) - X(here);
+      if (dx > -tw - 50 && dx < tw + 50) return;
+      const yr = dateOf(e.t).getUTCFullYear();
+      text(ctx, small ? String(yr) : `${e.kind}, ${yr}`, clamp(X(e.t), x0 + 30, x1 - 30), Y(er) + (major ? -9 : 17),
+        { font, color: C['moon-ink'], align: 'center', halo: C.surface });
+    });
+
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.25;
+    line(ctx, X(here), y0, X(here), y1);
+    dot(ctx, X(here), Y(r), 5, C['sun-bright'], C.sun);
+    text(ctx, lab, right ? X(here) + 8 : X(here) - 8, y0 + 16,
+      { font: handS, color: C.ink, align: right ? 'left' : 'right', halo: C.surface });
     text(ctx, 'how far the moon reaches from the equator', x0 - 5, y0 - 8, { font, color: C['moon-ink'] });
   }
 
   // ---------- text and inputs ----------
-  const inputs = { when: $('when'), lat: $('lat') };
+  const inputs = { when: $('when'), lat: $('lat'), inc: $('inc') };
   inputs.when.min = Math.ceil(T_START); inputs.when.max = Math.floor(T_END);
   function updateText() {
-    const g = geom(nodeAt(state.t));
+    const g = geom(nodeAt(state.t), state.inc);
     const nx = nextAfter(state.t);
     $('rReach').textContent = `±${g.reach.toFixed(1)}°`;
     $('rEarth').textContent = `${sgn(g.hiEcl, 1)}°`;
     $('rMoon').textContent = `${sgn(g.share, 1)}°`;
-    $('rSides').textContent = apartWords(g.apart);
-    const lat = Math.abs(state.lat), mh = topAlt(lat, g.reach), sh = topAlt(lat, EPS);
-    $('rHigh').textContent = mh > 89.95 ? (sh > 89.95 ? 'overhead, as is the sun' : `overhead; sun ${sh.toFixed(1)}°`)
-      : `${mh.toFixed(1)}°; sun ${sh.toFixed(1)}°`;
-    $('rNext').textContent = nx ? `${nx.kind}, ${fmtShortMonth(nx.t)}` : '–';
+    $('rSides').textContent = g.flat ? '–' : apartWords(g.apart);
+    $('rToday').textContent = `${sgn(sky(state.t, state.inc).dec, 1)}° off the equator`;
+    $('rNext').textContent = g.flat ? '–' : nx ? `${nx.kind}, ${fmtShortMonth(nx.t)}` : '–';
+
+    // what the sky does where you are standing
+    const north = state.lat >= 0 ? 1 : -1;
+    const mh = culm(state.lat, north * g.reach), ml = culm(state.lat, -north * g.reach), sh = culm(state.lat, north * EPS);
+    $('dHigh').textContent = state.lat * north + g.reach >= 90 ? 'never sets' : fmtAlt(mh);
+    $('dLow').textContent = fmtAlt(ml);
+    $('dSun').textContent = fmtAlt(sh);
 
     const yr = nx ? dateOf(nx.t).getUTCFullYear() : '';
-    const growing = reachAt(state.t + 30) > g.reach;
+    const growing = reachAt(state.t + 30, state.inc) > g.reach;
     const a = g.apart;
-    $('rSum').textContent = a < 8
+    $('rSum').textContent = g.flat
+      ? `With no tilt of its own the moon rides the ecliptic exactly, reaching 23.4° either side of the equator every month of every year. There is no 18.6-year swing, no major or minor standstill, and the moon never climbs higher than the midsummer sun. Give it back its five degrees and all of that appears.`
+      : a < 8
       ? `The moon's path is highest in the same direction as the ecliptic, so the two tilts stack: 23.4° + 5.1° = 28.6°. This is a major standstill, and every month the moon swings further either side of the equator than the sun ever goes.`
       : a > 172
         ? `The moon's path is highest in the opposite direction, so just where the ecliptic peaks at 23.4° the moon runs 5.1° below it, and it reaches only 18.3°. This is a minor standstill: every month the moon falls well short of the sun's range.`
@@ -818,12 +868,16 @@ a { color: var(--sun-ink); }
 
     $('whenOut').textContent = `${fmtDay(state.t)}${tagFor(state.t)}`;
     $('latOut').textContent = fmtLat(state.lat);
+    $('incOut').textContent = g.flat ? 'none — the moon rides the ecliptic'
+      : `${state.inc.toFixed(1)}°${Math.abs(state.inc - INC) < 0.05 ? ' (the real value)' : ''}`;
     if (Number(inputs.when.value) !== Math.round(state.t)) inputs.when.value = Math.round(state.t);
     if (Number(inputs.lat.value) !== state.lat) inputs.lat.value = state.lat;
+    if (Number(inputs.inc.value) !== state.inc) inputs.inc.value = state.inc;
     $('chipToday').setAttribute('aria-pressed', Math.abs(state.t - TODAY) < 1);
     document.querySelectorAll('[data-event]').forEach(b =>
       b.setAttribute('aria-pressed', Math.abs(nearest(b.dataset.event, TODAY).t - state.t) < 20));
     document.querySelectorAll('[data-lat]').forEach(b => b.setAttribute('aria-pressed', Math.abs(state.lat - Number(b.dataset.lat)) < 0.06));
+    document.querySelectorAll('[data-inc]').forEach(b => b.setAttribute('aria-pressed', Math.abs(state.inc - Number(b.dataset.inc)) < 0.06));
 
     els.sphere.setAttribute('aria-label', `The moon's path on the sky in ${fmtMonth(state.t)}: its high side and the ecliptic's are ${apartWords(a)}, so it reaches ${g.reach.toFixed(1)} degrees from the equator.`);
     els.waves.setAttribute('aria-label', `The ecliptic's wave and the moon's smaller wave, adding to a path that peaks at ${g.reach.toFixed(1)} degrees.`);
@@ -876,6 +930,8 @@ a { color: var(--sun-ink); }
     render();
   }));
   document.querySelectorAll('[data-lat]').forEach(b => b.addEventListener('click', () => { state.lat = Number(b.dataset.lat); render(); }));
+  inputs.inc.addEventListener('input', e => { state.inc = Number(e.target.value); render(); });
+  document.querySelectorAll('[data-inc]').forEach(b => b.addEventListener('click', () => { state.inc = Number(b.dataset.inc); render(); }));
 
   // pointer: mouse acts at once, touch waits for a tap or a sideways drag so the page still scrolls
   function drag(el, onTap, onMove, stop) {
