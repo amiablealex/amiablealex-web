@@ -23,6 +23,7 @@ import frontmatter
 import markdown
 import os
 import re
+from html import unescape as _unescape
 from flask import Flask, abort, redirect, render_template, url_for
 
 # ---------------------------------------------------------------------------
@@ -364,6 +365,40 @@ def explainers_for_project(slug):
 
 
 # ---------------------------------------------------------------------------
+# Explainer search index
+#
+# The index is the readable prose only — <script>, <style> and <svg> blocks are
+# dropped before tags are stripped, or every page would match "sun" on a CSS
+# custom property. ~12% of the file survives, small enough to embed in the index
+# page and search entirely in the browser.
+#
+# Cached per file on mtime, so editing an explainer still shows up on the next
+# request without a restart, but a page load doesn't re-parse 440 KB of HTML.
+# ---------------------------------------------------------------------------
+_EX_BLOCK_RE = re.compile(r"<(script|style|svg)\b.*?</\1>", re.S | re.I)
+_EX_TAG_RE = re.compile(r"<[^>]+>")
+_EX_WS_RE = re.compile(r"\s+")
+_ex_text_cache = {}
+
+
+def explainer_text(slug):
+    """The prose of one explainer, for searching. Cached on file mtime."""
+    path = EXPLAINERS_DIR / f"{slug}.html"
+    try:
+        stamp = path.stat().st_mtime
+    except OSError:
+        return ""
+    cached = _ex_text_cache.get(slug)
+    if cached and cached[0] == stamp:
+        return cached[1]
+
+    raw = path.read_text(encoding="utf-8")
+    text = _EX_WS_RE.sub(" ", _unescape(_EX_TAG_RE.sub(" ", _EX_BLOCK_RE.sub(" ", raw)))).strip()
+    _ex_text_cache[slug] = (stamp, text)
+    return text
+
+
+# ---------------------------------------------------------------------------
 # Explainer page wrapping
 #
 # Three splices into the file as authored, none of which touch it on disk:
@@ -496,7 +531,14 @@ def project_guide_all(slug):
 
 @app.route("/explainers")
 def explainers():
-    return render_template("explainers.html", groups=grouped_explainers())
+    groups = grouped_explainers()
+    search_index = {
+        e["slug"]: explainer_text(e["slug"])
+        for group in groups for e in group["explainers"]
+    }
+    return render_template(
+        "explainers.html", groups=groups, search_index=search_index
+    )
 
 
 @app.route("/explainers/<slug>")
