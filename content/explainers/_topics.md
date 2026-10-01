@@ -5,8 +5,9 @@
 # appears — it just shows up after the listed ones, with no summary line.
 # List order is display order.
 topics:
-  - name: The Sun
-  - name: The Moon
+  - name: The sun
+  - name: The moon
+  - name: Tides
+  - name: The planets
   - name: Light and air
-  - name: The Planets
 ---
