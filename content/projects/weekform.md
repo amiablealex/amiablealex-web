@@ -33,3 +33,5 @@ to incorporate a range of activity types into my weekly routine. Filling in the 
 
 This app took about 3 hours from idea to production deployment with careful prompts and planning with Claude Opus 5. I was very surprised and pleased with how close Opus was 
 able to match the user interface that I described. The generated output was exactly as I imagined and precisely what i described across a few detailed prompts. 
+
+![weekform calendar](/static/img/projects/weekform/calendar.png?v=1)
