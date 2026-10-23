@@ -33,6 +33,10 @@ Steps sort by filename, so the number prefix sets the order. Leave gaps of ten
 page comes from position in the list, not from the prefix — inserting `025-`
 between two steps renumbers the display correctly with no other edits.
 
+The URL follows position too, so inserting or removing a step moves every
+later step to a new `/guide/<n>` address. See SEARCH.md for what that means
+for search results.
+
 ## `_guide.md` frontmatter
 
 ```yaml

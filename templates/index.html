@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% from "_macros.html" import squiggle, project_card, icon %}
 
+{# Tells Google the site's name, so results can show "amiablealex" rather than
+   the bare domain. Home page only, by Google's rules. #}
+{% block head %}
+<script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "WebSite", "name": site.name, "url": site.url ~ "/"} | tojson }}</script>
+{% endblock %}
+
 {% block content %}
 <section class="hero reveal">
   <h1 class="hero-wordmark">amiable<span class="wordmark-accent">alex</span></h1>

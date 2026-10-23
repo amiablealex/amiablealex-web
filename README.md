@@ -21,7 +21,7 @@ amiablealex/
 │   └── sunrise-clock.md
 ├── content/guides/         # multi-step assembly guides — see GUIDES.md
 ├── content/explainers/     # self-contained interactive pages — see EXPLAINERS.md
-├── templates/              # Jinja templates
+├── templates/              # Jinja templates (sitemap.xml lives here too)
 │   ├── base.html  index.html  projects.html  project.html
 │   ├── explainers.html  _explainer_head.html  _explainer_chrome.html
 │   ├── _explainer_nav.html
@@ -96,6 +96,14 @@ Search the project for `[` to find everything that's yours to write.
 An interactive page authored elsewhere, dropped in whole. Two files in
 `content/explainers/` — the `.html` and a `.md` of metadata beside it — and it
 appears on `/explainers`, grouped by topic. Full details in **EXPLAINERS.md**.
+
+---
+
+## Search engines
+
+`/sitemap.xml` and `/robots.txt` are generated from the content folders, so new
+pages are listed the moment they're live — nothing to update by hand. The
+one-time Google Search Console and Bing setup is in **SEARCH.md**.
 
 ---
 

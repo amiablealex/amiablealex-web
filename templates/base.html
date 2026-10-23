@@ -15,9 +15,14 @@
   <meta property="og:image" content="{{ site.url }}{% block og_image %}{{ url_for('static', filename='img/og-image.png') }}{% endblock %}">
   <meta name="twitter:card" content="summary_large_image">
 
+  {# The one address search engines should credit, whatever query string or
+     host variant the page was reached by. Blanked on the 404 page. #}
+  {% block canonical %}<link rel="canonical" href="{{ site.url }}{{ request.path }}">{% endblock %}
+
   <link rel="icon" href="{{ static_url('favicon.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ static_url('css/style.css') }}">
   <link rel="stylesheet" href="{{ static_url('vendor/katex/katex.min.css') }}">
+  {% block head %}{% endblock %}
 </head>
 <body>
   {% from "_macros.html" import icon %}

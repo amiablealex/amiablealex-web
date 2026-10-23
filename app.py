@@ -12,11 +12,13 @@ step). See GUIDES.md.
 Interactive explainers live in content/explainers/ as a self-contained .html
 file plus a .md file of metadata beside it. See EXPLAINERS.md.
 
+/sitemap.xml and /robots.txt are generated from the same content. See SEARCH.md.
+
 Run locally:      flask --app app run --debug
 Run with gunicorn: gunicorn app:app --bind 127.0.0.1:8005
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import frontmatter
@@ -24,7 +26,7 @@ import markdown
 import os
 import re
 from html import unescape as _unescape
-from flask import Flask, abort, redirect, render_template, url_for
+from flask import Flask, Response, abort, redirect, render_template, url_for
 
 # ---------------------------------------------------------------------------
 # SITE CONFIG  —  edit these values. Anything in [square brackets] is a
@@ -48,6 +50,7 @@ BASE_DIR = Path(__file__).resolve().parent
 PROJECTS_DIR = BASE_DIR / "content" / "projects"
 GUIDES_DIR = BASE_DIR / "content" / "guides"
 EXPLAINERS_DIR = BASE_DIR / "content" / "explainers"
+TEMPLATES_DIR = BASE_DIR / "templates"
 
 # Heading used on /explainers for anything without a `topic:`. [ your wording ]
 EXPLAINERS_UNGROUPED = "One-offs"
@@ -99,6 +102,7 @@ def load_projects():
                 # `guide: true` uses a folder with the same name as the slug.
                 "guide": meta.get("guide"),
                 "_body": post.content,
+                "_path": path,
             }
         )
 
@@ -155,6 +159,7 @@ def load_guide(slug):
             "title": meta.get("step_title", "Tools & parts"),
             "summary": meta.get("step_summary", ""),
             "_body": intro.content,
+            "_path": intro_path,
         }
     ]
 
@@ -166,6 +171,7 @@ def load_guide(slug):
                 "title": post.metadata.get("title", path.stem),
                 "summary": post.metadata.get("summary", ""),
                 "_body": post.content,
+                "_path": path,
             }
         )
 
@@ -304,6 +310,7 @@ def load_explainers():
                 "summary": meta.get("summary", ""),
                 # Slugs of projects that should show a link to this explainer.
                 "projects": meta.get("projects") or [],
+                "_path": path,
             }
         )
 
@@ -440,6 +447,64 @@ def wrap_explainer(explainer, prev_item=None, next_item=None):
     return html
 
 
+# ---------------------------------------------------------------------------
+# Search engines
+#
+# site_pages() is the one list of every public URL, built from the same loaders
+# the pages themselves use, so a new markdown file is in /sitemap.xml the moment
+# it's on the site and a deleted one drops out. Nothing to maintain by hand.
+#
+# Each page names the files its content comes from, and its lastmod is the
+# newest of their modification times. On the Pi, a git pull only rewrites the
+# files a commit actually changed, so that's the deploy time of the last real
+# edit — which is what search engines want lastmod to mean.
+# ---------------------------------------------------------------------------
+def _lastmod(paths):
+    stamps = []
+    for path in paths:
+        try:
+            stamps.append(path.stat().st_mtime)
+        except OSError:
+            pass
+    if not stamps:
+        return None
+    return datetime.fromtimestamp(max(stamps), timezone.utc).isoformat(timespec="seconds")
+
+
+def site_pages():
+    """Every indexable page as {"path", "lastmod"}, for /sitemap.xml."""
+    pages = []
+
+    def add(endpoint, sources, **values):
+        pages.append({"path": url_for(endpoint, **values), "lastmod": _lastmod(sources)})
+
+    projects = load_projects()
+    explainers = load_explainers()
+
+    add("home", [TEMPLATES_DIR / "index.html"] + [p["_path"] for p in projects if p["featured"]])
+    add("projects", [p["_path"] for p in projects])
+    for project in projects:
+        add("project_detail", [project["_path"]], slug=project["slug"])
+        folder = guide_slug_for(project)
+        guide = load_guide(folder) if folder else None
+        if guide:
+            # /guide itself is only a redirect to step 0, so it's left out.
+            for step in guide["steps"]:
+                add("project_guide_step", [step["_path"]],
+                    slug=project["slug"], number=step["number"])
+            add("project_guide_all", [s["_path"] for s in guide["steps"]],
+                slug=project["slug"])
+
+    add("explainers", [EXPLAINERS_DIR / "_topics.md"] + [e["_path"] for e in explainers])
+    for item in explainers:
+        add("explainer_detail", [item["_path"], EXPLAINERS_DIR / f"{item['slug']}.html"],
+            slug=item["slug"])
+
+    add("about", [TEMPLATES_DIR / "about.html"])
+    add("contact", [TEMPLATES_DIR / "contact.html"])
+    return pages
+
+
 @app.context_processor
 def inject_globals():
     return {"site": SITE, "current_year": datetime.now().year}
@@ -500,7 +565,8 @@ def project_detail(slug):
 @app.route("/projects/<slug>/guide")
 def project_guide(slug):
     _guide_or_404(slug)
-    return redirect(url_for("project_guide_step", slug=slug, number=0))
+    # Permanent, so search engines credit step 0 rather than this alias.
+    return redirect(url_for("project_guide_step", slug=slug, number=0), code=301)
 
 
 @app.route("/projects/<slug>/guide/<int:number>")
@@ -562,6 +628,18 @@ def about():
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    xml = render_template("sitemap.xml", pages=site_pages())
+    return Response(xml, mimetype="application/xml")
+
+
+@app.route("/robots.txt")
+def robots():
+    body = f"User-agent: *\nAllow: /\n\nSitemap: {SITE['url']}{url_for('sitemap')}\n"
+    return Response(body, mimetype="text/plain")
 
 
 @app.errorhandler(404)
