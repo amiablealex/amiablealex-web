@@ -26,8 +26,9 @@ If you've already printed v1, this guide is for that. If you haven't started, it
 
 ## Printed parts
 
+
 | Part | Qty |
-| --- | --- | --- |
+| --- | --- |
 | 01_Gear_15T-45T_5x | 5 |
 | 02_Gear_45T_Shaft | 1 |
 | 03_Face | 1 |
@@ -55,7 +56,7 @@ If you've already printed v1, this guide is for that. If you haven't started, it
 
 - 1 × UTS IEC R6 High Torque Quartz Clock Mechanism | [Amazon](https://amzn.eu/d/03vyiZzt)
 - 1.5mm Solid Steel Rods (OD 1.5mm, 304 Stainless Steel) | [Amazon](https://amzn.eu/d/0ahsDmJ8)
-- 8mm, 6mm, 4mm Hollow Brass Tubes (concentric - ODs 8mm/6mm/4mm, wall 0.5mm, at least 70mm length) | [Amazon](https://amzn.eu/d/0aYRQiG1)
+- 7mm, 5mm, 3mm Hollow Brass Tubes (concentric - ODs 7mm/5mm/3mm, wall 0.5mm, at least 70mm length) | [Amazon](https://amzn.eu/d/0aYRQiG1)
 
 ## Tools
 
