@@ -14,6 +14,7 @@ links:
     url: "https://github.com/amiablealex/f1-predictions"
     icon: brand-github
 tech: [Python, Flask, API, PostgreSQL]          # [ add the real stack ]
+external: "https://f1.kitsniff.com"
 ---
 
 
