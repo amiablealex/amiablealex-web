@@ -5,7 +5,7 @@ accent: teal
 summary: "A social fantasy game with leagues and leaderboards."
 date: 2026-08
 featured: false
-cover: f1-predictions/cover.png
+cover: fe-fantasy/cover.png
 links:
   - label: Live
     url: "https://fefantasy.com"
