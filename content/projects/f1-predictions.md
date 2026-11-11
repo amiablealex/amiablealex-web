@@ -1,5 +1,5 @@
 ---
-title: F1 Predictions
+title: F1 Predictions Game
 category: Web app
 accent: teal
 summary: "A social predictions game with leagues and leaderboards."
