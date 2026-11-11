@@ -1,5 +1,5 @@
 ---
-title: Formula E Fantasy
+title: Formula E Fantasy Game
 category: Web app
 accent: teal
 summary: "A social fantasy game with leagues and leaderboards."
