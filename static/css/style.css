@@ -190,6 +190,10 @@ a { color: var(--teal-ink); text-decoration: none; }
 .card-title { font-size: 1.05rem; font-weight: 600; margin: 0 0 4px; }
 .card-summary { font-size: 0.9rem; color: var(--ink-faint); margin: 0 0 12px; line-height: 1.5; }
 .card-links { display: flex; gap: 13px; color: var(--ink-faint); }
+/* External cards: a quiet ↗ after the title that nudges on hover. */
+.card-out { display: inline-flex; margin-left: 5px; color: var(--ink-faint); transition: color .18s ease, transform .18s ease; }
+.card-external:hover .card-out { color: var(--teal); transform: translate(2px, -2px); }
+@media (prefers-reduced-motion: reduce) { .card-out { transition: none; } }
 
 /* ---- Category pills ------------------------------------------------------ */
 .pill {

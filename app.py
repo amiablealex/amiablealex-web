@@ -101,6 +101,9 @@ def load_projects():
                 # Optional: name of a folder under content/guides/. Setting
                 # `guide: true` uses a folder with the same name as the slug.
                 "guide": meta.get("guide"),
+                # Optional: a URL. When set, the card links straight out to it
+                # and /projects/<slug> redirects there — no write-up page here.
+                "external": str(meta.get("external") or "").strip() or None,
                 "_body": post.content,
                 "_path": path,
             }
@@ -484,7 +487,9 @@ def site_pages():
     add("home", [TEMPLATES_DIR / "index.html"] + [p["_path"] for p in projects if p["featured"]])
     add("projects", [p["_path"] for p in projects])
     for project in projects:
-        add("project_detail", [project["_path"]], slug=project["slug"])
+        # External projects have no page of their own here, only a redirect.
+        if not project["external"]:
+            add("project_detail", [project["_path"]], slug=project["slug"])
         folder = guide_slug_for(project)
         guide = load_guide(folder) if folder else None
         if guide:
@@ -547,6 +552,10 @@ def project_detail(slug):
     project = get_project(slug)
     if project is None:
         abort(404)
+    if project["external"]:
+        # Temporary (302), not permanent: browsers cache 301s hard, and a
+        # project may later get a write-up of its own here.
+        return redirect(project["external"], code=302)
     md = markdown.Markdown(extensions=MD_EXTENSIONS, extension_configs=MD_EXTENSION_CONFIGS)
     body_html = md.convert(project["_body"])
     # Only render the sidebar if there are 2+ top-level sections worth navigating.

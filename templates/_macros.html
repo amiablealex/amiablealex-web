@@ -13,6 +13,7 @@
   "mail": '<path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10"/><path d="M3 7l9 6l9 -6"/>',
   "arrow-right": '<path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/>',
   "arrow-left": '<path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/>',
+  "arrow-up-right": '<path d="M17 7l-10 10"/><path d="M8 7l9 0l0 9"/>',
   "search": '<path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/>',
   "x": '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>'
 } %}
@@ -29,8 +30,14 @@
 </svg>
 {%- endmacro %}
 
+{# A project with `external:` set links straight out to that URL instead of to
+   its own page here, and carries a small ↗ after the title to say so. #}
 {% macro project_card(p) -%}
+{% if p.external %}
+<a class="card card-external" href="{{ p.external }}" target="_blank" rel="noopener">
+{% else %}
 <a class="card" href="{{ url_for('project_detail', slug=p.slug) }}">
+{% endif %}
   <div class="card-cover">
     {% if p.cover %}
       <img src="{{ url_for('static', filename='img/projects/' ~ p.cover) }}" alt="{{ p.title }} cover" loading="lazy">
@@ -39,7 +46,7 @@
     {% endif %}
   </div>
   {% if p.category %}<span class="pill pill-{{ p.accent }}">{{ p.category }}</span>{% endif %}
-  <h3 class="card-title">{{ p.title }}</h3>
+  <h3 class="card-title">{{ p.title }}{% if p.external %}<span class="card-out">{{ icon('arrow-up-right', 15) }}</span><span class="sr-only"> (opens external site in a new tab)</span>{% endif %}</h3>
   {% if p.summary %}<p class="card-summary">{{ p.summary }}</p>{% endif %}
   {% if p.links %}
   <div class="card-links" aria-label="Project links">

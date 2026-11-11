@@ -84,10 +84,20 @@ Search the project for `[` to find everything that's yours to write.
 4. Save. The new project appears automatically — **no restart needed** in
    dev; on the Pi just `git pull` and `sudo systemctl restart amiablealex`.
 
+**Projects with their own showcase site:** add `external:` to the frontmatter
+and the card links straight out to it (new tab, with a small ↗ after the title).
+No write-up page is rendered — `/projects/<slug>` just redirects there, and the
+slug is left out of the sitemap — so the markdown body can be empty. Everything
+else (category, cover, summary, `links:` icons, `featured:`) works as normal.
+
+   ```markdown
+   external: "https://kitsniff.com"
+   ```
+
 **Pill colours (`accent:`):** `teal` (default), `clay`, `olive`, `eucalyptus`,
 `blue`, `lavender`, `mauve`, `gray`.
 **Link icons (`icon:`):** `external-link`, `brand-github`, `brand-linkedin`,
-`printer`, `file-text`, `mail`, `arrow-right`, `arrow-left`.
+`printer`, `file-text`, `mail`, `arrow-right`, `arrow-left`, `arrow-up-right`.
 
 ---
 
