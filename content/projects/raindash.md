@@ -6,11 +6,11 @@ summary: "Rain radar for a jailbroken kindle"
 date: 2026-11
 featured: false
 order: 5
-cover: sunriseclock/cover.png
+cover: raindash/cover.png
 links:
   - label: "GitHub"
     url: "https://github.com/amiablealex/raindash-kindle"
     icon: brand-github
-tech: [Fusion 360, A1 Mini, "3D printing"]
+tech: []
 external: "https://github.com/amiablealex/raindash-kindle"
 ---
