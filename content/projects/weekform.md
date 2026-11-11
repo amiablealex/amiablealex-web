@@ -14,6 +14,7 @@ links:
     url: "https://github.com/amiablealex/weekform"
     icon: brand-github
 tech: [JavaScript, Python, Flask, PostgreSQL]          # [ add the real stack ]
+external: "https://weekform.app"
 ---
 
 
