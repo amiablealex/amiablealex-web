@@ -15,6 +15,7 @@ links:
     url: "https://github.com/amiablealex/my-kitchen"
     icon: brand-github
 tech: [Python, Flask, API, Prompt Engineering, LLM]
+external: "https://my-kitchen.io"
 ---
 
 
